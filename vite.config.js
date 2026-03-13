@@ -12,6 +12,7 @@ export default defineConfig({
     },
     server: {
         port: 5173,
+        host: true,
         proxy: {
             '/api': {
                 target: process.env.VITE_API_URL || 'http://localhost:3000',
@@ -20,8 +21,18 @@ export default defineConfig({
         },
     },
     preview: {
+        port: parseInt(process.env.PORT) || 4173,
         host: '0.0.0.0',
-        port: process.env.PORT || 4173,
-        allowedHosts: 'all',
+        strictPort: false,
+        allowedHosts: [
+            'fotoweb-production.up.railway.app',
+            'fotowweb-production.up.railway.app',
+            '.railway.app',
+            'localhost',
+        ],
+    },
+    build: {
+        outDir: 'dist',
+        sourcemap: false,
     },
 })
