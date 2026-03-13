@@ -4,5 +4,7 @@ buildCommand = "npm install --include=dev && npm run build"
 
 [deploy]
 startCommand = "node server.cjs"
+healthcheckPath = "/"
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
