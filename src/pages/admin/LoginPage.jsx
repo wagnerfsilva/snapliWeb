@@ -9,8 +9,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   const [formData, setFormData] = useState({
-    email: "fotografo@gmail.com",
-    password: "%65434343",
+    email: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
