@@ -554,19 +554,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Informações adicionais */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-900">
-                <strong>Como funciona:</strong>
-              </p>
-              <ul className="text-sm text-blue-800 mt-2 space-y-1 list-disc list-inside">
-                <li>Você receberá um link de pagamento por email</li>
-                <li>
-                  Após o pagamento, as fotos ficarão disponíveis para download
-                </li>
-                <li>Downloads em alta resolução sem marca d'água</li>
-              </ul>
-            </div>
+
           </div>
         </div>
       </div>
