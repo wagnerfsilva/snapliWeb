@@ -4,33 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import Cart from "../components/Cart";
-import api from "../lib/api";
 
 export default function ResultsPage() {
   const { searchResults, uploadedImage } = useSearchStore();
   const { addPhoto, items } = useCartStore();
   const navigate = useNavigate();
-  const [eventData, setEventData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // Carrega dados do evento
-  useEffect(() => {
-    const fetchEventData = async () => {
-      if (searchResults && searchResults.length > 0) {
-        const eventId = searchResults[0].eventId;
-        try {
-          const response = await api.get(`/events/${eventId}`);
-          setEventData(response.data.data.event);
-        } catch (error) {
-          console.error("Erro ao carregar dados do evento:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchEventData();
-  }, [searchResults]);
+  // Get event data from search results (includes pricing)
+  const eventData = searchResults?.[0]?.event || null;
 
   const isPhotoInCart = (photoId) => {
     return items.some((item) => item.id === photoId);
