@@ -65,6 +65,7 @@ export const photosAPI = {
             onUploadProgress,
         }),
     getByEvent: (eventId, params) => api.get(`/photos/event/${eventId}`, { params }),
+    getGallery: (eventId, params) => api.get(`/photos/event/${eventId}/gallery`, { params }),
     getById: (id) => api.get(`/photos/${id}`),
     delete: (id) => api.delete(`/photos/${id}`),
     getDownloadUrl: (id) => api.get(`/photos/${id}/download`),

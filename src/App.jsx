@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/admin/DashboardPage";
 import AdminEvents from "./pages/admin/EventsPage";
 import AdminEventDetail from "./pages/admin/EventDetailPage";
 import AdminUpload from "./pages/admin/UploadPage";
+import AdminEventGallery from "./pages/admin/EventGalleryPage";
 
 // Layout components
 import PublicLayout from "./components/layouts/PublicLayout";
@@ -59,6 +60,7 @@ function App() {
         <Route path="events" element={<AdminEvents />} />
         <Route path="events/:id" element={<AdminEventDetail />} />
         <Route path="events/:id/upload" element={<AdminUpload />} />
+        <Route path="events/:id/photos" element={<AdminEventGallery />} />
         <Route path="upload" element={<AdminUpload />} />
       </Route>
 
