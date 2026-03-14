@@ -113,7 +113,7 @@ export default function Cart({ eventPricing }) {
                       className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                     >
                       <img
-                        src={photo.thumbnailUrl}
+                        src={photo.watermarkedUrl || photo.thumbnailUrl}
                         alt="Foto"
                         className="w-16 h-16 object-cover rounded"
                       />

@@ -517,7 +517,7 @@ export default function CheckoutPage() {
                 {items.slice(0, 8).map((photo) => (
                   <img
                     key={photo.id}
-                    src={photo.thumbnailUrl}
+                    src={photo.watermarkedUrl || photo.thumbnailUrl}
                     alt="Foto"
                     className="w-full h-16 object-cover rounded"
                   />
