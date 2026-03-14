@@ -72,48 +72,49 @@ export default function ResultsPage() {
         </div>
 
         {/* Results Grid */}
-        <div className="image-gallery">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {searchResults.map((photo) => (
             <div
               key={photo.id}
-              className="group relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+              className="group relative bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
             >
-              <div className="aspect-w-4 aspect-h-3">
+              <div className="aspect-square">
                 <img
                   src={photo.watermarkedUrl}
                   alt={photo.originalFilename}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </div>
 
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900">
+              <div className="p-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-gray-900 truncate">
                     {photo.event?.name}
                   </span>
-                  <span className="badge badge-info">
+                  <span className="badge badge-info text-[10px] px-1.5 py-0.5 ml-1 whitespace-nowrap">
                     {Math.round(photo.similarity)}% match
                   </span>
                 </div>
 
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="text-[10px] text-gray-500 mb-2">
                   {new Date(photo.event?.date).toLocaleDateString("pt-BR")}
                 </p>
 
                 {isPhotoInCart(photo.id) ? (
                   <button
                     disabled
-                    className="w-full btn btn-success btn-sm flex items-center justify-center gap-2"
+                    className="w-full btn btn-success btn-sm text-xs py-1.5 flex items-center justify-center gap-1"
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-3 w-3" />
                     No Carrinho
                   </button>
                 ) : (
                   <button
                     onClick={() => handleAddToCart(photo)}
-                    className="w-full btn btn-primary btn-sm flex items-center justify-center gap-2"
+                    className="w-full btn btn-primary btn-sm text-xs py-1.5 flex items-center justify-center gap-1"
                   >
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className="h-3 w-3" />
                     Adicionar ao Carrinho
                   </button>
                 )}
