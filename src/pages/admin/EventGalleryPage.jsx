@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Image,
   Loader2,
-  AlertCircle,
   Trash2,
   RefreshCw,
   X,
@@ -18,6 +17,7 @@ export default function EventGalleryPage() {
   const { id } = useParams();
 
   const [photos, setPhotos] = useState([]);
+  const [eventInfo, setEventInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,6 +36,7 @@ export default function EventGalleryPage() {
       if (response.data.success) {
         const data = response.data.data;
         setPhotos(data.photos || []);
+        setEventInfo(data.event || null);
         setTotalPages(data.pagination?.totalPages || 1);
         setTotal(data.pagination?.total || 0);
       }
@@ -55,9 +56,9 @@ export default function EventGalleryPage() {
       const response = await photosAPI.delete(photoId);
       if (response.data.success) {
         toast.success("Foto excluída com sucesso!");
-        setPhotos((prev) => prev.filter((p) => p._id !== photoId));
+        setPhotos((prev) => prev.filter((p) => p.id !== photoId));
         setTotal((prev) => prev - 1);
-        if (selectedPhoto?._id === photoId) setSelectedPhoto(null);
+        if (selectedPhoto?.id === photoId) setSelectedPhoto(null);
       }
     } catch (error) {
       toast.error("Erro ao excluir foto");
@@ -76,36 +77,13 @@ export default function EventGalleryPage() {
     }
   };
 
-  const getStatusBadge = (status) => {
-    const map = {
-      completed: { label: "Processada", cls: "bg-green-100 text-green-700" },
-      processing: { label: "Processando", cls: "bg-yellow-100 text-yellow-700" },
-      pending: { label: "Pendente", cls: "bg-gray-100 text-gray-700" },
-      failed: { label: "Erro", cls: "bg-red-100 text-red-700" },
-    };
-    const info = map[status] || { label: status, cls: "bg-gray-100 text-gray-700" };
-    return (
-      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${info.cls}`}>
-        {info.label}
-      </span>
-    );
-  };
-
   const navigatePhoto = (direction) => {
     if (!selectedPhoto) return;
-    const currentIndex = photos.findIndex((p) => p._id === selectedPhoto._id);
+    const currentIndex = photos.findIndex((p) => p.id === selectedPhoto.id);
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < photos.length) {
       setSelectedPhoto(photos[newIndex]);
     }
-  };
-
-  const getPhotoUrl = (photo) => {
-    return photo.thumbnailUrl || photo.watermarkedUrl || photo.originalUrl || photo.url;
-  };
-
-  const getFullPhotoUrl = (photo) => {
-    return photo.watermarkedUrl || photo.originalUrl || photo.url || photo.thumbnailUrl;
   };
 
   return (
@@ -122,7 +100,9 @@ export default function EventGalleryPage() {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Fotos do Evento</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {eventInfo ? `Fotos - ${eventInfo.name}` : "Fotos do Evento"}
+            </h1>
             <p className="text-sm text-gray-500 mt-1">
               {total} foto{total !== 1 ? "s" : ""} encontrada{total !== 1 ? "s" : ""}
             </p>
@@ -167,7 +147,7 @@ export default function EventGalleryPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {photos.map((photo) => (
               <div
-                key={photo._id}
+                key={photo.id}
                 className="group relative bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
               >
                 <div
@@ -175,42 +155,25 @@ export default function EventGalleryPage() {
                   onClick={() => setSelectedPhoto(photo)}
                 >
                   <img
-                    src={getPhotoUrl(photo)}
-                    alt={photo.originalName || "Foto"}
+                    src={photo.thumbnailUrl || photo.watermarkedUrl}
+                    alt="Foto do evento"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
                 </div>
 
-                {/* Status badge */}
-                <div className="absolute top-2 left-2">
-                  {getStatusBadge(photo.processingStatus)}
-                </div>
-
                 {/* Actions overlay */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                  {photo.processingStatus === "failed" && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRetry(photo._id);
-                      }}
-                      className="p-1.5 bg-white rounded-full shadow hover:bg-yellow-50"
-                      title="Reprocessar"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5 text-yellow-600" />
-                    </button>
-                  )}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(photo._id);
+                      handleDelete(photo.id);
                     }}
-                    disabled={isDeletingId === photo._id}
+                    disabled={isDeletingId === photo.id}
                     className="p-1.5 bg-white rounded-full shadow hover:bg-red-50"
                     title="Excluir"
                   >
-                    {isDeletingId === photo._id ? (
+                    {isDeletingId === photo.id ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin text-red-600" />
                     ) : (
                       <Trash2 className="h-3.5 w-3.5 text-red-600" />
@@ -218,10 +181,10 @@ export default function EventGalleryPage() {
                   </button>
                 </div>
 
-                {/* File name */}
+                {/* Info */}
                 <div className="p-2">
                   <p className="text-xs text-gray-500 truncate">
-                    {photo.originalName || "Sem nome"}
+                    {photo.faceCount != null ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}` : ""}
                   </p>
                 </div>
               </div>
@@ -276,7 +239,7 @@ export default function EventGalleryPage() {
             </button>
 
             {/* Previous */}
-            {photos.findIndex((p) => p._id === selectedPhoto._id) > 0 && (
+            {photos.findIndex((p) => p.id === selectedPhoto.id) > 0 && (
               <button
                 onClick={() => navigatePhoto(-1)}
                 className="absolute left-2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70"
@@ -287,13 +250,13 @@ export default function EventGalleryPage() {
 
             {/* Image */}
             <img
-              src={getFullPhotoUrl(selectedPhoto)}
-              alt={selectedPhoto.originalName || "Foto"}
+              src={selectedPhoto.watermarkedUrl || selectedPhoto.thumbnailUrl}
+              alt="Foto do evento"
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
             />
 
             {/* Next */}
-            {photos.findIndex((p) => p._id === selectedPhoto._id) <
+            {photos.findIndex((p) => p.id === selectedPhoto.id) <
               photos.length - 1 && (
               <button
                 onClick={() => navigatePhoto(1)}
@@ -305,14 +268,15 @@ export default function EventGalleryPage() {
 
             {/* Photo info */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 rounded-b-lg">
-              <p className="text-white text-sm font-medium">
-                {selectedPhoto.originalName || "Sem nome"}
-              </p>
-              <div className="flex items-center space-x-3 mt-1">
-                {getStatusBadge(selectedPhoto.processingStatus)}
-                {selectedPhoto.facesDetected !== undefined && (
+              <div className="flex items-center space-x-3">
+                {selectedPhoto.faceCount != null && (
                   <span className="text-xs text-gray-300">
-                    {selectedPhoto.facesDetected} rosto{selectedPhoto.facesDetected !== 1 ? "s" : ""} detectado{selectedPhoto.facesDetected !== 1 ? "s" : ""}
+                    {selectedPhoto.faceCount} rosto{selectedPhoto.faceCount !== 1 ? "s" : ""} detectado{selectedPhoto.faceCount !== 1 ? "s" : ""}
+                  </span>
+                )}
+                {selectedPhoto.createdAt && (
+                  <span className="text-xs text-gray-300">
+                    {new Date(selectedPhoto.createdAt).toLocaleDateString("pt-BR")}
                   </span>
                 )}
               </div>
