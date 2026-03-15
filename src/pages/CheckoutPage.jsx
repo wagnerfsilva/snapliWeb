@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const [isValidatingPayment, setIsValidatingPayment] = useState(false);
   const [copiedPixCode, setCopiedPixCode] = useState(false);
   const pollingIntervalRef = useRef(null);
+  const qrCodeRetryRef = useRef(null);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -47,8 +48,33 @@ export default function CheckoutPage() {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
+      if (qrCodeRetryRef.current) {
+        clearTimeout(qrCodeRetryRef.current);
+      }
     };
   }, []);
+
+  // Retry fetching QR code if it was not available initially
+  const retryFetchQrCode = (orderId, attempt = 1) => {
+    if (attempt > 10) return;
+    qrCodeRetryRef.current = setTimeout(async () => {
+      try {
+        const response = await api.get(`/orders/${orderId}/pix-qrcode`);
+        if (response.data?.payment?.pixQrCode) {
+          setPixData((prev) => ({
+            ...prev,
+            pixQrCode: response.data.payment.pixQrCode,
+            pixCopyPaste: response.data.payment.pixCopyPaste || prev?.pixCopyPaste,
+          }));
+        } else {
+          retryFetchQrCode(orderId, attempt + 1);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar QR Code:", error);
+        retryFetchQrCode(orderId, attempt + 1);
+      }
+    }, 2000 * attempt);
+  };
 
   // Start polling for payment validation
   const startPaymentPolling = (orderId) => {
@@ -165,6 +191,11 @@ export default function CheckoutPage() {
 
         // Start polling for payment validation
         startPaymentPolling(order.id);
+
+        // If QR code is not available yet, retry fetching it
+        if (!payment?.pixQrCode) {
+          retryFetchQrCode(order.id);
+        }
       }
     } catch (error) {
       console.error("Erro ao processar pedido:", error);
@@ -277,9 +308,10 @@ export default function CheckoutPage() {
                     className="w-64 h-64"
                   />
                 ) : (
-                  <div className="w-64 h-64 bg-gray-100 flex items-center justify-center rounded">
+                  <div className="w-64 h-64 bg-gray-100 flex flex-col items-center justify-center rounded gap-3">
+                    <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
                     <p className="text-gray-400 text-sm">
-                      QR Code indisponível
+                      Gerando QR Code...
                     </p>
                   </div>
                 )}
