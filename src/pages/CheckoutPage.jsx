@@ -298,6 +298,15 @@ export default function CheckoutPage() {
               </p>
             </div>
 
+            {/* Aviso de valor mínimo PIX */}
+            {priceInfo.totalPrice < 5 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-yellow-800">
+                  O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
+                </p>
+              </div>
+            )}
+
             {/* QR Code */}
             <div className="mb-6">
               <div className="bg-white border-2 border-gray-200 rounded-lg p-6 flex justify-center">
@@ -507,7 +516,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 className="btn btn-primary w-full flex items-center justify-center gap-2 mt-6"
-                disabled={isProcessing}
+                disabled={isProcessing || priceInfo.totalPrice < 5}
               >
                 {isProcessing ? (
                   <>
@@ -584,6 +593,14 @@ export default function CheckoutPage() {
                   R$ {priceInfo.totalPrice.toFixed(2)}
                 </span>
               </div>
+
+              {priceInfo.totalPrice < 5 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                  <p className="text-sm text-yellow-800">
+                    O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
+                  </p>
+                </div>
+              )}
             </div>
 
 
