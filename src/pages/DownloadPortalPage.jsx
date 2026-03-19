@@ -6,6 +6,7 @@ import {
   Clock,
   AlertCircle,
   ImageIcon,
+  Smartphone,
 } from "lucide-react";
 import api from "../lib/api";
 
@@ -52,14 +53,28 @@ export default function DownloadPortalPage() {
       const response = await api.get(`/downloads/${token}/photo/${photoId}`);
       const { downloadUrl } = response.data;
 
-      // Open download URL in new tab
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = filename;
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Fetch the image as a blob and create a same-origin blob URL.
+      // The download attribute on <a> tags doesn't work with cross-origin
+      // URLs on mobile browsers (especially iOS Safari).
+      try {
+        const imageResponse = await fetch(downloadUrl);
+        const blob = await imageResponse.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      } catch (fetchErr) {
+        // Fallback: open in new tab (user can long-press to save on mobile)
+        console.error("Fetch download failed, opening in new tab:", fetchErr);
+        window.open(downloadUrl, "_blank");
+      }
 
       // Update photo status
       setPhotos((prev) =>
@@ -220,7 +235,17 @@ export default function DownloadPortalPage() {
 
         {/* Photos Grid */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Suas Fotos</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Suas Fotos</h2>
+
+          {/* Mobile download tip */}
+          <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg flex items-start gap-3 md:hidden">
+            <Smartphone className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-indigo-800">
+              <strong>Dica:</strong> No celular, as fotos baixadas ficam na pasta{" "}
+              <strong>Arquivos → Downloads</strong> (iPhone) ou na{" "}
+              <strong>galeria/pasta Downloads</strong> (Android).
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {photos.map((photo) => (
