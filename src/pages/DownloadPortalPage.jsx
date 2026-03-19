@@ -47,6 +47,7 @@ export default function DownloadPortalPage() {
   };
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const handleDownload = async (photoId, filename) => {
     try {
@@ -55,34 +56,30 @@ export default function DownloadPortalPage() {
       const response = await api.get(`/downloads/${token}/photo/${photoId}`);
       const { downloadUrl } = response.data;
 
-      const imageResponse = await fetch(downloadUrl);
-      const blob = await imageResponse.blob();
-
-      // iOS Safari: use the native Share Sheet (Save Image option)
-      if (isIOS && navigator.canShare) {
-        const file = new File([blob], filename, { type: blob.type });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: filename,
-          });
-        } else {
-          // Fallback: open blob directly in browser
-          const blobUrl = URL.createObjectURL(blob);
-          window.location.href = blobUrl;
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
-        }
+      if (isMobile) {
+        // Mobile: open image URL directly in a new tab.
+        // On iOS Safari, fetch() to S3/storage fails due to CORS.
+        // Opening the URL lets the browser display the image natively,
+        // so the user can long-press → "Save to Photos" / share.
+        window.open(downloadUrl, "_blank");
       } else {
-        // Desktop / Android: blob download via <a> tag
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = filename;
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        // Desktop: fetch as blob for proper download with filename
+        try {
+          const imageResponse = await fetch(downloadUrl);
+          const blob = await imageResponse.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = filename;
+          link.style.display = "none";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        } catch {
+          // Fallback: open in new tab
+          window.open(downloadUrl, "_blank");
+        }
       }
 
       // Update photo status
@@ -99,10 +96,7 @@ export default function DownloadPortalPage() {
       );
     } catch (err) {
       console.error("Erro ao fazer download:", err);
-      // If user cancelled share sheet, don't show error
-      if (err.name !== "AbortError") {
-        alert("Erro ao fazer download. Tente novamente.");
-      }
+      alert("Erro ao fazer download. Tente novamente.");
     } finally {
       setDownloading((prev) => ({ ...prev, [photoId]: false }));
     }
@@ -253,9 +247,10 @@ export default function DownloadPortalPage() {
           <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg flex items-start gap-3 md:hidden">
             <Smartphone className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-indigo-800">
-              <strong>Dica:</strong> No iPhone, ao clicar em "Baixar", a tela de
-              compartilhamento abrirá — toque em{" "}
-              <strong>"Salvar Imagem"</strong> para salvar na sua galeria de fotos.
+              <strong>Dica:</strong> Ao clicar em "Baixar", a foto abrirá em
+              uma nova aba. Segure o dedo sobre a imagem e toque em{" "}
+              <strong>"Salvar Imagem"</strong> ou{" "}
+              <strong>"Adicionar às Fotos"</strong>.
             </p>
           </div>
 
