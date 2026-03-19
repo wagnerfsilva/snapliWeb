@@ -46,22 +46,29 @@ export default function DownloadPortalPage() {
     }
   };
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const handleDownload = async (photoId, filename) => {
+    // On mobile, open a blank tab SYNCHRONOUSLY (before any await),
+    // otherwise iOS Safari blocks the popup as it no longer counts
+    // as a user gesture after an async call.
+    let newTab = null;
+    if (isMobile) {
+      newTab = window.open("about:blank", "_blank");
+    }
+
     try {
       setDownloading((prev) => ({ ...prev, [photoId]: true }));
 
       const response = await api.get(`/downloads/${token}/photo/${photoId}`);
       const { downloadUrl } = response.data;
 
-      if (isMobile) {
-        // Mobile: open image URL directly in a new tab.
-        // On iOS Safari, fetch() to S3/storage fails due to CORS.
-        // Opening the URL lets the browser display the image natively,
-        // so the user can long-press → "Save to Photos" / share.
-        window.open(downloadUrl, "_blank");
+      if (isMobile && newTab) {
+        // Redirect the already-opened tab to the image URL
+        newTab.location.href = downloadUrl;
+      } else if (isMobile) {
+        // Fallback if popup was still blocked: navigate current page
+        window.location.href = downloadUrl;
       } else {
         // Desktop: fetch as blob for proper download with filename
         try {
@@ -77,7 +84,6 @@ export default function DownloadPortalPage() {
           document.body.removeChild(link);
           setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
         } catch {
-          // Fallback: open in new tab
           window.open(downloadUrl, "_blank");
         }
       }
@@ -96,6 +102,7 @@ export default function DownloadPortalPage() {
       );
     } catch (err) {
       console.error("Erro ao fazer download:", err);
+      if (newTab) newTab.close();
       alert("Erro ao fazer download. Tente novamente.");
     } finally {
       setDownloading((prev) => ({ ...prev, [photoId]: false }));
