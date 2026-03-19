@@ -46,6 +46,8 @@ export default function DownloadPortalPage() {
     }
   };
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   const handleDownload = async (photoId, filename) => {
     try {
       setDownloading((prev) => ({ ...prev, [photoId]: true }));
@@ -53,14 +55,26 @@ export default function DownloadPortalPage() {
       const response = await api.get(`/downloads/${token}/photo/${photoId}`);
       const { downloadUrl } = response.data;
 
-      // Fetch the image as a blob and create a same-origin blob URL.
-      // The download attribute on <a> tags doesn't work with cross-origin
-      // URLs on mobile browsers (especially iOS Safari).
-      try {
-        const imageResponse = await fetch(downloadUrl);
-        const blob = await imageResponse.blob();
-        const blobUrl = URL.createObjectURL(blob);
+      const imageResponse = await fetch(downloadUrl);
+      const blob = await imageResponse.blob();
 
+      // iOS Safari: use the native Share Sheet (Save Image option)
+      if (isIOS && navigator.canShare) {
+        const file = new File([blob], filename, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: filename,
+          });
+        } else {
+          // Fallback: open blob directly in browser
+          const blobUrl = URL.createObjectURL(blob);
+          window.location.href = blobUrl;
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
+        }
+      } else {
+        // Desktop / Android: blob download via <a> tag
+        const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = blobUrl;
         link.download = filename;
@@ -68,12 +82,7 @@ export default function DownloadPortalPage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-      } catch (fetchErr) {
-        // Fallback: open in new tab (user can long-press to save on mobile)
-        console.error("Fetch download failed, opening in new tab:", fetchErr);
-        window.open(downloadUrl, "_blank");
       }
 
       // Update photo status
@@ -90,7 +99,10 @@ export default function DownloadPortalPage() {
       );
     } catch (err) {
       console.error("Erro ao fazer download:", err);
-      alert("Erro ao gerar link de download. Tente novamente.");
+      // If user cancelled share sheet, don't show error
+      if (err.name !== "AbortError") {
+        alert("Erro ao fazer download. Tente novamente.");
+      }
     } finally {
       setDownloading((prev) => ({ ...prev, [photoId]: false }));
     }
@@ -241,9 +253,9 @@ export default function DownloadPortalPage() {
           <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg flex items-start gap-3 md:hidden">
             <Smartphone className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-indigo-800">
-              <strong>Dica:</strong> No celular, as fotos baixadas ficam na pasta{" "}
-              <strong>Arquivos → Downloads</strong> (iPhone) ou na{" "}
-              <strong>galeria/pasta Downloads</strong> (Android).
+              <strong>Dica:</strong> No iPhone, ao clicar em "Baixar", a tela de
+              compartilhamento abrirá — toque em{" "}
+              <strong>"Salvar Imagem"</strong> para salvar na sua galeria de fotos.
             </p>
           </div>
 
