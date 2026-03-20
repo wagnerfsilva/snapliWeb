@@ -46,9 +46,10 @@ export default function DownloadPortalPage() {
     }
   };
 
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
   const handleDownload = async (photoId, filename) => {
+    // Detect mobile via touch + screen size (more reliable than user-agent)
+    const isMobile = "ontouchstart" in window && window.innerWidth < 1024;
+
     // On mobile, open a blank tab SYNCHRONOUSLY (before any await),
     // otherwise iOS Safari blocks the popup as it no longer counts
     // as a user gesture after an async call.
@@ -70,22 +71,14 @@ export default function DownloadPortalPage() {
         // Fallback if popup was still blocked: navigate current page
         window.location.href = downloadUrl;
       } else {
-        // Desktop: fetch as blob for proper download with filename
-        try {
-          const imageResponse = await fetch(downloadUrl);
-          const blob = await imageResponse.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = blobUrl;
-          link.download = filename;
-          link.style.display = "none";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-        } catch {
-          window.open(downloadUrl, "_blank");
-        }
+        // Desktop: use original approach — <a> tag with download attribute
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = filename;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
 
       // Update photo status
