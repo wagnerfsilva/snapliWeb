@@ -47,8 +47,8 @@ export default function DownloadPortalPage() {
   };
 
   const handleDownload = async (photoId, filename) => {
-    // Detect mobile via touch + screen size (more reliable than user-agent)
-    const isMobile = "ontouchstart" in window && window.innerWidth < 1024;
+    // Detect true mobile: no hover capability AND coarse pointer (finger, not mouse)
+    const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
     // On mobile, open a blank tab SYNCHRONOUSLY (before any await),
     // otherwise iOS Safari blocks the popup as it no longer counts
