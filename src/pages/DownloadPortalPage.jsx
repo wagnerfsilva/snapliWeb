@@ -18,6 +18,7 @@ export default function DownloadPortalPage() {
   const [order, setOrder] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [downloading, setDownloading] = useState({});
+  const [originalUrls, setOriginalUrls] = useState({});
 
   useEffect(() => {
     fetchOrderDetails();
@@ -30,6 +31,20 @@ export default function DownloadPortalPage() {
       const response = await api.get(`/downloads/${token}`);
       setOrder(response.data.order);
       setPhotos(response.data.photos);
+
+      // Pre-fetch original URLs for all photos so we can show originals
+      const urls = {};
+      await Promise.all(
+        response.data.photos.map(async (photo) => {
+          try {
+            const res = await api.get(`/downloads/${token}/photo/${photo.id}`);
+            urls[photo.id] = res.data.downloadUrl;
+          } catch {
+            // ignore - will fall back to previewUrl
+          }
+        }),
+      );
+      setOriginalUrls(urls);
     } catch (err) {
       console.error("Erro ao carregar pedido:", err);
       if (err.response?.status === 404) {
@@ -47,32 +62,53 @@ export default function DownloadPortalPage() {
   };
 
   const handleDownload = async (photoId, filename) => {
-    // Detect true mobile: no hover capability AND coarse pointer (finger, not mouse)
-    const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /android/i.test(navigator.userAgent);
 
-    // On mobile, open a blank tab SYNCHRONOUSLY (before any await),
-    // otherwise iOS Safari blocks the popup as it no longer counts
+    // On iOS, open a blank tab SYNCHRONOUSLY (before any await),
+    // otherwise Safari blocks the popup as it no longer counts
     // as a user gesture after an async call.
     let newTab = null;
-    if (isMobile) {
+    if (isIOS) {
       newTab = window.open("about:blank", "_blank");
     }
 
     try {
       setDownloading((prev) => ({ ...prev, [photoId]: true }));
 
-      const response = await api.get(`/downloads/${token}/photo/${photoId}`);
-      const { downloadUrl } = response.data;
+      // Use pre-fetched URL or fetch a fresh one
+      let downloadUrl = originalUrls[photoId];
+      if (!downloadUrl) {
+        const response = await api.get(`/downloads/${token}/photo/${photoId}`);
+        downloadUrl = response.data.downloadUrl;
+      }
 
-      if (isMobile && newTab) {
-        // Redirect the already-opened tab to the image URL
-        newTab.location.href = downloadUrl;
-      } else if (isMobile) {
-        // Fallback if popup was still blocked: navigate current page
-        window.location.href = downloadUrl;
+      if (isIOS) {
+        // iOS: open in new tab for user to long-press and save
+        if (newTab) {
+          newTab.location.href = downloadUrl;
+        } else {
+          window.open(downloadUrl, "_blank");
+        }
+      } else if (isAndroid) {
+        // Android: try direct download via anchor tag
+        try {
+          const resp = await fetch(downloadUrl);
+          const blob = await resp.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        } catch {
+          // Fallback: open in new tab like iOS
+          window.open(downloadUrl, "_blank");
+        }
       } else {
         // Desktop: S3 URL já vem com Content-Disposition: attachment
-        // então o browser inicia o download automaticamente
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = filename;
@@ -263,7 +299,7 @@ export default function DownloadPortalPage() {
                 {/* Photo Preview */}
                 <div className="aspect-video bg-gray-200 relative">
                   <img
-                    src={photo.previewUrl}
+                    src={originalUrls[photo.id] || photo.previewUrl}
                     alt={photo.originalFilename}
                     className="w-full h-full object-cover"
                   />
