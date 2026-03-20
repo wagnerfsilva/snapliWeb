@@ -71,23 +71,14 @@ export default function DownloadPortalPage() {
         // Fallback if popup was still blocked: navigate current page
         window.location.href = downloadUrl;
       } else {
-        // Desktop: fetch as blob to force real download (bypass cross-origin)
-        try {
-          const res = await fetch(downloadUrl);
-          const blob = await res.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = blobUrl;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          // Delay revoke to give the browser time to start the download
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-        } catch {
-          // Fallback if CORS blocks the fetch: redirect to URL directly
-          window.location.href = downloadUrl;
-        }
+        // Desktop: S3 URL já vem com Content-Disposition: attachment
+        // então o browser inicia o download automaticamente
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
 
       // Update photo status
