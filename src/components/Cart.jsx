@@ -34,11 +34,12 @@ export default function Cart({ eventPricing }) {
       {itemCount > 0 ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-6 py-4 shadow-lg flex flex-col items-center gap-2 transition-all z-40 min-w-[140px]"
+          className="fixed bottom-6 right-6 rounded-xl px-6 py-4 shadow-lg flex flex-col items-center gap-2 transition-all z-40 min-w-[140px] font-semibold"
+          style={{ background: 'var(--lime)', color: '#09090B' }}
         >
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            <span className="font-semibold">
+            <span>
               {itemCount} foto{itemCount > 1 ? "s" : ""}
             </span>
           </div>
@@ -51,7 +52,8 @@ export default function Cart({ eventPricing }) {
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-lg flex items-center gap-2 transition-all z-40"
+          className="fixed bottom-6 right-6 rounded-full p-4 shadow-lg flex items-center gap-2 transition-all z-40"
+          style={{ background: 'var(--lime)', color: '#09090B' }}
         >
           <ShoppingCart className="h-6 w-6" />
         </button>
@@ -62,18 +64,18 @@ export default function Cart({ eventPricing }) {
         <>
           {/* Overlay */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/60 z-40"
             onClick={() => setIsOpen(false)}
           ></div>
 
           {/* Carrinho */}
-          <div className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
+          <div className="fixed top-0 right-0 h-full w-full max-w-md z-50 flex flex-col" style={{ background: 'var(--surface)' }}>
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Meu Carrinho</h2>
+            <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border)' }}>
+              <h2 className="text-2xl font-bold font-sora">Meu Carrinho</h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-muted hover:text-white transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -82,11 +84,11 @@ export default function Cart({ eventPricing }) {
             {/* Content */}
             {itemCount === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <ShoppingCart className="h-16 w-16 text-gray-300 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <ShoppingCart className="h-16 w-16 text-dim mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
                   Carrinho vazio
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-muted">
                   Adicione fotos para começar sua compra
                 </p>
               </div>
@@ -94,11 +96,11 @@ export default function Cart({ eventPricing }) {
               <>
                 {/* Event info */}
                 {eventData && (
-                  <div className="p-4 bg-primary-50 border-b border-primary-100">
-                    <p className="text-sm font-medium text-primary-900">
+                  <div className="p-4" style={{ background: 'var(--lime-dim)', borderBottom: '1px solid var(--border)' }}>
+                    <p className="text-sm font-medium text-lime">
                       {eventData.eventName}
                     </p>
-                    <p className="text-xs text-primary-700">
+                    <p className="text-xs text-muted">
                       {itemCount} foto{itemCount > 1 ? "s" : ""} selecionada
                       {itemCount > 1 ? "s" : ""}
                     </p>
@@ -110,21 +112,22 @@ export default function Cart({ eventPricing }) {
                   {items.map((photo) => (
                     <div
                       key={photo.id}
-                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center gap-3 p-3 rounded-xl"
+                      style={{ background: 'var(--bg)' }}
                     >
                       <img
                         src={photo.watermarkedUrl || photo.thumbnailUrl}
                         alt="Foto"
-                        className="w-16 h-16 object-cover rounded"
+                        className="w-16 h-16 object-cover rounded-lg"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium truncate">
                           Foto #{photo.id.slice(0, 8)}
                         </p>
                       </div>
                       <button
                         onClick={() => removePhoto(photo.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
+                        className="transition-colors" style={{ color: '#FF5050' }}
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
@@ -134,15 +137,15 @@ export default function Cart({ eventPricing }) {
 
                 {/* Price breakdown */}
                 {priceInfo.totalPrice > 0 && (
-                  <div className="p-4 bg-gray-50 border-t border-gray-200">
+                  <div className="p-4" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm text-gray-600">
+                      <div className="flex justify-between text-sm text-muted">
                         <span>Melhor opção:</span>
                         <span className="font-medium">{priceInfo.details}</span>
                       </div>
-                      <div className="flex justify-between text-lg font-bold text-gray-900">
+                      <div className="flex justify-between text-lg font-bold">
                         <span>Total:</span>
-                        <span className="text-primary-600">
+                        <span className="text-lime">
                           R$ {priceInfo.totalPrice.toFixed(2)}
                         </span>
                       </div>
@@ -151,7 +154,7 @@ export default function Cart({ eventPricing }) {
                 )}
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-200 space-y-3">
+                <div className="p-6 space-y-3" style={{ borderTop: '1px solid var(--border)' }}>
                   <button
                     onClick={handleCheckout}
                     className="btn btn-primary w-full flex items-center justify-center gap-2"

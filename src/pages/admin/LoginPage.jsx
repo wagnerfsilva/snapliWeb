@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { authAPI } from "../../lib/api";
 import toast from "react-hot-toast";
-import { Camera, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -43,26 +43,44 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ background: 'var(--bg)' }}
+    >
+      {/* Radial glow */}
+      <div
+        className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[700px] h-[700px] pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.06) 0%, transparent 60%)' }}
+      />
+
+      <div className="relative z-10 w-full max-w-[420px] px-6">
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-white p-3 rounded-full">
-              <Camera className="h-12 w-12 text-primary-600" />
-            </div>
+          <div className="w-[72px] h-[72px] rounded-full inline-flex items-center justify-center mb-5" style={{ background: 'var(--lime)' }}>
+            <svg className="w-9 h-9 text-dark" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="18" stroke="currentColor" strokeWidth="2.8" fill="none" />
+              <circle cx="32" cy="32" r="9" stroke="currentColor" strokeWidth="2.8" fill="none" />
+              <line x1="32" y1="14" x2="32" y2="23" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <line x1="47.6" y1="23" x2="39.8" y2="27.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <line x1="47.6" y1="41" x2="39.8" y2="36.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <line x1="32" y1="50" x2="32" y2="41" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <line x1="16.4" y1="41" x2="24.2" y2="36.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <line x1="16.4" y1="23" x2="24.2" y2="27.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Snapli Admin</h2>
-          <p className="text-primary-100">
-            Faça login para acessar o painel administrativo
-          </p>
+          <h1 className="font-sora font-extrabold text-3xl mb-1">
+            Snapli<span className="text-lime font-bold text-sm align-super ml-1 tracking-wider">PRO</span>
+          </h1>
+          <p className="text-muted text-base">Acesse o painel do fotógrafo</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+        {/* Card */}
+        <div className="card p-8">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-5">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider"
               >
                 Email
               </label>
@@ -78,10 +96,10 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
+            <div className="mb-5">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider"
               >
                 Senha
               </label>
@@ -100,13 +118,13 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn btn-primary flex items-center justify-center"
+              className="btn btn-primary w-full text-base font-bold py-3"
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Entrando...
-                </>
+                </span>
               ) : (
                 "Entrar"
               )}
@@ -114,14 +132,12 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="mt-8 text-center">
-          <a
-            href="/"
-            className="text-white hover:text-primary-100 text-sm font-medium"
-          >
-            ← Voltar ao site
-          </a>
-        </div>
+        <Link
+          to="/"
+          className="block text-center mt-6 text-lime text-sm font-medium hover:opacity-70 transition-opacity"
+        >
+          ← Voltar ao site
+        </Link>
       </div>
     </div>
   );

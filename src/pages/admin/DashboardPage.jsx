@@ -82,7 +82,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="spinner w-12 h-12 text-primary-600"></div>
+        <div className="spinner w-12 h-12 text-lime"></div>
       </div>
     );
   }
@@ -123,20 +123,20 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+      <h1 className="text-3xl font-bold font-sora mb-8">Dashboard</h1>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total de Eventos</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Total de Eventos</p>
+              <p className="text-3xl font-bold">
                 {stats?.totalEvents || 0}
               </p>
             </div>
-            <div className="p-3 bg-primary-100 rounded-lg">
-              <Calendar className="h-8 w-8 text-primary-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'var(--lime-dim)' }}>
+              <Calendar className="h-8 w-8 text-lime" />
             </div>
           </div>
         </div>
@@ -144,13 +144,13 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total de Fotos</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Total de Fotos</p>
+              <p className="text-3xl font-bold">
                 {stats?.totalPhotos || 0}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Image className="h-8 w-8 text-green-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(0,212,170,0.12)' }}>
+              <Image className="h-8 w-8 text-teal" />
             </div>
           </div>
         </div>
@@ -158,13 +158,13 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Fotos com Faces</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Fotos com Faces</p>
+              <p className="text-3xl font-bold">
                 {stats?.photosWithFaces || 0}
               </p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Users className="h-8 w-8 text-purple-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(168,85,247,0.12)' }}>
+              <Users className="h-8 w-8" style={{ color: '#A855F7' }} />
             </div>
           </div>
         </div>
@@ -172,13 +172,13 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total de Faces</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Total de Faces</p>
+              <p className="text-3xl font-bold">
                 {stats?.totalFaces || 0}
               </p>
             </div>
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <TrendingUp className="h-8 w-8 text-orange-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(251,146,60,0.12)' }}>
+              <TrendingUp className="h-8 w-8" style={{ color: '#FB923C' }} />
             </div>
           </div>
         </div>
@@ -186,13 +186,13 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Fotos Vendidas</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Fotos Vendidas</p>
+              <p className="text-3xl font-bold">
                 {stats?.totalPhotosSold || 0}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <ShoppingCart className="h-8 w-8 text-blue-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(56,189,248,0.12)' }}>
+              <ShoppingCart className="h-8 w-8" style={{ color: '#38BDF8' }} />
             </div>
           </div>
         </div>
@@ -200,13 +200,13 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Receita Total</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted mb-1">Receita Total</p>
+              <p className="text-3xl font-bold">
                 {formatCurrency(stats?.totalRevenue || 0)}
               </p>
             </div>
-            <div className="p-3 bg-emerald-100 rounded-lg">
-              <DollarSign className="h-8 w-8 text-emerald-600" />
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(0,212,170,0.12)' }}>
+              <DollarSign className="h-8 w-8 text-teal" />
             </div>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function DashboardPage() {
       {chartData.length > 0 && (
         <div className="card mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold font-sora">
               Receita no Período
             </h2>
 
@@ -225,31 +225,34 @@ export default function DashboardPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setPeriod("3")}
-                  className={`px-3 py-1 rounded text-sm ${
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                     period === "3"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      ? "text-dark"
+                      : "text-muted hover:text-white"
                   }`}
+                  style={period === "3" ? { background: 'var(--lime)' } : { background: 'var(--bg)' }}
                 >
                   3 meses
                 </button>
                 <button
                   onClick={() => setPeriod("6")}
-                  className={`px-3 py-1 rounded text-sm ${
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                     period === "6"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      ? "text-dark"
+                      : "text-muted hover:text-white"
                   }`}
+                  style={period === "6" ? { background: 'var(--lime)' } : { background: 'var(--bg)' }}
                 >
                   6 meses
                 </button>
                 <button
                   onClick={() => setPeriod("12")}
-                  className={`px-3 py-1 rounded text-sm ${
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                     period === "12"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      ? "text-dark"
+                      : "text-muted hover:text-white"
                   }`}
+                  style={period === "12" ? { background: 'var(--lime)' } : { background: 'var(--bg)' }}
                 >
                   12 meses
                 </button>
@@ -259,7 +262,7 @@ export default function DashboardPage() {
               <select
                 value={groupBy}
                 onChange={(e) => setGroupBy(e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="input !w-auto !py-1 !px-3 text-sm"
               >
                 <option value="day">Por dia</option>
                 <option value="month">Por mês</option>
@@ -271,15 +274,16 @@ export default function DashboardPage() {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" />
-                <YAxis />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="period" stroke="#71717A" fontSize={12} />
+                <YAxis stroke="#71717A" fontSize={12} />
                 <Tooltip
                   formatter={(value) => formatCurrency(value)}
-                  labelStyle={{ color: "#000" }}
+                  contentStyle={{ background: '#1C1C21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#FAFAFA' }}
+                  labelStyle={{ color: "#FAFAFA" }}
                 />
                 <Legend />
-                <Bar dataKey="Receita" fill="#10b981" name="Receita (R$)" />
+                <Bar dataKey="Receita" fill="#C8FF00" name="Receita (R$)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -289,17 +293,17 @@ export default function DashboardPage() {
       {/* Recent Events */}
       <div className="card">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Eventos Recentes</h2>
+          <h2 className="text-xl font-bold font-sora">Eventos Recentes</h2>
           <Link
             to="/admin/events"
-            className="text-primary-600 hover:text-primary-700 font-medium"
+            className="text-lime hover:opacity-70 font-medium transition-opacity"
           >
             Ver todos →
           </Link>
         </div>
 
         {recentEvents.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-muted text-center py-8">
             Nenhum evento cadastrado
           </p>
         ) : (
@@ -308,22 +312,23 @@ export default function DashboardPage() {
               <Link
                 key={event.id}
                 to={`/admin/events/${event.id}`}
-                className="block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all"
+                className="block p-4 rounded-xl transition-all hover:ring-1 hover:ring-white/10"
+                style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold">
                       {event.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted mt-1">
                       {new Date(event.date).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-primary-600">
+                    <p className="text-2xl font-bold text-lime">
                       {event.photoCount}
                     </p>
-                    <p className="text-xs text-gray-500">fotos</p>
+                    <p className="text-xs text-dim">fotos</p>
                   </div>
                 </div>
               </Link>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snapli Pro — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090B;--surface:#1C1C21;--border:rgba(255,255,255,.08);--text:#FAFAFA;--muted:#71717A;--dim:#52525B;--lime:#C8FF00;--lime-dim:rgba(200,255,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+body::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(200,255,0,.06) 0%,transparent 60%);pointer-events:none}
+a{text-decoration:none;color:inherit}
+
+.login-wrap{position:relative;z-index:1;width:100%;max-width:420px;padding:1.5rem}
+.login-header{text-align:center;margin-bottom:2rem}
+.login-icon{width:72px;height:72px;border-radius:50%;background:var(--lime);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.25rem}
+.login-icon svg{width:36px;height:36px;color:#09090B}
+.login-header h1{font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:.35rem}
+.login-header h1 .pro{color:var(--lime);font-weight:700;font-size:.9rem;vertical-align:super;margin-left:.3rem;letter-spacing:.05em}
+.login-header p{color:var(--muted);font-size:.95rem}
+
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem}
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.4rem;letter-spacing:.03em;text-transform:uppercase}
+.form-group input{width:100%;padding:.75rem 1rem;background:var(--bg);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .2s;outline:none}
+.form-group input::placeholder{color:var(--dim)}
+.form-group input:focus{border-color:var(--lime);box-shadow:0 0 0 3px rgba(200,255,0,.08)}
+.btn-submit{width:100%;padding:.8rem;background:var(--lime);color:#09090B;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-submit:hover{box-shadow:0 0 24px rgba(200,255,0,.25);transform:translateY(-1px)}
+
+.back-link{display:block;text-align:center;margin-top:1.5rem;color:var(--lime);font-size:.9rem;font-weight:500;transition:opacity .2s}
+.back-link:hover{opacity:.7}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-header">
+    <div class="login-icon">
+      <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="18" stroke="currentColor" stroke-width="2.8" fill="none"/><circle cx="32" cy="32" r="9" stroke="currentColor" stroke-width="2.8" fill="none"/><line x1="32" y1="14" x2="32" y2="23" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="47.6" y1="23" x2="39.8" y2="27.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="47.6" y1="41" x2="39.8" y2="36.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="32" y1="50" x2="32" y2="41" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="16.4" y1="41" x2="24.2" y2="36.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="16.4" y1="23" x2="24.2" y2="27.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </div>
+    <h1>Snapli<span class="pro">PRO</span></h1>
+    <p>Acesse o painel do fotógrafo</p>
+  </div>
+
+  <div class="login-card">
+    <form onsubmit="return false">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-submit">Entrar</button>
+    </form>
+  </div>
+
+  <a href="index.html" class="back-link">← Voltar ao site</a>
+</div>
+
+</body>
+</html>

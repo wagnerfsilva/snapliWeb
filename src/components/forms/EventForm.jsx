@@ -108,16 +108,16 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="card w-full max-w-2xl max-h-[90vh] overflow-y-auto !p-0">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border)' }}>
+          <h2 className="text-2xl font-bold font-sora">
             {isEdit ? "Editar Evento" : "Criar Novo Evento"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-dim hover:text-white transition-colors"
             disabled={isSubmitting}
           >
             <X className="h-6 w-6" />
@@ -130,7 +130,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
             >
               Nome do Evento *
             </label>
@@ -153,7 +153,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           <div>
             <label
               htmlFor="date"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
             >
               Data do Evento *
             </label>
@@ -175,7 +175,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
             >
               Localização *
             </label>
@@ -198,7 +198,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
             >
               Descrição
             </label>
@@ -212,7 +212,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               placeholder="Adicione detalhes sobre o evento..."
               disabled={isSubmitting}
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               Informações adicionais que podem ajudar na organização
             </p>
           </div>
@@ -226,12 +226,12 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                 name="isActive"
                 checked={formData.isActive}
                 onChange={handleChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded accent-lime"
                 disabled={isSubmitting}
               />
               <label
                 htmlFor="isActive"
-                className="ml-2 block text-sm text-gray-700"
+                className="ml-2 block text-sm text-muted"
               >
                 Evento ativo
               </label>
@@ -239,8 +239,8 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           )}
 
           {/* Preços */}
-          <div className="space-y-4 border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+            <h3 className="text-lg font-semibold font-sora">
               Configuração de Preços
             </h3>
 
@@ -248,7 +248,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             <div>
               <label
                 htmlFor="pricePerPhoto"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
               >
                 Preço por Foto Individual (R$)
               </label>
@@ -268,22 +268,23 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
 
             {/* Pacotes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
                 Pacotes de Fotos
               </label>
               <div className="space-y-2">
                 {formData.pricingPackages.map((pkg, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center gap-2 p-3 rounded-xl"
+                    style={{ background: 'var(--bg)' }}
                   >
-                    <span className="flex-1 text-sm text-gray-700">
+                    <span className="flex-1 text-sm text-muted">
                       {pkg.quantity} fotos - R$ {pkg.price.toFixed(2)}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemovePackage(index)}
-                      className="text-red-600 hover:text-red-800"
+                      style={{ color: '#FF5050' }}
                       disabled={isSubmitting}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -332,7 +333,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                   Adicionar
                 </button>
               </div>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Ex: 5 fotos por R$ 4,00
               </p>
             </div>
@@ -341,7 +342,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             <div>
               <label
                 htmlFor="allPhotosPrice"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
               >
                 Preço para Todas as Fotos (R$)
               </label>
@@ -357,14 +358,14 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                 placeholder="20.00"
                 disabled={isSubmitting}
               />
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Deixe em branco se não quiser oferecer essa opção
               </p>
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-3 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
             <button
               type="button"
               onClick={onClose}

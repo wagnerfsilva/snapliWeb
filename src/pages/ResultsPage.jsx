@@ -35,14 +35,14 @@ export default function ResultsPage() {
 
   if (!searchResults || searchResults.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <Search className="h-16 w-16 text-dim mx-auto mb-4" />
+            <h2 className="text-2xl font-bold font-sora mb-2">
               Nenhuma foto encontrada
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted mb-6">
               Não encontramos fotos com seu rosto. Tente com outra imagem.
             </p>
             <button
@@ -58,14 +58,14 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold font-sora mb-2">
             Encontramos {searchResults.length} foto(s)!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted">
             Todas as fotos são exibidas com marca d'água. Adquira as originais
             em alta resolução.
           </p>
@@ -76,7 +76,8 @@ export default function ResultsPage() {
           {searchResults.map((photo) => (
             <div
               key={photo.id}
-              className="group relative bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
+              className="group relative rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/20"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
             >
               <div className="aspect-square">
                 <img
@@ -89,7 +90,7 @@ export default function ResultsPage() {
 
               <div className="p-2">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-900 truncate">
+                  <span className="text-xs font-medium truncate">
                     {photo.event?.name}
                   </span>
                   <span className="badge badge-info text-[10px] px-1.5 py-0.5 ml-1 whitespace-nowrap">
@@ -97,7 +98,7 @@ export default function ResultsPage() {
                   </span>
                 </div>
 
-                <p className="text-[10px] text-gray-500 mb-2">
+                <p className="text-[10px] text-dim mb-2">
                   {new Date(photo.event?.date).toLocaleDateString("pt-BR")}
                 </p>
 

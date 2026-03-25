@@ -6,8 +6,8 @@ import {
   Calendar,
   Upload,
   LogOut,
-  Camera,
 } from "lucide-react";
+import { SnapliLogo } from "./PublicLayout";
 
 export default function AdminLayout() {
   const { user, clearAuth } = useAuthStore();
@@ -27,14 +27,16 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-gray-900">
+      <div className="fixed inset-y-0 left-0 w-64" style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center space-x-2 px-6 py-4 border-b border-gray-800">
-            <Camera className="h-8 w-8 text-primary-400" />
-            <span className="text-xl font-bold text-white">Snapli Admin</span>
+          <div className="flex items-center gap-2.5 px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <SnapliLogo size={28} />
+            <span className="font-sora font-bold text-lg text-white">
+              <span className="text-lime">Snapli</span> Admin
+            </span>
           </div>
 
           {/* Navigation */}
@@ -47,11 +49,12 @@ export default function AdminLayout() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive
-                      ? "bg-primary-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      ? "text-dark font-semibold"
+                      : "text-muted hover:text-white"
                   }`}
+                  style={isActive ? { background: 'var(--lime)' } : {}}
                 >
                   <Icon className="h-5 w-5" />
                   <span className="font-medium">{item.name}</span>
@@ -61,16 +64,17 @@ export default function AdminLayout() {
           </nav>
 
           {/* User Info & Logout */}
-          <div className="border-t border-gray-800 p-4">
+          <div className="p-4" style={{ borderTop: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-3 px-2">
               <div>
                 <p className="text-sm font-medium text-white">{user?.name}</p>
-                <p className="text-xs text-gray-400">{user?.email}</p>
+                <p className="text-xs text-muted">{user?.email}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-muted hover:text-white rounded-xl transition-all"
+              style={{ ':hover': { background: 'rgba(255,255,255,0.05)' } }}
             >
               <LogOut className="h-4 w-4" />
               <span>Sair</span>

@@ -92,7 +92,7 @@ export default function EventGalleryPage() {
       <div className="mb-6">
         <Link
           to={`/admin/events/${id}`}
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center text-muted hover:text-white mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Detalhes do Evento
@@ -100,10 +100,10 @@ export default function EventGalleryPage() {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold font-sora">
               {eventInfo ? `Fotos - ${eventInfo.name}` : "Fotos do Evento"}
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted mt-1">
               {total} foto{total !== 1 ? "s" : ""} encontrada{total !== 1 ? "s" : ""}
             </p>
           </div>
@@ -118,18 +118,18 @@ export default function EventGalleryPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-12 w-12 animate-spin text-primary-600" />
+          <Loader2 className="h-12 w-12 animate-spin text-lime" />
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && photos.length === 0 && (
         <div className="text-center py-16">
-          <Image className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <Image className="h-16 w-16 text-dim mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">
             Nenhuma foto encontrada
           </h2>
-          <p className="text-gray-500 mb-4">
+          <p className="text-muted mb-4">
             Faça upload de fotos para este evento.
           </p>
           <Link
@@ -148,7 +148,8 @@ export default function EventGalleryPage() {
             {photos.map((photo) => (
               <div
                 key={photo.id}
-                className="group relative bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
+                className="group relative rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/10"
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
               >
                 <div
                   className="aspect-square cursor-pointer"
@@ -170,20 +171,20 @@ export default function EventGalleryPage() {
                       handleDelete(photo.id);
                     }}
                     disabled={isDeletingId === photo.id}
-                    className="p-1.5 bg-white rounded-full shadow hover:bg-red-50"
+                    className="p-1.5 rounded-full" style={{ background: 'var(--surface)' }}
                     title="Excluir"
                   >
                     {isDeletingId === photo.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-red-600" />
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: '#FF5050' }} />
                     ) : (
-                      <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                      <Trash2 className="h-3.5 w-3.5" style={{ color: '#FF5050' }} />
                     )}
                   </button>
                 </div>
 
                 {/* Info */}
                 <div className="p-2">
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-muted truncate">
                     {photo.faceCount != null ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}` : ""}
                   </p>
                 </div>
@@ -203,7 +204,7 @@ export default function EventGalleryPage() {
                 <span>Anterior</span>
               </button>
 
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted">
                 Página {page} de {totalPages}
               </span>
 

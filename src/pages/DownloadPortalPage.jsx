@@ -164,10 +164,10 @@ export default function DownloadPortalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando suas fotos...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime mx-auto"></div>
+          <p className="mt-4 text-muted">Carregando suas fotos...</p>
         </div>
       </div>
     );
@@ -175,16 +175,16 @@ export default function DownloadPortalPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+        <div className="max-w-md w-full card p-8 text-center">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF5050' }} />
+          <h2 className="text-2xl font-bold font-sora mb-2">
             Acesso Negado
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-muted mb-6">{error}</p>
           <button
             onClick={() => navigate("/")}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="btn btn-primary"
           >
             Voltar ao Início
           </button>
@@ -196,67 +196,68 @@ export default function DownloadPortalPage() {
   const daysRemaining = getDaysRemaining(order?.downloadExpiresAt);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen py-8 px-4" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="card p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold font-sora mb-2">
                 Suas Fotos Estão Prontas! 🎉
               </h1>
-              <p className="text-gray-600">
-                Olá, <strong>{order?.customerName}</strong>
+              <p className="text-muted">
+                Olá, <strong className="text-white">{order?.customerName}</strong>
               </p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Pedido</div>
-              <div className="font-mono text-sm">
+              <div className="text-sm text-dim">Pedido</div>
+              <div className="font-mono text-sm text-muted">
                 #{order?.id?.substring(0, 8)}
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="flex items-center text-blue-700 mb-2">
+            <div className="rounded-xl p-4" style={{ background: 'rgba(56,189,248,0.08)' }}>
+              <div className="flex items-center mb-2" style={{ color: '#38BDF8' }}>
                 <ImageIcon className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Total de Fotos</span>
               </div>
-              <div className="text-2xl font-bold text-blue-900">
+              <div className="text-2xl font-bold text-white">
                 {photos.length}
               </div>
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4">
-              <div className="flex items-center text-green-700 mb-2">
+            <div className="rounded-xl p-4" style={{ background: 'rgba(0,212,170,0.08)' }}>
+              <div className="flex items-center mb-2" style={{ color: '#00D4AA' }}>
                 <CheckCircle className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Pagamento</span>
               </div>
-              <div className="text-2xl font-bold text-green-900">
+              <div className="text-2xl font-bold text-white">
                 R$ {parseFloat(order?.totalAmount || 0).toFixed(2)}
               </div>
-              <div className="text-sm text-green-600 mt-1">
+              <div className="text-sm mt-1" style={{ color: '#00D4AA' }}>
                 Confirmado em {formatDate(order?.paidAt)}
               </div>
             </div>
 
             <div
-              className={`rounded-lg p-4 ${daysRemaining > 7 ? "bg-blue-50" : "bg-yellow-50"}`}
+              className="rounded-xl p-4"
+              style={{ background: daysRemaining > 7 ? 'rgba(56,189,248,0.08)' : 'rgba(255,200,0,0.08)' }}
             >
               <div
-                className={`flex items-center mb-2 ${daysRemaining > 7 ? "text-blue-700" : "text-yellow-700"}`}
+                className="flex items-center mb-2"
+                style={{ color: daysRemaining > 7 ? '#38BDF8' : '#FFC800' }}
               >
                 <Clock className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Disponível por</span>
               </div>
-              <div
-                className={`text-2xl font-bold ${daysRemaining > 7 ? "text-blue-900" : "text-yellow-900"}`}
-              >
+              <div className="text-2xl font-bold text-white">
                 {daysRemaining} dias
               </div>
               <div
-                className={`text-sm mt-1 ${daysRemaining > 7 ? "text-blue-600" : "text-yellow-600"}`}
+                className="text-sm mt-1"
+                style={{ color: daysRemaining > 7 ? '#38BDF8' : '#FFC800' }}
               >
                 Até{" "}
                 {new Date(order?.downloadExpiresAt).toLocaleDateString("pt-BR")}
@@ -265,8 +266,8 @@ export default function DownloadPortalPage() {
           </div>
 
           {daysRemaining <= 7 && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800">
+            <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.2)' }}>
+              <p style={{ color: '#FFC800' }}>
                 ⚠️ <strong>Atenção:</strong> Seu período de download está
                 terminando. Faça o download de todas as suas fotos o quanto
                 antes!
@@ -276,17 +277,17 @@ export default function DownloadPortalPage() {
         </div>
 
         {/* Photos Grid */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Suas Fotos</h2>
+        <div className="card p-6">
+          <h2 className="text-xl font-bold font-sora mb-4">Suas Fotos</h2>
 
           {/* Mobile download tip */}
-          <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg flex items-start gap-3 md:hidden">
-            <Smartphone className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-indigo-800">
-              <strong>Dica:</strong> Ao clicar em "Baixar", a foto abrirá em
+          <div className="mb-6 p-4 rounded-xl flex items-start gap-3 md:hidden" style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.15)' }}>
+            <Smartphone className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#38BDF8' }} />
+            <p className="text-sm text-muted">
+              <strong className="text-white">Dica:</strong> Ao clicar em "Baixar", a foto abrirá em
               uma nova aba. Segure o dedo sobre a imagem e toque em{" "}
-              <strong>"Salvar Imagem"</strong> ou{" "}
-              <strong>"Adicionar às Fotos"</strong>.
+              <strong className="text-white">"Salvar Imagem"</strong> ou{" "}
+              <strong className="text-white">"Adicionar às Fotos"</strong>.
             </p>
           </div>
 
@@ -294,17 +295,18 @@ export default function DownloadPortalPage() {
             {photos.map((photo) => (
               <div
                 key={photo.id}
-                className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                className="rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/10"
+                style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
               >
                 {/* Photo Preview */}
-                <div className="aspect-video bg-gray-200 relative">
+                <div className="aspect-video relative" style={{ background: '#1a1a1e' }}>
                   <img
                     src={originalUrls[photo.id] || photo.previewUrl}
                     alt={photo.originalFilename}
                     className="w-full h-full object-cover"
                   />
                   {photo.downloadedAt && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                    <div className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full flex items-center" style={{ background: 'rgba(0,212,170,0.9)', color: '#09090B' }}>
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Baixada
                     </div>
@@ -313,22 +315,22 @@ export default function DownloadPortalPage() {
 
                 {/* Photo Info */}
                 <div className="p-4">
-                  <div className="text-sm font-medium text-gray-900 mb-2 truncate">
+                  <div className="text-sm font-medium mb-2 truncate">
                     {photo.originalFilename}
                   </div>
 
-                  <div className="text-xs text-gray-500 mb-3 space-y-1">
+                  <div className="text-xs text-dim mb-3 space-y-1">
                     <div>
                       {photo.width} × {photo.height}px
                     </div>
                     <div>{formatFileSize(photo.fileSize)}</div>
                     {photo.event && (
-                      <div className="text-blue-600 font-medium">
+                      <div className="text-lime font-medium">
                         {photo.event.name}
                       </div>
                     )}
                     {photo.downloadCount > 0 && (
-                      <div className="text-green-600">
+                      <div style={{ color: '#00D4AA' }}>
                         Downloads: {photo.downloadCount}
                       </div>
                     )}
@@ -339,11 +341,11 @@ export default function DownloadPortalPage() {
                       handleDownload(photo.id, photo.originalFilename)
                     }
                     disabled={downloading[photo.id]}
-                    className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    className="w-full btn btn-primary flex items-center justify-center"
                   >
                     {downloading[photo.id] ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-dark mr-2"></div>
                         Gerando...
                       </>
                     ) : (
@@ -360,11 +362,11 @@ export default function DownloadPortalPage() {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-6 bg-blue-50 rounded-lg p-6 text-center">
-          <h3 className="font-semibold text-blue-900 mb-2">
+        <div className="mt-6 rounded-xl p-6 text-center" style={{ background: 'var(--lime-dim)' }}>
+          <h3 className="font-semibold text-lime mb-2">
             💾 Downloads Ilimitados
           </h3>
-          <p className="text-blue-700 text-sm">
+          <p className="text-muted text-sm">
             Você pode baixar suas fotos quantas vezes quiser durante o período
             de {getDaysRemaining(order?.downloadExpiresAt)} dias. As fotos
             originais em alta resolução serão baixadas sem marca d'água.
@@ -372,7 +374,7 @@ export default function DownloadPortalPage() {
         </div>
 
         {/* Support */}
-        <div className="mt-4 text-center text-gray-500 text-sm">
+        <div className="mt-4 text-center text-dim text-sm">
           <p>Problemas com o download? Entre em contato conosco.</p>
           <p className="mt-2">Email: {order?.customerEmail}</p>
         </div>

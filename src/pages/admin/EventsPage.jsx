@@ -53,7 +53,7 @@ export default function EventsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-12 w-12 animate-spin text-primary-600" />
+        <Loader2 className="h-12 w-12 animate-spin text-lime" />
       </div>
     );
   }
@@ -61,29 +61,31 @@ export default function EventsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Eventos</h1>
+        <h1 className="text-3xl font-bold font-sora">Eventos</h1>
 
         <div className="flex items-center space-x-3">
           {/* View Mode Toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center rounded-xl p-1" style={{ background: 'var(--bg)' }}>
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded transition-colors ${
+              className={`p-2 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white text-primary-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "text-dark"
+                  : "text-muted hover:text-white"
               }`}
+              style={viewMode === "grid" ? { background: 'var(--lime)' } : {}}
               title="Visualização em Cards"
             >
               <LayoutGrid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded transition-colors ${
+              className={`p-2 rounded-lg transition-all ${
                 viewMode === "list"
-                  ? "bg-white text-primary-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "text-dark"
+                  : "text-muted hover:text-white"
               }`}
+              style={viewMode === "list" ? { background: 'var(--lime)' } : {}}
               title="Visualização em Lista"
             >
               <List className="h-5 w-5" />
@@ -102,11 +104,11 @@ export default function EventsPage() {
 
       {events.length === 0 ? (
         <div className="card text-center py-12">
-          <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <Calendar className="h-16 w-16 text-dim mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">
             Nenhum evento cadastrado
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted mb-6">
             Comece criando seu primeiro evento
           </p>
           <button
@@ -122,10 +124,10 @@ export default function EventsPage() {
             <Link
               key={event.id}
               to={`/admin/events/${event.id}`}
-              className="card hover:shadow-lg transition-shadow"
+              className="card hover:ring-1 hover:ring-white/10 transition-all"
             >
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex-1">
+                <h3 className="text-lg font-semibold flex-1">
                   {event.name}
                 </h3>
                 {event.isActive ? (
@@ -135,7 +137,7 @@ export default function EventsPage() {
                 )}
               </div>
 
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-muted">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
                   {new Date(event.date).toLocaleDateString("pt-BR")}
@@ -155,7 +157,7 @@ export default function EventsPage() {
               </div>
 
               {event.description && (
-                <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                <p className="mt-3 text-sm text-dim line-clamp-2">
                   {event.description}
                 </p>
               )}
@@ -163,54 +165,55 @@ export default function EventsPage() {
           ))}
         </div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden !p-0">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <table className="min-w-full">
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Evento
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Data
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Localização
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Fotos
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {events.map((event) => (
                   <tr
                     key={event.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-white/[0.02] transition-colors"
+                    style={{ borderBottom: '1px solid var(--border)' }}
                   >
                     <td className="px-6 py-4">
                       <Link to={`/admin/events/${event.id}`} className="block">
-                        <div className="text-sm font-medium text-gray-900 hover:text-primary-600">
+                        <div className="text-sm font-medium hover:text-lime transition-colors">
                           {event.name}
                         </div>
                         {event.description && (
-                          <div className="text-sm text-gray-500 line-clamp-1 mt-1">
+                          <div className="text-sm text-dim line-clamp-1 mt-1">
                             {event.description}
                           </div>
                         )}
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted">
                         <Calendar className="h-4 w-4 mr-2" />
                         {new Date(event.date).toLocaleDateString("pt-BR")}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted">
                         <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                         <span className="truncate">
                           {event.location || "-"}
@@ -218,7 +221,7 @@ export default function EventsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted">
                         <Image className="h-4 w-4 mr-2" />
                         {event.photoCount}
                       </div>

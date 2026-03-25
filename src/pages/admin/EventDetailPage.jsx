@@ -94,7 +94,7 @@ export default function EventDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-12 w-12 animate-spin text-primary-600" />
+        <Loader2 className="h-12 w-12 animate-spin text-lime" />
       </div>
     );
   }
@@ -102,8 +102,8 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="text-center py-12">
-        <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <AlertCircle className="h-16 w-16 text-dim mx-auto mb-4" />
+        <h2 className="text-xl font-semibold mb-2">
           Evento não encontrado
         </h2>
         <Link to="/admin/events" className="btn btn-primary mt-4">
@@ -119,7 +119,7 @@ export default function EventDetailPage() {
       <div className="mb-8">
         <Link
           to="/admin/events"
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center text-muted hover:text-white mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Eventos
@@ -128,7 +128,7 @@ export default function EventDetailPage() {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">{event.name}</h1>
+              <h1 className="text-3xl font-bold font-sora">{event.name}</h1>
               {event.isActive ? (
                 <span className="badge badge-success">Ativo</span>
               ) : (
@@ -136,7 +136,7 @@ export default function EventDetailPage() {
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div className="flex flex-wrap gap-4 text-sm text-muted">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
                 {new Date(event.date).toLocaleDateString("pt-BR", {
@@ -179,10 +179,10 @@ export default function EventDetailPage() {
       {/* Description */}
       {event.description && (
         <div className="card mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 className="text-lg font-semibold font-sora mb-3">
             Descrição
           </h2>
-          <p className="text-gray-600 whitespace-pre-wrap">
+          <p className="text-muted whitespace-pre-wrap">
             {event.description}
           </p>
         </div>
@@ -195,13 +195,13 @@ export default function EventDetailPage() {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total de Fotos</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-sm text-muted mb-1">Total de Fotos</p>
+                <p className="text-3xl font-bold">
                   {statistics.totalPhotos}
                 </p>
               </div>
-              <div className="p-3 bg-primary-100 rounded-lg">
-                <Image className="h-8 w-8 text-primary-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(200,255,0,0.12)' }}>
+                <Image className="h-8 w-8 text-lime" />
               </div>
             </div>
           </div>
@@ -210,13 +210,13 @@ export default function EventDetailPage() {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Processadas</p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-sm text-muted mb-1">Processadas</p>
+                <p className="text-3xl font-bold" style={{ color: '#00D4AA' }}>
                   {statistics.processingStatuses.completed}
                 </p>
               </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(0,212,170,0.12)' }}>
+                <CheckCircle className="h-8 w-8 text-teal" />
               </div>
             </div>
           </div>
@@ -225,14 +225,14 @@ export default function EventDetailPage() {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Processando</p>
-                <p className="text-3xl font-bold text-yellow-600">
+                <p className="text-sm text-muted mb-1">Processando</p>
+                <p className="text-3xl font-bold" style={{ color: '#FFC800' }}>
                   {statistics.processingStatuses.processing +
                     statistics.processingStatuses.pending}
                 </p>
               </div>
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(255,200,0,0.12)' }}>
+                <Clock className="h-8 w-8" style={{ color: '#FFC800' }} />
               </div>
             </div>
           </div>
@@ -241,13 +241,13 @@ export default function EventDetailPage() {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Com Erro</p>
-                <p className="text-3xl font-bold text-red-600">
+                <p className="text-sm text-muted mb-1">Com Erro</p>
+                <p className="text-3xl font-bold" style={{ color: '#FF5050' }}>
                   {statistics.processingStatuses.failed}
                 </p>
               </div>
-              <div className="p-3 bg-red-100 rounded-lg">
-                <XCircle className="h-8 w-8 text-red-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(255,80,80,0.12)' }}>
+                <XCircle className="h-8 w-8" style={{ color: '#FF5050' }} />
               </div>
             </div>
           </div>
@@ -257,29 +257,29 @@ export default function EventDetailPage() {
       {/* Face Recognition Stats */}
       {statistics && statistics.totalFaces > 0 && (
         <div className="card mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold font-sora mb-4">
             Reconhecimento Facial
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Users className="h-8 w-8 text-purple-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(168,85,247,0.12)' }}>
+                <Users className="h-8 w-8" style={{ color: '#A855F7' }} />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total de Rostos</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-muted">Total de Rostos</p>
+                <p className="text-2xl font-bold">
                   {statistics.totalFaces}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Image className="h-8 w-8 text-blue-600" />
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(56,189,248,0.12)' }}>
+                <Image className="h-8 w-8" style={{ color: '#38BDF8' }} />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Fotos com Rostos</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-muted">Fotos com Rostos</p>
+                <p className="text-2xl font-bold">
                   {statistics.photosWithFaces}
                 </p>
               </div>
@@ -290,7 +290,7 @@ export default function EventDetailPage() {
 
       {/* Actions */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações</h2>
+        <h2 className="text-lg font-semibold font-sora mb-4">Ações</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             to={`/admin/events/${id}/upload`}
@@ -312,35 +312,35 @@ export default function EventDetailPage() {
 
       {/* Event Info */}
       <div className="card mt-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold font-sora mb-4">
           Informações do Evento
         </h2>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <dt className="text-sm font-medium text-gray-500">Criado por</dt>
-            <dd className="mt-1 text-sm text-gray-900">
+            <dt className="text-sm font-medium text-muted">Criado por</dt>
+            <dd className="mt-1 text-sm">
               {event.creator?.name || "N/A"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">Email</dt>
-            <dd className="mt-1 text-sm text-gray-900">
+            <dt className="text-sm font-medium text-muted">Email</dt>
+            <dd className="mt-1 text-sm">
               {event.creator?.email || "N/A"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">
+            <dt className="text-sm font-medium text-muted">
               Data de criação
             </dt>
-            <dd className="mt-1 text-sm text-gray-900">
+            <dd className="mt-1 text-sm">
               {new Date(event.createdAt).toLocaleString("pt-BR")}
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">
+            <dt className="text-sm font-medium text-muted">
               Última atualização
             </dt>
-            <dd className="mt-1 text-sm text-gray-900">
+            <dd className="mt-1 text-sm">
               {new Date(event.updatedAt).toLocaleString("pt-BR")}
             </dd>
           </div>
@@ -358,18 +358,18 @@ export default function EventDetailPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="card p-6 max-w-md w-full">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-3 bg-red-100 rounded-full">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+              <div className="p-3 rounded-full" style={{ background: 'rgba(255,80,80,0.12)' }}>
+                <AlertCircle className="h-6 w-6" style={{ color: '#FF5050' }} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold font-sora">
                 Excluir Evento
               </h2>
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted mb-6">
               Tem certeza que deseja excluir o evento{" "}
               <strong>{event.name}</strong>?
               {statistics && statistics.totalPhotos > 0 && (

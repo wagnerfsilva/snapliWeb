@@ -113,14 +113,14 @@ export default function UploadPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Upload de Fotos</h1>
+      <h1 className="text-3xl font-bold font-sora mb-8">Upload de Fotos</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Upload Area */}
         <div className="lg:col-span-2 space-y-6">
           {/* Event Selection */}
           <div className="card">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
               Selecione o Evento
             </label>
             <select
@@ -143,20 +143,20 @@ export default function UploadPage() {
           <div className="card">
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
                 isDragActive
-                  ? "border-primary-500 bg-primary-50"
-                  : "border-gray-300 hover:border-primary-400"
+                  ? "border-lime bg-lime/5"
+                  : "border-white/10 hover:border-lime/40"
               } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
             >
               <input {...getInputProps()} />
-              <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-medium text-gray-700 mb-2">
+              <Upload className="h-16 w-16 text-dim mx-auto mb-4" />
+              <p className="text-lg font-medium mb-2">
                 {isDragActive
                   ? "Solte as imagens aqui"
                   : "Arraste fotos aqui ou clique para selecionar"}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted">
                 Formatos aceitos: JPEG, PNG, WebP (máx. 10MB cada)
               </p>
             </div>
@@ -166,15 +166,15 @@ export default function UploadPage() {
           {isUploading && (
             <div className="card">
               <div className="flex items-center mb-2">
-                <Loader2 className="h-5 w-5 animate-spin text-primary-600 mr-2" />
+                <Loader2 className="h-5 w-5 animate-spin text-lime mr-2" />
                 <span className="text-sm font-medium">
                   Fazendo upload... {uploadProgress}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full rounded-full h-2" style={{ background: 'var(--bg)' }}>
                 <div
-                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%`, background: 'var(--lime)' }}
                 ></div>
               </div>
             </div>
@@ -211,14 +211,14 @@ export default function UploadPage() {
         {/* Right Column - Preview */}
         <div className="lg:col-span-1">
           <div className="card sticky top-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
+            <h3 className="font-semibold font-sora mb-4">
               Fotos Selecionadas ({files.length})
             </h3>
 
             {files.length === 0 ? (
               <div className="text-center py-8">
-                <Image className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">
+                <Image className="h-12 w-12 text-dim mx-auto mb-2" />
+                <p className="text-sm text-muted">
                   Nenhuma foto selecionada
                 </p>
               </div>
