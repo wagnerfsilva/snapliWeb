@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 
 // Public pages
-import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import ResultsPage from "./pages/ResultsPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -36,7 +35,7 @@ function App() {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<PublicLayout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<Navigate to="/search" replace />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="results" element={<ResultsPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
@@ -65,7 +64,7 @@ function App() {
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/search" replace />} />
     </Routes>
   );
 }

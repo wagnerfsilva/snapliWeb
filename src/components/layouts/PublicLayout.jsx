@@ -8,18 +8,12 @@ export default function PublicLayout() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/search" className="flex items-center space-x-2">
               <Camera className="h-8 w-8 text-primary-600" />
               <span className="text-2xl font-bold text-gray-900">Snapli</span>
             </Link>
 
             <nav className="flex space-x-4">
-              <Link
-                to="/"
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Início
-              </Link>
               <Link
                 to="/search"
                 className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"

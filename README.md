@@ -23,7 +23,6 @@ snapliWeb/
 │   │   ├── admin/       # Páginas administrativas
 │   │   ├── CheckoutPage.jsx
 │   │   ├── DownloadPortalPage.jsx
-│   │   ├── HomePage.jsx
 │   │   ├── ResultsPage.jsx
 │   │   └── SearchPage.jsx
 │   ├── store/           # Stores Zustand
