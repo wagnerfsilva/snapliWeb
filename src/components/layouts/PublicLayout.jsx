@@ -10,7 +10,7 @@ export default function PublicLayout() {
           <div className="flex justify-between items-center py-4">
             <Link to="/" className="flex items-center space-x-2">
               <Camera className="h-8 w-8 text-primary-600" />
-              <span className="text-2xl font-bold text-gray-900">Fotow</span>
+              <span className="text-2xl font-bold text-gray-900">Snapli</span>
             </Link>
 
             <nav className="flex space-x-4">
@@ -47,7 +47,7 @@ export default function PublicLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
             <p className="text-sm">
-              &copy; {new Date().getFullYear()} Fotow. Todos os direitos
+              &copy; {new Date().getFullYear()} Snapli. Todos os direitos
               reservados.
             </p>
           </div>

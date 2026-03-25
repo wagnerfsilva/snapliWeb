@@ -207,7 +207,7 @@ const useCartStore = create(
             },
         }),
         {
-            name: "fotow-cart",
+            name: "snapli-cart",
             getStorage: () => localStorage,
         }
     )

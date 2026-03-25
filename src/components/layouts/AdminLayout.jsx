@@ -34,7 +34,7 @@ export default function AdminLayout() {
           {/* Logo */}
           <div className="flex items-center space-x-2 px-6 py-4 border-b border-gray-800">
             <Camera className="h-8 w-8 text-primary-400" />
-            <span className="text-xl font-bold text-white">Fotow Admin</span>
+            <span className="text-xl font-bold text-white">Snapli Admin</span>
           </div>
 
           {/* Navigation */}

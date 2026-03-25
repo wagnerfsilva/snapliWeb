@@ -1,6 +1,6 @@
-# Deploy do Fotow Web no Railway
+# Deploy do Snapli Web no Railway
 
-Este guia explica como fazer o deploy do frontend do Fotow no Railway.
+Este guia explica como fazer o deploy do frontend do Snapli no Railway.
 
 ## 📋 Pré-requisitos
 
@@ -15,7 +15,7 @@ Este guia explica como fazer o deploy do frontend do Fotow no Railway.
 1. Acesse https://railway.app
 2. Clique em "New Project"
 3. Selecione "Deploy from GitHub repo"
-4. Escolha o repositório `wagnerfsilva/fotowWeb`
+4. Escolha o repositório `wagnerfsilva/snapliWeb`
 
 ### 2. Configurar Variáveis de Ambiente
 
@@ -60,7 +60,7 @@ Para melhor performance e menor custo, considere hospedar o frontend em um servi
 npm i -g vercel
 
 # Deploy
-cd fotowWeb
+cd snapliWeb
 vercel
 ```
 
@@ -76,7 +76,7 @@ VITE_API_URL=https://sua-url-backend.railway.app/api
 npm i -g netlify-cli
 
 # Deploy
-cd fotowWeb
+cd snapliWeb
 netlify deploy --prod
 ```
 

@@ -1,6 +1,6 @@
-# Fotow Web
+# Snapli Web
 
-Interface web do sistema Fotow - Plataforma para visualização e compra de fotos de eventos com reconhecimento facial.
+Interface web do sistema Snapli - Plataforma para visualização e compra de fotos de eventos com reconhecimento facial.
 
 ## 🏗️ Tecnologias
 
@@ -14,7 +14,7 @@ Interface web do sistema Fotow - Plataforma para visualização e compra de foto
 ## 📋 Estrutura
 
 ```
-fotowWeb/
+snapliWeb/
 ├── src/
 │   ├── components/      # Componentes reutilizáveis
 │   │   ├── forms/       # Formulários
@@ -38,8 +38,8 @@ fotowWeb/
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/wagnerfsilva/fotowWeb.git
-cd fotowWeb
+git clone https://github.com/wagnerfsilva/snapliWeb.git
+cd snapliWeb
 ```
 
 ### 2. Instale as dependências
@@ -140,7 +140,7 @@ O tema da aplicação pode ser ajustado no arquivo `src/index.css`
 ## 🔗 API
 
 O frontend consome a API disponível em:
-- **Repositório**: [fotowApi](https://github.com/wagnerfsilva/fotowApi)
+- **Repositório**: [snapliApi](https://github.com/wagnerfsilva/snapliApi)
 - **URL Base**: Configurada via `VITE_API_URL`
 
 ## 📱 Responsividade

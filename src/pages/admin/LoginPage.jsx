@@ -51,7 +51,7 @@ export default function LoginPage() {
               <Camera className="h-12 w-12 text-primary-600" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Fotow Admin</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">Snapli Admin</h2>
           <p className="text-primary-100">
             Faça login para acessar o painel administrativo
           </p>

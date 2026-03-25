@@ -25,8 +25,8 @@ export default defineConfig({
         host: '0.0.0.0',
         strictPort: false,
         allowedHosts: [
-            'fotoweb-production.up.railway.app',
-            'fotowweb-production.up.railway.app',
+            'snapliweb-production.up.railway.app',
+            'snapliweb-production.up.railway.app',
             '.railway.app',
             'localhost',
         ],
