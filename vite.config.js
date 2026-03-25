@@ -26,9 +26,9 @@ export default defineConfig({
         strictPort: false,
         allowedHosts: [
             'snapliweb-production.up.railway.app',
-            'snapliweb-production.up.railway.app',
             '.railway.app',
             'localhost',
+            'web.snapli.com.br',
         ],
     },
     build: {
