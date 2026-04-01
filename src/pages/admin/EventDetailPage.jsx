@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import EventForm from "../../components/forms/EventForm";
+import EventSales from "../../components/admin/EventSales";
 
 export default function EventDetailPage() {
   const { id } = useParams();
@@ -308,6 +309,11 @@ export default function EventDetailPage() {
             <span>Ver Fotos do Evento</span>
           </Link>
         </div>
+      </div>
+
+      {/* Sales */}
+      <div className="mt-6">
+        <EventSales eventId={id} />
       </div>
 
       {/* Event Info */}

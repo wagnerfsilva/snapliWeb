@@ -86,4 +86,10 @@ export const searchAPI = {
     getSalesStatistics: (params) => api.get('/search/sales-statistics', { params }),
 };
 
+// Orders API
+export const ordersAPI = {
+    getByEvent: (eventId) => api.get(`/orders/event/${eventId}`),
+    syncWithAsaas: (orderId) => api.post(`/orders/${orderId}/sync-asaas`),
+};
+
 export default api;
