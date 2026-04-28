@@ -156,7 +156,7 @@ export default function EventGalleryPage() {
                   onClick={() => setSelectedPhoto(photo)}
                 >
                   <img
-                    src={photo.watermarkedUrl || photo.thumbnailUrl}
+                    src={photo.watermarkedUrl}
                     alt="Foto do evento"
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -251,7 +251,7 @@ export default function EventGalleryPage() {
 
             {/* Image */}
             <img
-              src={selectedPhoto.watermarkedUrl || selectedPhoto.thumbnailUrl}
+              src={selectedPhoto.watermarkedUrl}
               alt="Foto do evento"
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
             />

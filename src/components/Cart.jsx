@@ -116,7 +116,7 @@ export default function Cart({ eventPricing }) {
                       style={{ background: 'var(--bg)' }}
                     >
                       <img
-                        src={photo.watermarkedUrl || photo.thumbnailUrl}
+                        src={photo.watermarkedUrl}
                         alt="Foto"
                         className="w-16 h-16 object-cover rounded-lg"
                       />
