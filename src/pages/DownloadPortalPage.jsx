@@ -19,6 +19,8 @@ export default function DownloadPortalPage() {
   const [photos, setPhotos] = useState([]);
   const [downloading, setDownloading] = useState({});
   const [originalUrls, setOriginalUrls] = useState({});
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [downloadAllProgress, setDownloadAllProgress] = useState(null);
 
   useEffect(() => {
     fetchOrderDetails();
@@ -136,6 +138,42 @@ export default function DownloadPortalPage() {
     } finally {
       setDownloading((prev) => ({ ...prev, [photoId]: false }));
     }
+  };
+
+  const handleDownloadAll = async () => {
+    setDownloadingAll(true);
+    setDownloadAllProgress({ done: 0, total: photos.length });
+
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      try {
+        let downloadUrl = originalUrls[photo.id];
+        if (!downloadUrl) {
+          const response = await api.get(`/downloads/${token}/photo/${photo.id}`);
+          downloadUrl = response.data.downloadUrl;
+        }
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+          window.open(downloadUrl, '_blank');
+          await new Promise(r => setTimeout(r, 1500));
+        } else {
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = photo.originalFilename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          await new Promise(r => setTimeout(r, 500));
+        }
+      } catch (err) {
+        console.error(`Erro ao baixar ${photo.originalFilename}:`, err);
+      }
+      setDownloadAllProgress({ done: i + 1, total: photos.length });
+    }
+
+    setDownloadingAll(false);
+    setDownloadAllProgress(null);
   };
 
   const formatDate = (date) => {
@@ -278,7 +316,28 @@ export default function DownloadPortalPage() {
 
         {/* Photos Grid */}
         <div className="card p-6">
-          <h2 className="text-xl font-bold font-sora mb-4">Suas Fotos</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold font-sora">Suas Fotos</h2>
+            <button
+              onClick={handleDownloadAll}
+              disabled={downloadingAll}
+              className="btn btn-primary flex items-center gap-2"
+            >
+              {downloadingAll ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-dark"></div>
+                  {downloadAllProgress
+                    ? `Baixando ${downloadAllProgress.done}/${downloadAllProgress.total}...`
+                    : 'Preparando...'}
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Baixar Todas ({photos.length})
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Mobile download tip */}
           <div className="mb-6 p-4 rounded-xl flex items-start gap-3 md:hidden" style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.15)' }}>
