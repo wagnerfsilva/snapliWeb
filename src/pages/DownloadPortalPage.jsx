@@ -7,6 +7,8 @@ import {
   AlertCircle,
   ImageIcon,
   Smartphone,
+  Link,
+  Copy,
 } from "lucide-react";
 import api from "../lib/api";
 
@@ -21,6 +23,13 @@ export default function DownloadPortalPage() {
   const [originalUrls, setOriginalUrls] = useState({});
   const [downloadingAll, setDownloadingAll] = useState(false);
   const [downloadAllProgress, setDownloadAllProgress] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 3000);
+  };
 
   useEffect(() => {
     fetchOrderDetails();
@@ -236,6 +245,29 @@ export default function DownloadPortalPage() {
   return (
     <div className="min-h-screen py-8 px-4" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-6xl mx-auto">
+        {/* Link alert */}
+        <div className="card p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3" style={{ borderLeft: '3px solid #FFC800', background: 'rgba(255,200,0,0.06)' }}>
+          <div className="flex items-start gap-3 flex-1">
+            <Link className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#FFC800' }} />
+            <div>
+              <p className="font-semibold text-sm" style={{ color: '#FFC800' }}>Salve este link!</p>
+              <p className="text-xs text-muted mt-0.5">Este é o único jeito de acessar suas fotos. Guarde o link ou envie para o seu e-mail.</p>
+              <p className="text-xs font-mono mt-1 truncate max-w-xs sm:max-w-md" style={{ color: 'var(--text-dim)' }}>{window.location.href}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleCopyLink}
+            className="btn btn-sm flex items-center gap-2 whitespace-nowrap self-start sm:self-auto"
+            style={linkCopied ? { background: 'rgba(0,212,170,0.15)', color: '#00D4AA', border: '1px solid rgba(0,212,170,0.3)' } : { background: 'rgba(255,200,0,0.12)', color: '#FFC800', border: '1px solid rgba(255,200,0,0.3)' }}
+          >
+            {linkCopied ? (
+              <><CheckCircle className="w-4 h-4" /> Copiado!</>
+            ) : (
+              <><Copy className="w-4 h-4" /> Copiar Link</>
+            )}
+          </button>
+        </div>
+
         {/* Header */}
         <div className="card p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
