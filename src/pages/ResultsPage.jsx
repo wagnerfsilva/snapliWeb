@@ -17,20 +17,31 @@ export default function ResultsPage() {
     return items.some((item) => item.id === photoId);
   };
 
+  const pricing = eventData
+    ? {
+        pricePerPhoto: eventData.pricePerPhoto,
+        pricingPackages: eventData.pricingPackages,
+        allPhotosPrice: eventData.allPhotosPrice,
+      }
+    : {};
+
   const handleAddToCart = (photo) => {
-    const pricing = eventData
-      ? {
-          pricePerPhoto: eventData.pricePerPhoto,
-          pricingPackages: eventData.pricingPackages,
-          allPhotosPrice: eventData.allPhotosPrice,
-        }
-      : {};
     addPhoto(
       photo,
       photo.eventId,
       searchResults[0]?.event?.name || "Evento",
       pricing,
     );
+  };
+
+  const allInCart = searchResults.length > 0 && searchResults.every((p) => isPhotoInCart(p.id));
+
+  const handleAddAll = () => {
+    searchResults.forEach((photo) => {
+      if (!isPhotoInCart(photo.id)) {
+        addPhoto(photo, photo.eventId, searchResults[0]?.event?.name || "Evento", pricing);
+      }
+    });
   };
 
   if (!searchResults || searchResults.length === 0) {
@@ -61,14 +72,33 @@ export default function ResultsPage() {
     <div className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold font-sora mb-2">
-            Encontramos {searchResults.length} foto(s)!
-          </h1>
-          <p className="text-muted">
-            Todas as fotos são exibidas com marca d'água. Adquira as originais
-            em alta resolução.
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold font-sora mb-2">
+              Encontramos {searchResults.length} foto(s)!
+            </h1>
+            <p className="text-muted">
+              Todas as fotos são exibidas com marca d'água. Adquira as originais
+              em alta resolução.
+            </p>
+          </div>
+          <button
+            onClick={handleAddAll}
+            disabled={allInCart}
+            className="btn btn-primary whitespace-nowrap flex items-center gap-2 self-start sm:self-auto"
+          >
+            {allInCart ? (
+              <>
+                <Check className="h-4 w-4" />
+                Todas no Carrinho
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4" />
+                Adicionar Todas ({searchResults.length})
+              </>
+            )}
+          </button>
         </div>
 
         {/* Results Grid */}
