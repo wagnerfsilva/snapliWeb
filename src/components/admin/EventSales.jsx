@@ -12,6 +12,8 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
+  TrendingUp,
+  ImageIcon,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -73,6 +75,8 @@ export default function EventSales({ eventId }) {
   const paidOrders = orders.filter(o => ["paid", "completed"].includes(o.status));
   const totalRevenue = paidOrders.reduce((sum, o) => sum + parseFloat(o.totalAmount || 0), 0);
   const totalPhotos = paidOrders.reduce((sum, o) => sum + o.photoCount, 0);
+  const ticketMedio = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
+  const ticketMedioFotos = totalPhotos > 0 ? totalRevenue / totalPhotos : 0;
 
   if (isLoading) {
     return (
@@ -98,7 +102,7 @@ export default function EventSales({ eventId }) {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div className="p-4 rounded-xl" style={{ background: "rgba(200,255,0,0.08)", border: "1px solid rgba(200,255,0,0.15)" }}>
           <div className="flex items-center space-x-3">
             <ShoppingBag className="h-5 w-5 text-lime" />
@@ -123,6 +127,24 @@ export default function EventSales({ eventId }) {
             <div>
               <p className="text-xs text-muted">Fotos Vendidas</p>
               <p className="text-xl font-bold">{totalPhotos}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 rounded-xl" style={{ background: "rgba(251,146,60,0.08)", border: "1px solid rgba(251,146,60,0.15)" }}>
+          <div className="flex items-center space-x-3">
+            <TrendingUp className="h-5 w-5" style={{ color: "#FB923C" }} />
+            <div>
+              <p className="text-xs text-muted">Ticket Médio</p>
+              <p className="text-xl font-bold">R$ {ticketMedio.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 rounded-xl" style={{ background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.15)" }}>
+          <div className="flex items-center space-x-3">
+            <ImageIcon className="h-5 w-5" style={{ color: "#38BDF8" }} />
+            <div>
+              <p className="text-xs text-muted">Ticket Médio Foto</p>
+              <p className="text-xl font-bold">R$ {ticketMedioFotos.toFixed(2)}</p>
             </div>
           </div>
         </div>
