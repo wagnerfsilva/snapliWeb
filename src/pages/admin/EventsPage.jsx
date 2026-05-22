@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { eventsAPI } from "../../lib/api";
 import toast from "react-hot-toast";
 import {
@@ -14,6 +14,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadEvents();
@@ -121,20 +122,19 @@ export default function EventsPage() {
                   return (
                     <tr
                       key={event.id}
-                      className="hover:bg-white/[0.02] transition-colors"
+                      onClick={() => navigate(`/admin/events/${event.id}`)}
+                      className="hover:bg-white/[0.06] transition-colors cursor-pointer"
                       style={{ borderBottom: '1px solid var(--border)' }}
                     >
                       <td className="px-6 py-4">
-                        <Link to={`/admin/events/${event.id}`} className="block">
-                          <div className="text-sm font-medium hover:text-lime transition-colors">
-                            {event.name}
+                        <div className="text-sm font-medium">
+                          {event.name}
+                        </div>
+                        {event.description && (
+                          <div className="text-sm text-dim line-clamp-1 mt-1">
+                            {event.description}
                           </div>
-                          {event.description && (
-                            <div className="text-sm text-dim line-clamp-1 mt-1">
-                              {event.description}
-                            </div>
-                          )}
-                        </Link>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-muted">
