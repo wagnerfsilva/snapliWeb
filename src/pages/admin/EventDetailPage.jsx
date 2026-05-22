@@ -316,43 +316,6 @@ export default function EventDetailPage() {
         <EventSales eventId={id} />
       </div>
 
-      {/* Event Info */}
-      <div className="card mt-6">
-        <h2 className="text-lg font-semibold font-sora mb-4">
-          Informações do Evento
-        </h2>
-        <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <dt className="text-sm font-medium text-muted">Criado por</dt>
-            <dd className="mt-1 text-sm">
-              {event.creator?.name || "N/A"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-muted">Email</dt>
-            <dd className="mt-1 text-sm">
-              {event.creator?.email || "N/A"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-muted">
-              Data de criação
-            </dt>
-            <dd className="mt-1 text-sm">
-              {new Date(event.createdAt).toLocaleString("pt-BR")}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-muted">
-              Última atualização
-            </dt>
-            <dd className="mt-1 text-sm">
-              {new Date(event.updatedAt).toLocaleString("pt-BR")}
-            </dd>
-          </div>
-        </dl>
-      </div>
-
       {/* Edit Modal */}
       {showEditModal && (
         <EventForm
