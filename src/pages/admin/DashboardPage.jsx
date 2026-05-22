@@ -111,6 +111,7 @@ export default function DashboardPage() {
   const chartData = salesData.map((sale) => ({
     period: formatPeriodLabel(sale.period),
     Receita: parseFloat(sale.revenue),
+    Pedidos: sale.ordersCount ?? 0,
   }));
 
   // Format currency
@@ -281,9 +282,39 @@ export default function DashboardPage() {
                   formatter={(value) => formatCurrency(value)}
                   contentStyle={{ background: '#1C1C21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#FAFAFA' }}
                   labelStyle={{ color: "#FAFAFA" }}
+                  cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                 />
                 <Legend />
                 <Bar dataKey="Receita" fill="#C8FF00" name="Receita (R$)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Orders Count Chart */}
+      {chartData.length > 0 && (
+        <div className="card mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold font-sora">
+              Pedidos no Período
+            </h2>
+          </div>
+
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="period" stroke="#71717A" fontSize={12} />
+                <YAxis stroke="#71717A" fontSize={12} allowDecimals={false} />
+                <Tooltip
+                  formatter={(value) => [value, "Pedidos"]}
+                  contentStyle={{ background: '#1C1C21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#FAFAFA' }}
+                  labelStyle={{ color: "#FAFAFA" }}
+                  cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                />
+                <Legend />
+                <Bar dataKey="Pedidos" fill="#00D4AA" name="Pedidos" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
