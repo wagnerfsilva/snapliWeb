@@ -290,52 +290,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Recent Events */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold font-sora">Eventos Recentes</h2>
-          <Link
-            to="/admin/events"
-            className="text-lime hover:opacity-70 font-medium transition-opacity"
-          >
-            Ver todos →
-          </Link>
-        </div>
-
-        {recentEvents.length === 0 ? (
-          <p className="text-muted text-center py-8">
-            Nenhum evento cadastrado
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {recentEvents.map((event) => (
-              <Link
-                key={event.id}
-                to={`/admin/events/${event.id}`}
-                className="block p-4 rounded-xl transition-all hover:ring-1 hover:ring-white/10"
-                style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold">
-                      {event.name}
-                    </h3>
-                    <p className="text-sm text-muted mt-1">
-                      {new Date(event.date).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-lime">
-                      {event.photoCount}
-                    </p>
-                    <p className="text-xs text-dim">fotos</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
