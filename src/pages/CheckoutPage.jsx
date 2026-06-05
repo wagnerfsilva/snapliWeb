@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../store/cartStore";
 import {
@@ -15,7 +15,7 @@ import api from "../lib/api";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { items, eventData, clearCart, getPriceBreakdown } = useCartStore();
+  const { items, events, clearCart, getTotalPrice, getPriceBreakdownPerEvent } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPixPayment, setShowPixPayment] = useState(false);
@@ -33,14 +33,9 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState({});
 
-  // Log dos dados de pricing do carrinho
-  useEffect(() => {
-    console.log("Dados de pricing do carrinho:", {
-      pricePerPhoto: eventData?.pricePerPhoto,
-      pricingPackages: eventData?.pricingPackages,
-      allPhotosPrice: eventData?.allPhotosPrice,
-    });
-  }, [eventData]);
+  const eventBreakdowns = getPriceBreakdownPerEvent();
+  const totalPrice = getTotalPrice();
+  const eventCount = Object.keys(events).length;
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -255,14 +250,6 @@ export default function CheckoutPage() {
 
   // Tela de pagamento PIX
   if (showPixPayment && pixData) {
-    const priceInfo = eventData
-      ? getPriceBreakdown(
-          eventData.pricePerPhoto,
-          eventData.pricingPackages,
-          eventData.allPhotosPrice,
-        )
-      : { totalPrice: 0 };
-
     return (
       <div className="py-12">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -291,15 +278,16 @@ export default function CheckoutPage() {
             <div className="rounded-xl p-4 mb-6 text-center" style={{ background: 'var(--bg)' }}>
               <p className="text-sm text-muted mb-1">Valor total</p>
               <p className="text-3xl font-bold text-lime">
-                R$ {priceInfo.totalPrice.toFixed(2)}
+                R$ {totalPrice.toFixed(2)}
               </p>
               <p className="text-sm text-dim mt-1">
                 {items.length} foto{items.length > 1 ? "s" : ""}
+                {eventCount > 1 ? ` · ${eventCount} eventos` : ""}
               </p>
             </div>
 
             {/* Aviso de valor mínimo PIX */}
-            {priceInfo.totalPrice < 5 && (
+            {totalPrice < 5 && (
               <div className="rounded-xl p-4 mb-6" style={{ background: 'rgba(255,200,0,0.1)', border: '1px solid rgba(255,200,0,0.2)' }}>
                 <p className="text-sm font-medium" style={{ color: '#FFC800' }}>
                   O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
@@ -429,14 +417,8 @@ export default function CheckoutPage() {
     );
   }
 
-  // Calcula o preço usando os dados do evento do carrinho
-  const priceInfo = eventData
-    ? getPriceBreakdown(
-        eventData.pricePerPhoto,
-        eventData.pricingPackages,
-        eventData.allPhotosPrice,
-      )
-    : { totalPrice: 0, details: "Carregando preços..." };
+  // priceInfo consolidado para compatibilidade com o formulário
+  const priceInfo = { totalPrice, details: "" };
 
   return (
     <div className="py-12">
@@ -539,13 +521,22 @@ export default function CheckoutPage() {
               Resumo do Pedido
             </h2>
 
-            {/* Evento */}
-            {eventData && (
+            {/* Eventos */}
+            {eventBreakdowns.length > 0 && (
               <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
-                <p className="text-sm font-medium text-muted">Evento</p>
-                <p className="text-lg font-semibold">
-                  {eventData.eventName}
+                <p className="text-sm font-medium text-muted mb-2">
+                  {eventBreakdowns.length === 1 ? "Evento" : "Eventos"}
                 </p>
+                <div className="space-y-1">
+                  {eventBreakdowns.map((ev) => (
+                    <div key={ev.eventId} className="flex justify-between items-baseline gap-2">
+                      <p className="text-sm font-semibold truncate">{ev.eventName}</p>
+                      <p className="text-xs text-muted whitespace-nowrap">
+                        {ev.photoCount} foto{ev.photoCount > 1 ? "s" : ""}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -580,21 +571,30 @@ export default function CheckoutPage() {
                 </span>
               </div>
 
-              {priceInfo.details && (
+              {/* Per-event breakdown */}
+              {eventBreakdowns.length > 1 && eventBreakdowns.map((ev) => (
+                <div key={ev.eventId} className="flex justify-between text-sm text-muted">
+                  <span className="truncate mr-2">{ev.eventName}:</span>
+                  <span className="font-medium whitespace-nowrap">
+                    R$ {ev.breakdown.totalPrice.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+              {eventBreakdowns.length === 1 && eventBreakdowns[0].breakdown.details && (
                 <div className="flex justify-between text-sm text-muted">
                   <span>Melhor opção:</span>
-                  <span className="font-medium">{priceInfo.details}</span>
+                  <span className="font-medium">{eventBreakdowns[0].breakdown.details}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-lg font-bold pt-3" style={{ borderTop: '1px solid var(--border)' }}>
                 <span>Total:</span>
                 <span className="text-lime">
-                  R$ {priceInfo.totalPrice.toFixed(2)}
+                  R$ {totalPrice.toFixed(2)}
                 </span>
               </div>
 
-              {priceInfo.totalPrice < 5 && (
+              {totalPrice < 5 && (
                 <div className="rounded-xl p-3 mt-3" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.2)' }}>
                   <p className="text-sm" style={{ color: '#FFC800' }}>
                     O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
