@@ -12,6 +12,8 @@
   --lime: #C8FF00;
   --lime-dim: rgba(200,255,0,0.12);
   --teal: #00D4AA;
+  --amber: #F59E0B;
+  --amber-dim: rgba(245,158,11,0.12);
 }
 
 @layer base {

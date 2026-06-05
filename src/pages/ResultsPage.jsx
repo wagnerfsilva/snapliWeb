@@ -60,21 +60,21 @@ function PricingTable({ event }) {
           className="flex items-center justify-between px-4 py-2.5 gap-4"
           style={
             row.highlight
-              ? { background: 'var(--lime-dim)', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }
+              ? { background: 'var(--amber-dim)', borderTop: i > 0 ? '1px solid rgba(245,158,11,0.15)' : 'none' }
               : { background: i % 2 === 0 ? 'var(--bg)' : 'var(--surface)', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }
           }
         >
           <div className="flex items-center gap-2">
-            {row.highlight && <Zap className="h-3.5 w-3.5 text-lime flex-shrink-0" />}
+            {row.highlight && <Zap className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--amber)' }} />}
             <span
               className="text-sm font-semibold"
-              style={{ color: row.highlight ? 'var(--lime)' : 'var(--text)' }}
+              style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
             >
               {row.label}
             </span>
             {row.highlight && (
               <span className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
-                style={{ background: 'var(--lime)', color: '#09090B' }}>
+                style={{ background: 'var(--amber)', color: '#09090B' }}>
                 melhor valor
               </span>
             )}
@@ -82,7 +82,7 @@ function PricingTable({ event }) {
           <div className="text-right">
             <span
               className="text-base font-bold tabular-nums"
-              style={{ color: row.highlight ? 'var(--lime)' : 'var(--text)' }}
+              style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
             >
               R$ {row.price.toFixed(2)}
             </span>
