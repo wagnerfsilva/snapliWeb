@@ -1,7 +1,7 @@
 import { useSearchStore } from "../store/searchStore";
 import useCartStore from "../store/cartStore";
 import { useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, Check, Tag } from "lucide-react";
+import { Search, ShoppingCart, Check, Zap } from "lucide-react";
 import { useState, useMemo } from "react";
 import Cart from "../components/Cart";
 
@@ -20,31 +20,80 @@ function groupPhotosByEvent(photos) {
   );
 }
 
-// Formata exibição de preços de um evento
-function PricingBadges({ event }) {
+// Tabela de preços do evento
+function PricingTable({ event }) {
   if (!event) return null;
   const { pricePerPhoto, pricingPackages, allPhotosPrice } = event;
+
+  // Monta linhas: 1 por X, pacotes, todas
+  const rows = [];
+  if (pricePerPhoto) {
+    rows.push({ label: "1 foto", price: parseFloat(pricePerPhoto), highlight: false });
+  }
+  if (pricingPackages && pricingPackages.length > 0) {
+    const sorted = [...pricingPackages].sort((a, b) => a.quantity - b.quantity);
+    sorted.forEach((pkg) => {
+      rows.push({
+        label: `${pkg.quantity} fotos`,
+        price: parseFloat(pkg.price),
+        priceEach: pricePerPhoto ? (parseFloat(pkg.price) / pkg.quantity) : null,
+        highlight: false,
+      });
+    });
+  }
+  if (allPhotosPrice) {
+    rows.push({
+      label: "Todas as fotos",
+      price: parseFloat(allPhotosPrice),
+      isAll: true,
+      highlight: true,
+    });
+  }
+
+  if (rows.length === 0) return null;
+
   return (
-    <div className="flex flex-wrap gap-2 items-center">
-      {pricePerPhoto && (
-        <span className="inline-flex items-center gap-1 text-xs rounded-lg px-2.5 py-1 font-medium"
-          style={{ background: 'var(--lime-dim)', color: 'var(--lime)' }}>
-          <Tag className="h-3 w-3" />
-          R$ {parseFloat(pricePerPhoto).toFixed(2)} / foto
-        </span>
-      )}
-      {pricingPackages && pricingPackages.length > 0 && pricingPackages.map((pkg, i) => (
-        <span key={i} className="inline-flex items-center gap-1 text-xs rounded-lg px-2.5 py-1 font-medium"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-          {pkg.quantity} fotos por R$ {parseFloat(pkg.price).toFixed(2)}
-        </span>
+    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+      {rows.map((row, i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between px-4 py-2.5 gap-4"
+          style={
+            row.highlight
+              ? { background: 'var(--lime-dim)', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }
+              : { background: i % 2 === 0 ? 'var(--bg)' : 'var(--surface)', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }
+          }
+        >
+          <div className="flex items-center gap-2">
+            {row.highlight && <Zap className="h-3.5 w-3.5 text-lime flex-shrink-0" />}
+            <span
+              className="text-sm font-semibold"
+              style={{ color: row.highlight ? 'var(--lime)' : 'var(--text)' }}
+            >
+              {row.label}
+            </span>
+            {row.highlight && (
+              <span className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
+                style={{ background: 'var(--lime)', color: '#09090B' }}>
+                melhor valor
+              </span>
+            )}
+          </div>
+          <div className="text-right">
+            <span
+              className="text-base font-bold tabular-nums"
+              style={{ color: row.highlight ? 'var(--lime)' : 'var(--text)' }}
+            >
+              R$ {row.price.toFixed(2)}
+            </span>
+            {row.priceEach && (
+              <p className="text-[11px] text-muted">
+                R$ {row.priceEach.toFixed(2)} cada
+              </p>
+            )}
+          </div>
+        </div>
       ))}
-      {allPhotosPrice && (
-        <span className="inline-flex items-center gap-1 text-xs rounded-lg px-2.5 py-1 font-medium"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-          Todas por R$ {parseFloat(allPhotosPrice).toFixed(2)}
-        </span>
-      )}
     </div>
   );
 }
@@ -142,8 +191,8 @@ export default function ResultsPage() {
           return (
             <div key={group.eventId}>
               {/* Event info + select-all row */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <div className="flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                <div className="flex flex-col gap-3 flex-1 max-w-sm">
                   {multiEvent && (
                     <div className="flex items-center gap-2 text-sm text-muted">
                       <span>
@@ -154,12 +203,12 @@ export default function ResultsPage() {
                       </span>
                     </div>
                   )}
-                  <PricingBadges event={group.event} />
+                  <PricingTable event={group.event} />
                 </div>
                 <button
                   onClick={() => handleAddAllInGroup(group)}
                   disabled={allGroupInCart}
-                  className="btn btn-primary whitespace-nowrap flex items-center gap-2 self-start sm:self-auto"
+                  className="btn btn-primary whitespace-nowrap flex items-center gap-2 self-start"
                 >
                   {allGroupInCart ? (
                     <>
