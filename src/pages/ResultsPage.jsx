@@ -79,18 +79,18 @@ function PricingTable({ event }) {
               </span>
             )}
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-2">
+            {row.priceEach && (
+              <span className="text-[11px] text-muted tabular-nums">
+                R$ {row.priceEach.toFixed(2)} cada
+              </span>
+            )}
             <span
-              className="text-base font-bold tabular-nums"
+              className={`font-bold tabular-nums ${row.highlight ? 'text-lg' : 'text-base'}`}
               style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
             >
               R$ {row.price.toFixed(2)}
             </span>
-            {row.priceEach && (
-              <p className="text-[11px] text-muted">
-                R$ {row.priceEach.toFixed(2)} cada
-              </p>
-            )}
           </div>
         </div>
       ))}
