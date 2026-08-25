@@ -23,7 +23,7 @@ function groupPhotosByEvent(photos) {
 // Tabela de preços do evento
 function PricingTable({ event }) {
   if (!event) return null;
-  const { pricePerPhoto, pricingPackages, allPhotosPrice } = event;
+  const { pricePerPhoto, pricingPackages, allPhotosPrice, freePhotosCount } = event;
 
   // Monta linhas: 1 por X, pacotes, todas
   const rows = [];
@@ -53,47 +53,60 @@ function PricingTable({ event }) {
   if (rows.length === 0) return null;
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-      {rows.map((row, i) => (
+    <div className="space-y-2">
+      {freePhotosCount > 0 && (
         <div
-          key={i}
-          className="flex items-center justify-between px-4 py-2.5 gap-4"
-          style={
-            row.highlight
-              ? { background: 'var(--amber-dim)', borderTop: i > 0 ? '1px solid rgba(245,158,11,0.15)' : 'none' }
-              : { background: i % 2 === 0 ? 'var(--bg)' : 'var(--surface)', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }
-          }
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
+          style={{ background: 'var(--amber-dim)', color: 'var(--amber)' }}
         >
-          <div className="flex items-center gap-2">
-            {row.highlight && <Zap className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--amber)' }} />}
-            <span
-              className="text-sm font-semibold"
-              style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
-            >
-              {row.label}
-            </span>
-            {row.highlight && (
-              <span className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
-                style={{ background: 'var(--amber)', color: '#09090B' }}>
-                melhor valor
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {row.priceEach && (
-              <span className="text-[11px] text-muted tabular-nums">
-                R$ {row.priceEach.toFixed(2)} cada
-              </span>
-            )}
-            <span
-              className={`font-bold tabular-nums ${row.highlight ? 'text-lg' : 'text-base'}`}
-              style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
-            >
-              R$ {row.price.toFixed(2)}
-            </span>
-          </div>
+          <Zap className="h-3.5 w-3.5 flex-shrink-0" />
+          <span>
+            +{freePhotosCount} foto{freePhotosCount > 1 ? "s" : ""} grátis nesta compra
+          </span>
         </div>
-      ))}
+      )}
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        {rows.map((row, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between px-4 py-2.5 gap-4"
+            style={
+              row.highlight
+                ? { background: 'var(--amber-dim)', borderTop: i > 0 ? '1px solid rgba(245,158,11,0.15)' : 'none' }
+                : { background: i % 2 === 0 ? 'var(--bg)' : 'var(--surface)', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }
+            }
+          >
+            <div className="flex items-center gap-2">
+              {row.highlight && <Zap className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--amber)' }} />}
+              <span
+                className="text-sm font-semibold"
+                style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
+              >
+                {row.label}
+              </span>
+              {row.highlight && (
+                <span className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
+                  style={{ background: 'var(--amber)', color: '#09090B' }}>
+                  melhor valor
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {row.priceEach && (
+                <span className="text-[11px] text-muted tabular-nums">
+                  R$ {row.priceEach.toFixed(2)} cada
+                </span>
+              )}
+              <span
+                className={`font-bold tabular-nums ${row.highlight ? 'text-lg' : 'text-base'}`}
+                style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
+              >
+                R$ {row.price.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -115,6 +128,7 @@ export default function ResultsPage() {
       pricePerPhoto: photo.event?.pricePerPhoto,
       pricingPackages: photo.event?.pricingPackages,
       allPhotosPrice: photo.event?.allPhotosPrice,
+      freePhotosCount: photo.event?.freePhotosCount,
     });
   };
 

@@ -2,18 +2,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // Calcula o melhor preço para um conjunto de fotos dado o pricing de um evento
-function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice) {
+function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0) {
     if (photoCount === 0) return 0;
+
+    // Fotos grátis não entram no cálculo de pacotes/individual; sempre sobra ao menos 1 foto paga
+    const freeCount = Math.max(0, Math.min(freePhotosCount || 0, photoCount - 1));
+    const paidCount = photoCount - freeCount;
 
     const prices = [];
 
     if (pricePerPhoto) {
-        prices.push(photoCount * parseFloat(pricePerPhoto));
+        prices.push(paidCount * parseFloat(pricePerPhoto));
     }
 
     if (pricingPackages && pricingPackages.length > 0) {
         const sortedPackages = [...pricingPackages].sort((a, b) => b.quantity - a.quantity);
-        let remaining = photoCount;
+        let remaining = paidCount;
         let packagePrice = 0;
         for (const pkg of sortedPackages) {
             while (remaining >= pkg.quantity) {
@@ -35,25 +39,29 @@ function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
 }
 
 // Gera breakdown detalhado para um grupo de fotos
-function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice) {
+function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0) {
     if (photoCount === 0) {
         return { bestOption: null, totalPrice: 0, details: "", allOptions: [] };
     }
 
+    // Fotos grátis não entram no cálculo de pacotes/individual; sempre sobra ao menos 1 foto paga
+    const freeCount = Math.max(0, Math.min(freePhotosCount || 0, photoCount - 1));
+    const paidCount = photoCount - freeCount;
+
     const options = [];
 
     if (pricePerPhoto) {
-        const price = photoCount * parseFloat(pricePerPhoto);
+        const price = paidCount * parseFloat(pricePerPhoto);
         options.push({
             type: "individual",
             price,
-            details: `${photoCount} foto${photoCount > 1 ? "s" : ""} × R$ ${parseFloat(pricePerPhoto).toFixed(2)}`,
+            details: `${paidCount} foto${paidCount > 1 ? "s" : ""} × R$ ${parseFloat(pricePerPhoto).toFixed(2)}`,
         });
     }
 
     if (pricingPackages && pricingPackages.length > 0) {
         const sortedPackages = [...pricingPackages].sort((a, b) => b.quantity - a.quantity);
-        let remaining = photoCount;
+        let remaining = paidCount;
         let packagePrice = 0;
         const usedPackages = [];
         for (const pkg of sortedPackages) {
@@ -85,7 +93,8 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
     }
 
     const best = options.reduce((b, c) => (c.price < b.price ? c : b));
-    return { bestOption: best.type, totalPrice: best.price, details: best.details, allOptions: options };
+    const freePrefix = freeCount > 0 ? `${freeCount} foto${freeCount > 1 ? "s" : ""} grátis + ` : "";
+    return { bestOption: best.type, totalPrice: best.price, details: `${freePrefix}${best.details}`, allOptions: options };
 }
 
 const useCartStore = create(
@@ -112,6 +121,7 @@ const useCartStore = create(
                             pricePerPhoto: pricing.pricePerPhoto,
                             pricingPackages: pricing.pricingPackages,
                             allPhotosPrice: pricing.allPhotosPrice,
+                            freePhotosCount: pricing.freePhotosCount,
                         },
                     },
                 });
@@ -155,7 +165,8 @@ const useCartStore = create(
                         photosInEvent.length,
                         ev.pricePerPhoto,
                         ev.pricingPackages,
-                        ev.allPhotosPrice
+                        ev.allPhotosPrice,
+                        ev.freePhotosCount
                     );
                 }, 0);
             },
@@ -169,7 +180,8 @@ const useCartStore = create(
                         photosInEvent.length,
                         ev.pricePerPhoto,
                         ev.pricingPackages,
-                        ev.allPhotosPrice
+                        ev.allPhotosPrice,
+                        ev.freePhotosCount
                     );
                     return { eventId: ev.eventId, eventName: ev.eventName, photoCount: photosInEvent.length, breakdown };
                 });

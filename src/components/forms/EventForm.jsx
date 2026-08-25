@@ -15,6 +15,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     pricePerPhoto: initialData?.pricePerPhoto || "5.00",
     pricingPackages: initialData?.pricingPackages || [],
     allPhotosPrice: initialData?.allPhotosPrice || "",
+    freePhotosCount: initialData?.freePhotosCount ?? 0,
   });
 
   const [newPackage, setNewPackage] = useState({ quantity: "", price: "" });
@@ -97,6 +98,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         allPhotosPrice: formData.allPhotosPrice
           ? parseFloat(formData.allPhotosPrice)
           : null,
+        freePhotosCount: Math.min(
+          Math.max(parseInt(formData.freePhotosCount) || 0, 0),
+          3
+        ),
       };
 
       await onSuccess(dataToSubmit);
@@ -360,6 +365,33 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               />
               <p className="mt-1 text-sm text-muted">
                 Deixe em branco se não quiser oferecer essa opção
+              </p>
+            </div>
+
+            {/* Fotos grátis na compra */}
+            <div>
+              <label
+                htmlFor="freePhotosCount"
+                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+              >
+                Foto(s) Grátis na Compra
+              </label>
+              <input
+                type="number"
+                id="freePhotosCount"
+                name="freePhotosCount"
+                value={formData.freePhotosCount}
+                onChange={handleChange}
+                step="1"
+                min="0"
+                max="3"
+                className="input"
+                placeholder="0"
+                disabled={isSubmitting}
+              />
+              <p className="mt-1 text-sm text-muted">
+                Quantidade de fotos que o cliente pode levar grátis ao comprar
+                outras fotos deste evento (máx. 3). Deixe 0 para desativar.
               </p>
             </div>
           </div>
