@@ -15,6 +15,7 @@ import AdminEventDetail from "./pages/admin/EventDetailPage";
 import AdminUpload from "./pages/admin/UploadPage";
 import AdminEventGallery from "./pages/admin/EventGalleryPage";
 import AdminOrganizers from "./pages/admin/OrganizersPage";
+import AdminPhotographers from "./pages/admin/PhotographersPage";
 import AdminWithdrawals from "./pages/admin/WithdrawalsPage";
 
 // Layout components
@@ -114,6 +115,14 @@ function App() {
           element={
             <RoleRoute roles={["admin"]}>
               <AdminOrganizers />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="photographers"
+          element={
+            <RoleRoute roles={["admin"]}>
+              <AdminPhotographers />
             </RoleRoute>
           }
         />

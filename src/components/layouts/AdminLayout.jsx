@@ -7,6 +7,7 @@ import {
   Upload,
   LogOut,
   Users,
+  Camera,
   Wallet,
 } from "lucide-react";
 import { SnapliLogo } from "./PublicLayout";
@@ -16,6 +17,7 @@ const NAVIGATION_BY_ROLE = {
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Eventos", href: "/admin/events", icon: Calendar },
     { name: "Upload", href: "/admin/upload", icon: Upload },
+    { name: "Fotógrafos", href: "/admin/photographers", icon: Camera },
     { name: "Organizadores", href: "/admin/organizers", icon: Users },
     { name: "Resgates", href: "/admin/withdrawals", icon: Wallet },
   ],
