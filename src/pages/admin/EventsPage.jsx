@@ -115,6 +115,18 @@ export default function EventsPage() {
                     Total Vendido
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                    Percentual
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                    Comissão
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                    Solicitado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                    Restante
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Ticket Médio
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
@@ -127,6 +139,10 @@ export default function EventsPage() {
                   const totalRevenue = parseFloat(event.totalRevenue || 0);
                   const paidOrdersCount = parseInt(event.paidOrdersCount || 0);
                   const avgTicket = paidOrdersCount > 0 ? totalRevenue / paidOrdersCount : 0;
+                  const commissionPercentage = parseFloat(event.organizerCommissionPercentage || 0);
+                  const commissionTotal = totalRevenue * (commissionPercentage / 100);
+                  const requestedAmount = parseFloat(event.requestedAmount || 0);
+                  const remainingToRequest = Math.max(commissionTotal - requestedAmount, 0);
 
                   return (
                     <tr
@@ -166,6 +182,34 @@ export default function EventsPage() {
                         {paidOrdersCount > 0 && (
                           <div className="text-xs text-dim mt-0.5">{paidOrdersCount} pedido{paidOrdersCount !== 1 ? "s" : ""}</div>
                         )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium">
+                          {commissionPercentage > 0
+                            ? `${commissionPercentage.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%`
+                            : <span className="text-muted">—</span>}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium">
+                          {commissionTotal > 0
+                            ? `R$ ${commissionTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : <span className="text-muted">—</span>}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium">
+                          {requestedAmount > 0
+                            ? `R$ ${requestedAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : <span className="text-muted">—</span>}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-lime">
+                          {remainingToRequest > 0
+                            ? `R$ ${remainingToRequest.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : <span className="text-muted">—</span>}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm">
