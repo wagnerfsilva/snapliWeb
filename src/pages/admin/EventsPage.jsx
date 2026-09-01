@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { eventsAPI } from "../../lib/api";
+import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
 import {
   Plus,
@@ -15,6 +16,8 @@ export default function EventsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const canCreateEvent = user?.role !== "organizador";
 
   useEffect(() => {
     loadEvents();
@@ -60,15 +63,17 @@ export default function EventsPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold font-sora">Eventos</h1>
 
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary flex items-center space-x-2"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Novo Evento</span>
-          </button>
-        </div>
+        {canCreateEvent && (
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Novo Evento</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {events.length === 0 ? (
@@ -78,14 +83,18 @@ export default function EventsPage() {
             Nenhum evento cadastrado
           </h2>
           <p className="text-muted mb-6">
-            Comece criando seu primeiro evento
+            {canCreateEvent
+              ? "Comece criando seu primeiro evento"
+              : "Você ainda não foi incluído como organizador em nenhum evento"}
           </p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
-          >
-            Criar Primeiro Evento
-          </button>
+          {canCreateEvent && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn btn-primary"
+            >
+              Criar Primeiro Evento
+            </button>
+          )}
         </div>
       ) : (
         <div className="card overflow-hidden !p-0">

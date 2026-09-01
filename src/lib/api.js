@@ -92,4 +92,20 @@ export const ordersAPI = {
     syncWithAsaas: (orderId) => api.post(`/orders/${orderId}/sync-asaas`),
 };
 
+// Users API (organizadores management + search)
+export const usersAPI = {
+    getAll: (params) => api.get('/users', { params }),
+    searchOrganizers: (q) => api.get('/users/search-organizers', { params: { q } }),
+    create: (data) => api.post('/users', data),
+    toggleActive: (id) => api.patch(`/users/${id}/toggle-active`),
+};
+
+// Withdrawals API (resgates do organizador)
+export const withdrawalsAPI = {
+    getBalance: (eventId) => api.get(`/withdrawals/balance/${eventId}`),
+    create: (data) => api.post('/withdrawals', data),
+    getAll: (params) => api.get('/withdrawals', { params }),
+    updateStatus: (id, data) => api.patch(`/withdrawals/${id}/status`, data),
+};
+
 export default api;

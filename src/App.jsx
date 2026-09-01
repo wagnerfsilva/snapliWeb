@@ -14,6 +14,8 @@ import AdminEvents from "./pages/admin/EventsPage";
 import AdminEventDetail from "./pages/admin/EventDetailPage";
 import AdminUpload from "./pages/admin/UploadPage";
 import AdminEventGallery from "./pages/admin/EventGalleryPage";
+import AdminOrganizers from "./pages/admin/OrganizersPage";
+import AdminWithdrawals from "./pages/admin/WithdrawalsPage";
 
 // Layout components
 import PublicLayout from "./components/layouts/PublicLayout";
@@ -28,6 +30,24 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return children;
+};
+
+// Role-restricted route wrapper (used for admin-only pages)
+const RoleRoute = ({ roles, children }) => {
+  const { user } = useAuthStore();
+
+  if (!roles.includes(user?.role)) {
+    return <Navigate to="/admin/events" replace />;
+  }
+
+  return children;
+};
+
+// Index route target depends on role — organizador has no access to /admin/dashboard
+const AdminIndexRedirect = () => {
+  const { user } = useAuthStore();
+  const target = user?.role === "organizador" ? "/admin/events" : "/admin/dashboard";
+  return <Navigate to={target} replace />;
 };
 
 function App() {
@@ -54,13 +74,57 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route index element={<AdminIndexRedirect />} />
+        <Route
+          path="dashboard"
+          element={
+            <RoleRoute roles={["admin", "fotografo"]}>
+              <AdminDashboard />
+            </RoleRoute>
+          }
+        />
         <Route path="events" element={<AdminEvents />} />
         <Route path="events/:id" element={<AdminEventDetail />} />
-        <Route path="events/:id/upload" element={<AdminUpload />} />
-        <Route path="events/:id/photos" element={<AdminEventGallery />} />
-        <Route path="upload" element={<AdminUpload />} />
+        <Route
+          path="events/:id/upload"
+          element={
+            <RoleRoute roles={["admin", "fotografo"]}>
+              <AdminUpload />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="events/:id/photos"
+          element={
+            <RoleRoute roles={["admin", "fotografo"]}>
+              <AdminEventGallery />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="upload"
+          element={
+            <RoleRoute roles={["admin", "fotografo"]}>
+              <AdminUpload />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="organizers"
+          element={
+            <RoleRoute roles={["admin"]}>
+              <AdminOrganizers />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="withdrawals"
+          element={
+            <RoleRoute roles={["admin", "organizador"]}>
+              <AdminWithdrawals />
+            </RoleRoute>
+          }
+        />
       </Route>
 
       {/* 404 */}

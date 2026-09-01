@@ -6,8 +6,29 @@ import {
   Calendar,
   Upload,
   LogOut,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { SnapliLogo } from "./PublicLayout";
+
+const NAVIGATION_BY_ROLE = {
+  admin: [
+    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { name: "Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Upload", href: "/admin/upload", icon: Upload },
+    { name: "Organizadores", href: "/admin/organizers", icon: Users },
+    { name: "Resgates", href: "/admin/withdrawals", icon: Wallet },
+  ],
+  fotografo: [
+    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { name: "Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Upload", href: "/admin/upload", icon: Upload },
+  ],
+  organizador: [
+    { name: "Meus Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Resgates", href: "/admin/withdrawals", icon: Wallet },
+  ],
+};
 
 export default function AdminLayout() {
   const { user, clearAuth } = useAuthStore();
@@ -20,11 +41,7 @@ export default function AdminLayout() {
     navigate("/admin/login");
   };
 
-  const navigation = [
-    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Eventos", href: "/admin/events", icon: Calendar },
-    { name: "Upload", href: "/admin/upload", icon: Upload },
-  ];
+  const navigation = NAVIGATION_BY_ROLE[user?.role] || NAVIGATION_BY_ROLE.fotografo;
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>

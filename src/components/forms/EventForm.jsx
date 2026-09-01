@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { X, Loader2, Plus, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Loader2, Plus, Trash2, Search, UserCircle2 } from "lucide-react";
+import { usersAPI } from "../../lib/api";
 
 export default function EventForm({ onClose, onSuccess, initialData = null }) {
   const isEdit = !!initialData;
@@ -16,11 +17,70 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     pricingPackages: initialData?.pricingPackages || [],
     allPhotosPrice: initialData?.allPhotosPrice || "",
     freePhotosCount: initialData?.freePhotosCount ?? 0,
+    organizerId: initialData?.organizerId || null,
+    organizerCommissionPercentage:
+      initialData?.organizerCommissionPercentage ?? "",
   });
 
   const [newPackage, setNewPackage] = useState({ quantity: "", price: "" });
 
   const [errors, setErrors] = useState({});
+
+  // Organizador autocomplete (busca com termo, sem listar todos)
+  const [selectedOrganizer, setSelectedOrganizer] = useState(
+    initialData?.organizer
+      ? { id: initialData.organizer.id, name: initialData.organizer.name, email: initialData.organizer.email }
+      : null
+  );
+  const [organizerQuery, setOrganizerQuery] = useState("");
+  const [organizerResults, setOrganizerResults] = useState([]);
+  const [isSearchingOrganizer, setIsSearchingOrganizer] = useState(false);
+  const [showOrganizerDropdown, setShowOrganizerDropdown] = useState(false);
+  const organizerSearchTimeout = useRef(null);
+
+  useEffect(() => {
+    if (organizerQuery.trim().length < 2) {
+      setOrganizerResults([]);
+      return;
+    }
+
+    if (organizerSearchTimeout.current) {
+      clearTimeout(organizerSearchTimeout.current);
+    }
+
+    organizerSearchTimeout.current = setTimeout(async () => {
+      setIsSearchingOrganizer(true);
+      try {
+        const response = await usersAPI.searchOrganizers(organizerQuery.trim());
+        if (response.data.success) {
+          setOrganizerResults(response.data.data.users);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar organizadores:", error);
+      } finally {
+        setIsSearchingOrganizer(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(organizerSearchTimeout.current);
+  }, [organizerQuery]);
+
+  const handleSelectOrganizer = (organizer) => {
+    setSelectedOrganizer(organizer);
+    setFormData((prev) => ({ ...prev, organizerId: organizer.id }));
+    setOrganizerQuery("");
+    setOrganizerResults([]);
+    setShowOrganizerDropdown(false);
+  };
+
+  const handleRemoveOrganizer = () => {
+    setSelectedOrganizer(null);
+    setFormData((prev) => ({
+      ...prev,
+      organizerId: null,
+      organizerCommissionPercentage: "",
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -75,6 +135,15 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       newErrors.location = "Localização é obrigatória";
     }
 
+    if (
+      selectedOrganizer &&
+      formData.organizerCommissionPercentage !== "" &&
+      (Number(formData.organizerCommissionPercentage) < 0 ||
+        Number(formData.organizerCommissionPercentage) > 100)
+    ) {
+      newErrors.organizerCommissionPercentage = "Comissão deve ser entre 0 e 100";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -102,6 +171,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           Math.max(parseInt(formData.freePhotosCount) || 0, 0),
           3
         ),
+        organizerId: selectedOrganizer ? selectedOrganizer.id : null,
+        organizerCommissionPercentage: selectedOrganizer
+          ? parseFloat(formData.organizerCommissionPercentage) || 0
+          : null,
       };
 
       await onSuccess(dataToSubmit);
@@ -242,6 +315,117 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               </label>
             </div>
           )}
+
+          {/* Organizador e Comissão */}
+          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+            <h3 className="text-lg font-semibold font-sora">
+              Organizador (opcional)
+            </h3>
+
+            {selectedOrganizer ? (
+              <div
+                className="flex items-center justify-between gap-3 p-3 rounded-xl"
+                style={{ background: 'var(--bg)' }}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <UserCircle2 className="h-5 w-5 text-lime shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{selectedOrganizer.name}</p>
+                    <p className="text-xs text-muted truncate">{selectedOrganizer.email}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveOrganizer}
+                  className="text-dim hover:text-white transition-colors shrink-0"
+                  disabled={isSubmitting}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="relative">
+                  <Search className="h-4 w-4 text-dim absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={organizerQuery}
+                    onChange={(e) => {
+                      setOrganizerQuery(e.target.value);
+                      setShowOrganizerDropdown(true);
+                    }}
+                    onFocus={() => setShowOrganizerDropdown(true)}
+                    placeholder="Buscar organizador por nome ou email..."
+                    className="input pl-9"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {showOrganizerDropdown && organizerQuery.trim().length >= 2 && (
+                  <div
+                    className="absolute z-10 mt-1 w-full rounded-xl overflow-hidden max-h-56 overflow-y-auto"
+                    style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
+                  >
+                    {isSearchingOrganizer && (
+                      <div className="p-3 text-sm text-muted flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Buscando...
+                      </div>
+                    )}
+                    {!isSearchingOrganizer && organizerResults.length === 0 && (
+                      <div className="p-3 text-sm text-muted">
+                        Nenhum organizador encontrado
+                      </div>
+                    )}
+                    {!isSearchingOrganizer &&
+                      organizerResults.map((org) => (
+                        <button
+                          key={org.id}
+                          type="button"
+                          onClick={() => handleSelectOrganizer(org)}
+                          className="w-full text-left p-3 hover:bg-white/5 transition-colors"
+                        >
+                          <p className="text-sm font-medium">{org.name}</p>
+                          <p className="text-xs text-muted">{org.email}</p>
+                        </button>
+                      ))}
+                  </div>
+                )}
+                <p className="mt-1 text-sm text-muted">
+                  Digite ao menos 2 caracteres para buscar
+                </p>
+              </div>
+            )}
+
+            {selectedOrganizer && (
+              <div>
+                <label
+                  htmlFor="organizerCommissionPercentage"
+                  className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+                >
+                  Comissão do Organizador (%)
+                </label>
+                <input
+                  type="number"
+                  id="organizerCommissionPercentage"
+                  name="organizerCommissionPercentage"
+                  value={formData.organizerCommissionPercentage}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  className={`input ${errors.organizerCommissionPercentage ? "border-red-500" : ""}`}
+                  placeholder="10.00"
+                  disabled={isSubmitting}
+                />
+                {errors.organizerCommissionPercentage && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.organizerCommissionPercentage}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Preços */}
           <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>

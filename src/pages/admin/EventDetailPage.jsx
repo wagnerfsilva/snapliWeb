@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { eventsAPI, photosAPI } from "../../lib/api";
+import { eventsAPI, withdrawalsAPI } from "../../lib/api";
+import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
 import {
   Calendar,
@@ -16,6 +17,7 @@ import {
   Clock,
   AlertCircle,
   Users,
+  Wallet,
 } from "lucide-react";
 import EventForm from "../../components/forms/EventForm";
 import EventSales from "../../components/admin/EventSales";
@@ -23,6 +25,8 @@ import EventSales from "../../components/admin/EventSales";
 export default function EventDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isOrganizador = user?.role === "organizador";
 
   const [event, setEvent] = useState(null);
   const [statistics, setStatistics] = useState(null);
@@ -31,10 +35,66 @@ export default function EventDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [balance, setBalance] = useState(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [withdrawalNotes, setWithdrawalNotes] = useState("");
+  const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false);
+
   useEffect(() => {
     loadEventDetails();
     loadStatistics();
   }, [id]);
+
+  useEffect(() => {
+    if (isOrganizador) {
+      loadBalance();
+    }
+  }, [id, isOrganizador]);
+
+  const loadBalance = async () => {
+    setIsLoadingBalance(true);
+    try {
+      const response = await withdrawalsAPI.getBalance(id);
+      if (response.data.success) {
+        setBalance(response.data.data);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar saldo:", error);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
+
+  const handleRequestWithdrawal = async (e) => {
+    e.preventDefault();
+    const amount = parseFloat(withdrawalAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Informe um valor válido");
+      return;
+    }
+
+    setIsSubmittingWithdrawal(true);
+    try {
+      const response = await withdrawalsAPI.create({
+        eventId: id,
+        amount,
+        notes: withdrawalNotes || undefined,
+      });
+      if (response.data.success) {
+        toast.success("Solicitação de resgate enviada!");
+        setWithdrawalAmount("");
+        setWithdrawalNotes("");
+        loadBalance();
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Erro ao solicitar resgate"
+      );
+    } finally {
+      setIsSubmittingWithdrawal(false);
+    }
+  };
 
   const loadEventDetails = async () => {
     try {
@@ -158,21 +218,25 @@ export default function EventDetailPage() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="btn btn-secondary flex items-center space-x-2"
-            >
-              <Edit2 className="h-4 w-4" />
-              <span>Editar</span>
-            </button>
+            {!isOrganizador && (
+              <>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="btn btn-secondary flex items-center space-x-2"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  <span>Editar</span>
+                </button>
 
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="btn bg-red-600 text-white hover:bg-red-700 flex items-center space-x-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              <span>Excluir</span>
-            </button>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="btn bg-red-600 text-white hover:bg-red-700 flex items-center space-x-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Excluir</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -290,34 +354,130 @@ export default function EventDetailPage() {
       )}
 
       {/* Actions */}
-      <div className="card">
-        <h2 className="text-lg font-semibold font-sora mb-4">Ações</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link
-            to={`/admin/events/${id}/upload`}
-            className="btn btn-primary flex items-center justify-center space-x-2"
-          >
-            <Upload className="h-5 w-5" />
-            <span>Upload de Fotos</span>
-          </Link>
+      {!isOrganizador && (
+        <div className="card">
+          <h2 className="text-lg font-semibold font-sora mb-4">Ações</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              to={`/admin/events/${id}/upload`}
+              className="btn btn-primary flex items-center justify-center space-x-2"
+            >
+              <Upload className="h-5 w-5" />
+              <span>Upload de Fotos</span>
+            </Link>
 
-          <Link
-            to={`/admin/events/${id}/photos`}
-            className="btn btn-secondary flex items-center justify-center space-x-2"
-          >
-            <Image className="h-5 w-5" />
-            <span>Ver Fotos do Evento</span>
-          </Link>
+            <Link
+              to={`/admin/events/${id}/photos`}
+              className="btn btn-secondary flex items-center justify-center space-x-2"
+            >
+              <Image className="h-5 w-5" />
+              <span>Ver Fotos do Evento</span>
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Sales */}
-      <div className="mt-6">
-        <EventSales eventId={id} />
-      </div>
+      {/* Sales (admin/fotografo only — organizador vê apenas agregados no saldo) */}
+      {!isOrganizador && (
+        <div className="mt-6">
+          <EventSales eventId={id} />
+        </div>
+      )}
+
+      {/* Saldo e Resgate (organizador) */}
+      {isOrganizador && (
+        <div className="card mt-6">
+          <h2 className="text-lg font-semibold font-sora mb-4 flex items-center gap-2">
+            <Wallet className="h-5 w-5 text-lime" />
+            Saldo e Resgate
+          </h2>
+
+          {isLoadingBalance ? (
+            <Loader2 className="h-6 w-6 animate-spin text-lime" />
+          ) : balance ? (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 rounded-xl" style={{ background: 'var(--bg)' }}>
+                  <p className="text-sm text-muted mb-1">Total Vendido</p>
+                  <p className="text-xl font-bold">
+                    R$ {parseFloat(balance.balance.totalRevenue || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl" style={{ background: 'var(--bg)' }}>
+                  <p className="text-sm text-muted mb-1">Comissão Total</p>
+                  <p className="text-xl font-bold">
+                    R$ {parseFloat(balance.balance.commissionTotal || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl" style={{ background: 'rgba(200,255,0,0.12)' }}>
+                  <p className="text-sm text-muted mb-1">Disponível para Resgate</p>
+                  <p className="text-xl font-bold text-lime">
+                    R$ {parseFloat(balance.balance.availableBalance || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+              </div>
+
+              {balance.hasOpenRequest ? (
+                <div className="p-4 rounded-xl text-sm" style={{ background: 'rgba(255,200,0,0.12)', color: '#FFC800' }}>
+                  Já existe uma solicitação de resgate em aberto para este evento.
+                </div>
+              ) : (
+                <form onSubmit={handleRequestWithdrawal} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                      Valor do Resgate (R$)
+                    </label>
+                    <input
+                      type="number"
+                      value={withdrawalAmount}
+                      onChange={(e) => setWithdrawalAmount(e.target.value)}
+                      step="0.01"
+                      min="0.01"
+                      max={balance.balance.availableBalance}
+                      className="input"
+                      placeholder="0.00"
+                      disabled={isSubmittingWithdrawal}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                      Observação (opcional)
+                    </label>
+                    <textarea
+                      value={withdrawalNotes}
+                      onChange={(e) => setWithdrawalNotes(e.target.value)}
+                      rows={3}
+                      className="input resize-none"
+                      disabled={isSubmittingWithdrawal}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn btn-primary flex items-center gap-2"
+                    disabled={
+                      isSubmittingWithdrawal ||
+                      !balance.balance.availableBalance ||
+                      balance.balance.availableBalance <= 0
+                    }
+                  >
+                    {isSubmittingWithdrawal ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Wallet className="h-4 w-4" />
+                    )}
+                    <span>Solicitar Resgate</span>
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <p className="text-muted">Não foi possível carregar o saldo.</p>
+          )}
+        </div>
+      )}
 
       {/* Edit Modal */}
-      {showEditModal && (
+      {!isOrganizador && showEditModal && (
         <EventForm
           onClose={() => setShowEditModal(false)}
           onSuccess={handleUpdateEvent}
@@ -326,7 +486,7 @@ export default function EventDetailPage() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
+      {!isOrganizador && showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="card p-6 max-w-md w-full">
             <div className="flex items-center space-x-3 mb-4">
