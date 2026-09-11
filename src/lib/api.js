@@ -97,6 +97,7 @@ export const usersAPI = {
     getAll: (params) => api.get('/users', { params }),
     searchOrganizers: (q) => api.get('/users/search-organizers', { params: { q } }),
     create: (data) => api.post('/users', data),
+    update: (id, data) => api.patch(`/users/${id}`, data),
     toggleActive: (id) => api.patch(`/users/${id}/toggle-active`),
 };
 

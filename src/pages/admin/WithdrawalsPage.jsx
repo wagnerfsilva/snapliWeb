@@ -10,6 +10,7 @@ import {
   XCircle,
   Clock,
   DollarSign,
+  Copy,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -76,6 +77,15 @@ export default function WithdrawalsPage() {
     }
   };
 
+  const handleCopyPixKey = async (pixKey) => {
+    try {
+      await navigator.clipboard.writeText(pixKey);
+      toast.success("Chave PIX copiada!");
+    } catch (error) {
+      toast.error("Não foi possível copiar a chave PIX");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -115,6 +125,7 @@ export default function WithdrawalsPage() {
             const statusInfo = STATUS_CONFIG[req.status] || STATUS_CONFIG.pending;
             const StatusIcon = statusInfo.icon;
             const actions = isAdmin ? NEXT_ACTIONS[req.status] || [] : [];
+            const pixKey = req.pixKey || req.organizer?.pixKey;
 
             return (
               <div key={req.id} className="card">
@@ -136,6 +147,21 @@ export default function WithdrawalsPage() {
                       <p className="text-sm text-muted">
                         Organizador: {req.organizer.name} ({req.organizer.email})
                       </p>
+                    )}
+                    {pixKey && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-muted">
+                          Chave PIX: <span className="font-medium text-white">{pixKey}</span>
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyPixKey(pixKey)}
+                          className="text-dim hover:text-lime transition-colors"
+                          title="Copiar chave PIX"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     )}
                     <div className="flex items-center gap-1 text-sm text-muted mt-1">
                       <Calendar className="h-4 w-4" />

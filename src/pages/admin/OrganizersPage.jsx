@@ -7,14 +7,16 @@ import {
   Loader2,
   X,
   Power,
+  Edit2,
 } from "lucide-react";
 
 export default function OrganizersPage() {
   const [organizers, setOrganizers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingOrganizer, setEditingOrganizer] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", pixKey: "" });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function OrganizersPage() {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
     if (!formData.email.trim()) newErrors.email = "Email é obrigatório";
-    if (!formData.password || formData.password.length < 6) {
+    if (!editingOrganizer && (!formData.password || formData.password.length < 6)) {
       newErrors.password = "Senha deve ter pelo menos 6 caracteres";
     }
     setErrors(newErrors);
@@ -57,23 +59,56 @@ export default function OrganizersPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await usersAPI.create({
-        ...formData,
-        role: "organizador",
-      });
-      if (response.data.success) {
-        toast.success("Organizador criado com sucesso!");
-        setShowCreateModal(false);
-        setFormData({ name: "", email: "", password: "" });
-        loadOrganizers();
+      if (editingOrganizer) {
+        const response = await usersAPI.update(editingOrganizer.id, {
+          name: formData.name,
+          email: formData.email,
+          pixKey: formData.pixKey,
+        });
+        if (response.data.success) {
+          toast.success("Organizador atualizado com sucesso!");
+          closeModal();
+          loadOrganizers();
+        }
+      } else {
+        const response = await usersAPI.create({
+          ...formData,
+          role: "organizador",
+        });
+        if (response.data.success) {
+          toast.success("Organizador criado com sucesso!");
+          closeModal();
+          loadOrganizers();
+        }
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Erro ao criar organizador"
+        error.response?.data?.message ||
+          (editingOrganizer ? "Erro ao atualizar organizador" : "Erro ao criar organizador")
       );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const openCreateModal = () => {
+    setEditingOrganizer(null);
+    setFormData({ name: "", email: "", password: "", pixKey: "" });
+    setErrors({});
+    setShowCreateModal(true);
+  };
+
+  const openEditModal = (org) => {
+    setEditingOrganizer(org);
+    setFormData({ name: org.name, email: org.email, password: "", pixKey: org.pixKey || "" });
+    setErrors({});
+    setShowCreateModal(true);
+  };
+
+  const closeModal = () => {
+    setShowCreateModal(false);
+    setEditingOrganizer(null);
+    setFormData({ name: "", email: "", password: "", pixKey: "" });
   };
 
   const handleToggleActive = async (id) => {
@@ -103,7 +138,7 @@ export default function OrganizersPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold font-sora">Organizadores</h1>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={openCreateModal}
           className="btn btn-primary flex items-center space-x-2"
         >
           <Plus className="h-5 w-5" />
@@ -121,7 +156,7 @@ export default function OrganizersPage() {
             Crie o primeiro organizador para atribuí-lo a eventos
           </p>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={openCreateModal}
             className="btn btn-primary"
           >
             Criar Primeiro Organizador
@@ -138,6 +173,9 @@ export default function OrganizersPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                    Chave PIX
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                     Status
@@ -159,6 +197,11 @@ export default function OrganizersPage() {
                     <td className="px-6 py-4 text-sm text-muted">
                       {org.email}
                     </td>
+                    <td className="px-6 py-4 text-sm text-muted">
+                      {org.pixKey || (
+                        <span className="text-dim">Não cadastrada</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {org.isActive ? (
                         <span className="badge badge-success">Ativo</span>
@@ -167,13 +210,22 @@ export default function OrganizersPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleToggleActive(org.id)}
-                        className="btn btn-secondary flex items-center gap-2 text-sm"
-                      >
-                        <Power className="h-4 w-4" />
-                        {org.isActive ? "Desativar" : "Ativar"}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditModal(org)}
+                          className="btn btn-secondary flex items-center gap-2 text-sm"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleToggleActive(org.id)}
+                          className="btn btn-secondary flex items-center gap-2 text-sm"
+                        >
+                          <Power className="h-4 w-4" />
+                          {org.isActive ? "Desativar" : "Ativar"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -191,10 +243,10 @@ export default function OrganizersPage() {
               style={{ borderBottom: "1px solid var(--border)" }}
             >
               <h2 className="text-xl font-bold font-sora">
-                Novo Organizador
+                {editingOrganizer ? "Editar Organizador" : "Novo Organizador"}
               </h2>
               <button
-                onClick={() => setShowCreateModal(false)}
+                onClick={closeModal}
                 className="text-dim hover:text-white transition-colors"
                 disabled={isSubmitting}
               >
@@ -237,29 +289,49 @@ export default function OrganizersPage() {
                 )}
               </div>
 
+              {!editingOrganizer && (
+                <div>
+                  <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                    Senha *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`input ${errors.password ? "border-red-500" : ""}`}
+                    disabled={isSubmitting}
+                  />
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
-                  Senha *
+                  Chave PIX
                 </label>
                 <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
+                  type="text"
+                  name="pixKey"
+                  value={formData.pixKey}
                   onChange={handleChange}
-                  className={`input ${errors.password ? "border-red-500" : ""}`}
+                  className="input"
+                  placeholder="CPF, CNPJ, email, telefone ou chave aleatória"
                   disabled={isSubmitting}
                 />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.password}
-                  </p>
-                )}
+                <p className="mt-1 text-xs text-muted">
+                  Usada como valor padrão nas solicitações de resgate deste organizador
+                </p>
               </div>
 
               <div className="flex items-center justify-end space-x-3 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={closeModal}
                   className="btn btn-secondary"
                   disabled={isSubmitting}
                 >
@@ -273,7 +345,7 @@ export default function OrganizersPage() {
                   {isSubmitting && (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
-                  <span>Criar Organizador</span>
+                  <span>{editingOrganizer ? "Salvar Alterações" : "Criar Organizador"}</span>
                 </button>
               </div>
             </form>
@@ -283,3 +355,4 @@ export default function OrganizersPage() {
     </div>
   );
 }
+

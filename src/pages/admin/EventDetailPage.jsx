@@ -421,8 +421,27 @@ export default function EventDetailPage() {
                 <div className="p-4 rounded-xl text-sm" style={{ background: 'rgba(255,200,0,0.12)', color: '#FFC800' }}>
                   Já existe uma solicitação de resgate em aberto para este evento.
                 </div>
+              ) : !user?.pixKey ? (
+                <div className="p-4 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.12)', color: '#FF5050' }}>
+                  Você ainda não possui uma chave PIX cadastrada. Entre em contato com o administrador para cadastrá-la antes de solicitar um resgate.
+                </div>
               ) : (
                 <form onSubmit={handleRequestWithdrawal} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                      Chave PIX
+                    </label>
+                    <input
+                      type="text"
+                      value={user.pixKey}
+                      className="input opacity-60 cursor-not-allowed"
+                      disabled
+                      readOnly
+                    />
+                    <p className="mt-1 text-xs text-muted">
+                      A chave PIX é a mesma cadastrada no seu perfil de organizador e não pode ser alterada aqui.
+                    </p>
+                  </div>
                   <div>
                     <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
                       Valor do Resgate (R$)
