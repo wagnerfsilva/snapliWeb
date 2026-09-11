@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   TrendingUp,
   ImageIcon,
+  Search,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -29,6 +30,7 @@ export default function EventSales({ eventId }) {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [syncingOrderId, setSyncingOrderId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     loadOrders();
@@ -77,6 +79,15 @@ export default function EventSales({ eventId }) {
   const totalPhotos = paidOrders.reduce((sum, o) => sum + o.photoCount, 0);
   const ticketMedio = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
   const ticketMedioFotos = totalPhotos > 0 ? totalRevenue / totalPhotos : 0;
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredOrders = normalizedQuery
+    ? orders.filter((order) =>
+        [order.customerName, order.customerEmail]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(normalizedQuery))
+      )
+    : orders;
 
   if (isLoading) {
     return (
@@ -150,10 +161,28 @@ export default function EventSales({ eventId }) {
         </div>
       </div>
 
+      {orders.length > 0 && (
+        <div className="relative mb-4">
+          <Search className="h-4 w-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por nome ou email..."
+            className="w-full md:w-80 pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-muted focus:outline-none focus:border-lime/50"
+          />
+        </div>
+      )}
+
       {orders.length === 0 ? (
         <div className="text-center py-8 text-muted">
           <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>Nenhuma venda registrada</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-8 text-muted">
+          <Search className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <p>Nenhuma venda encontrada para "{searchQuery}"</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -170,7 +199,7 @@ export default function EventSales({ eventId }) {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => {
+              {filteredOrders.map((order) => {
                 const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
                 const StatusIcon = config.icon;
                 const isPending = order.status === "pending" || order.status === "processing";
