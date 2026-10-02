@@ -621,7 +621,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               </div>
               <div>
                 <label htmlFor="allVideosPrice" className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
-                  Teto dos Vídeos Selecionados (R$)
+                  Preço para Todos os Vídeos (R$)
                 </label>
                 <input
                   id="allVideosPrice" name="allVideosPrice" type="number" min="0.01" max="99999999.99" step="0.01"

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { videoBreakdown } from "../lib/videoPricing";
 
 // Calcula o melhor preço para um conjunto de fotos dado o pricing de um evento
 function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0) {
@@ -40,7 +39,7 @@ function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
 }
 
 // Gera breakdown detalhado para um grupo de fotos
-function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0) {
+export function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0, mediaType = "photo") {
     if (photoCount === 0) {
         return { bestOption: null, totalPrice: 0, details: "", allOptions: [] };
     }
@@ -48,6 +47,7 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
     // Fotos grátis não entram no cálculo de pacotes/individual; sempre sobra ao menos 1 foto paga
     const freeCount = Math.max(0, Math.min(freePhotosCount || 0, photoCount - 1));
     const paidCount = photoCount - freeCount;
+    const itemLabel = mediaType === "video" ? "vídeo" : "foto";
 
     const options = [];
 
@@ -56,7 +56,7 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
         options.push({
             type: "individual",
             price,
-            details: `${paidCount} foto${paidCount > 1 ? "s" : ""} × R$ ${parseFloat(pricePerPhoto).toFixed(2)}`,
+            details: `${paidCount} ${itemLabel}${paidCount > 1 ? "s" : ""} × R$ ${parseFloat(pricePerPhoto).toFixed(2)}`,
         });
     }
 
@@ -73,12 +73,12 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
                 count++;
             }
             if (count > 0) {
-                usedPackages.push(`${count}x pacote de ${pkg.quantity} fotos`);
+                usedPackages.push(`${count}x pacote de ${pkg.quantity} ${itemLabel}s`);
             }
         }
         if (remaining > 0 && pricePerPhoto) {
             packagePrice += remaining * parseFloat(pricePerPhoto);
-            usedPackages.push(`${remaining} foto${remaining > 1 ? "s" : ""} avulsa${remaining > 1 ? "s" : ""}`);
+            usedPackages.push(`${remaining} ${itemLabel}${remaining > 1 ? "s" : ""} ${mediaType === "video" ? "avulso" : "avulsa"}${remaining > 1 ? "s" : ""}`);
         }
         if (usedPackages.length > 0) {
             options.push({ type: "package", price: packagePrice, details: usedPackages.join(" + ") });
@@ -86,7 +86,7 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
     }
 
     if (allPhotosPrice) {
-        options.push({ type: "all", price: parseFloat(allPhotosPrice), details: "Todas as fotos do evento" });
+        options.push({ type: "all", price: parseFloat(allPhotosPrice), details: mediaType === "video" ? "Todos os vídeos do evento" : "Todas as fotos do evento" });
     }
 
     if (options.length === 0) {
@@ -94,7 +94,7 @@ function calcBreakdownForGroup(photoCount, pricePerPhoto, pricingPackages = [], 
     }
 
     const best = options.reduce((b, c) => (c.price < b.price ? c : b));
-    const freePrefix = freeCount > 0 ? `${freeCount} foto${freeCount > 1 ? "s" : ""} grátis + ` : "";
+    const freePrefix = freeCount > 0 ? `${freeCount} ${itemLabel}${freeCount > 1 ? "s" : ""} grátis + ` : "";
     return { bestOption: best.type, totalPrice: best.price, details: `${freePrefix}${best.details}`, allOptions: options };
 }
 
@@ -170,7 +170,8 @@ const useCartStore = create(
                 return Object.values(events).flatMap(ev => ["photo", "video"].flatMap(mediaType => {
                     const media = items.filter(item => item.eventId === ev.eventId && (item.mediaType || "photo") === mediaType);
                     if (!media.length) return [];
-                    const breakdown = mediaType === "video" ? videoBreakdown(media.length, ev) : calcBreakdownForGroup(media.length, ev.pricePerPhoto, ev.pricingPackages, ev.allPhotosPrice, ev.freePhotosCount);
+                    const isVideo = mediaType === "video";
+                    const breakdown = calcBreakdownForGroup(media.length, isVideo ? ev.pricePerVideo : ev.pricePerPhoto, isVideo ? ev.videoPricingPackages : ev.pricingPackages, isVideo ? ev.allVideosPrice : ev.allPhotosPrice, ev.freePhotosCount, mediaType);
                     return [{ eventId: ev.eventId, eventName: ev.eventName, mediaType, groupKey: `${ev.eventId}:${mediaType}`, itemCount: media.length, photoCount: mediaType === "photo" ? media.length : 0, videoCount: mediaType === "video" ? media.length : 0, breakdown }];
                 }));
             },

@@ -28,7 +28,7 @@ function PricingTable({ event, mediaType = "photo" }) {
   const pricePerPhoto = isVideo ? event.pricePerVideo : event.pricePerPhoto;
   const pricingPackages = isVideo ? event.videoPricingPackages : event.pricingPackages;
   const allPhotosPrice = isVideo ? event.allVideosPrice : event.allPhotosPrice;
-  const freePhotosCount = isVideo ? 0 : event.freePhotosCount;
+  const freePhotosCount = event.freePhotosCount;
 
   // Monta linhas: 1 por X, pacotes, todas
   const rows = [];
@@ -48,7 +48,7 @@ function PricingTable({ event, mediaType = "photo" }) {
   }
   if (allPhotosPrice) {
     rows.push({
-      label: isVideo ? "Teto dos vídeos selecionados" : "Todas as fotos",
+      label: isVideo ? "Todos os vídeos" : "Todas as fotos",
       price: parseFloat(allPhotosPrice),
       isAll: true,
       highlight: true,
@@ -66,7 +66,7 @@ function PricingTable({ event, mediaType = "photo" }) {
         >
           <Zap className="h-3.5 w-3.5 flex-shrink-0" />
           <span>
-            +{freePhotosCount} foto{freePhotosCount > 1 ? "s" : ""} grátis nesta compra
+            +{freePhotosCount} {isVideo ? "vídeo" : "foto"}{freePhotosCount > 1 ? "s" : ""} grátis nesta compra
           </span>
         </div>
       )}
