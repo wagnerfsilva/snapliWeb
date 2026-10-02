@@ -267,7 +267,7 @@ export default function ResultsPage() {
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
                   >
                     <div className="aspect-square">
-                      <MediaPreview media={photo} controls={photo.mediaType === "video"} className={`w-full h-full ${photo.mediaType === "video" ? "object-contain" : "object-cover"}`} />
+                      <MediaPreview media={photo} className={`w-full h-full ${photo.mediaType === "video" ? "object-contain" : "object-cover"}`} />
                     </div>
 
                     <div className="p-2">
