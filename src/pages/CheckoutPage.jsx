@@ -32,9 +32,10 @@ export default function CheckoutPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverTotal, setServerTotal] = useState(null);
 
   const eventBreakdowns = getPriceBreakdownPerEvent();
-  const totalPrice = getTotalPrice();
+  const totalPrice = serverTotal ?? getTotalPrice();
   const eventCount = Object.keys(events).length;
 
   // Cleanup polling on unmount
@@ -179,6 +180,7 @@ export default function CheckoutPage() {
 
       if (response.data.success) {
         const { order, payment } = response.data;
+        setServerTotal(Number(order.totalAmount));
 
         setOrderId(order.id);
         setPixData(payment);
@@ -529,10 +531,10 @@ export default function CheckoutPage() {
                 </p>
                 <div className="space-y-1">
                   {eventBreakdowns.map((ev) => (
-                    <div key={ev.eventId} className="flex justify-between items-baseline gap-2">
+                    <div key={ev.groupKey} className="flex justify-between items-baseline gap-2">
                       <p className="text-sm font-semibold truncate">{ev.eventName}</p>
                       <p className="text-xs text-muted whitespace-nowrap">
-                        {ev.photoCount} foto{ev.photoCount > 1 ? "s" : ""}
+                        {ev.itemCount} {ev.mediaType === "video" ? "vídeo(s)" : "foto(s)"}
                       </p>
                     </div>
                   ))}
@@ -543,7 +545,7 @@ export default function CheckoutPage() {
             {/* Fotos */}
             <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-sm font-medium text-muted mb-3">
-                Fotos Selecionadas
+                Arquivos Selecionados
               </p>
               <div className="grid grid-cols-4 gap-2">
                 {items.slice(0, 8).map((photo) => (
@@ -567,13 +569,13 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-sm text-muted">
                 <span>Quantidade:</span>
                 <span className="font-medium">
-                  {items.length} foto{items.length > 1 ? "s" : ""}
+                  {items.length} arquivo{items.length > 1 ? "s" : ""}
                 </span>
               </div>
 
               {/* Per-event breakdown */}
               {eventBreakdowns.length > 1 && eventBreakdowns.map((ev) => (
-                <div key={ev.eventId} className="flex justify-between text-sm text-muted">
+                <div key={ev.groupKey} className="flex justify-between text-sm text-muted">
                   <span className="truncate mr-2">{ev.eventName}:</span>
                   <span className="font-medium whitespace-nowrap">
                     R$ {ev.breakdown.totalPrice.toFixed(2)}

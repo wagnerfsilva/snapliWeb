@@ -11,6 +11,7 @@ import {
   Copy,
 } from "lucide-react";
 import api from "../lib/api";
+import MediaPreview from "../components/MediaPreview";
 
 export default function DownloadPortalPage() {
   const { token } = useParams();
@@ -47,6 +48,7 @@ export default function DownloadPortalPage() {
       const urls = {};
       await Promise.all(
         response.data.photos.map(async (photo) => {
+          if (photo.mediaType === "video") return;
           try {
             const res = await api.get(`/downloads/${token}/photo/${photo.id}`);
             urls[photo.id] = res.data.downloadUrl;
@@ -101,7 +103,7 @@ export default function DownloadPortalPage() {
         } else {
           window.open(downloadUrl, "_blank");
         }
-      } else if (isAndroid) {
+      } else if (isAndroid && photos.find(photo => photo.id === photoId)?.mediaType !== "video") {
         // Android: try direct download via anchor tag
         try {
           const resp = await fetch(downloadUrl);
@@ -273,7 +275,7 @@ export default function DownloadPortalPage() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold font-sora mb-2">
-                Suas Fotos Estão Prontas! 🎉
+                Seus Arquivos Estão Prontos!
               </h1>
               <p className="text-muted">
                 Olá, <strong className="text-white">{order?.customerName}</strong>
@@ -291,7 +293,7 @@ export default function DownloadPortalPage() {
             <div className="rounded-xl p-4" style={{ background: 'rgba(56,189,248,0.08)' }}>
               <div className="flex items-center mb-2" style={{ color: '#38BDF8' }}>
                 <ImageIcon className="w-5 h-5 mr-2" />
-                <span className="font-semibold">Total de Fotos</span>
+                <span className="font-semibold">Total de Arquivos</span>
               </div>
               <div className="text-2xl font-bold text-white">
                 {photos.length}
@@ -349,7 +351,7 @@ export default function DownloadPortalPage() {
         {/* Photos Grid */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold font-sora">Suas Fotos</h2>
+            <h2 className="text-xl font-bold font-sora">Fotos e Vídeos</h2>
             <button
               onClick={handleDownloadAll}
               disabled={downloadingAll}
@@ -391,11 +393,8 @@ export default function DownloadPortalPage() {
               >
                 {/* Photo Preview */}
                 <div className="aspect-video relative" style={{ background: '#1a1a1e' }}>
-                  <img
-                    src={originalUrls[photo.id] || photo.previewUrl}
-                    alt={photo.originalFilename}
-                    className="w-full h-full object-cover"
-                  />
+                  {photo.mediaType === "video" ? <MediaPreview media={photo} controls className="w-full h-full object-contain" /> :
+                    <img src={originalUrls[photo.id] || photo.previewUrl} alt={photo.originalFilename} className="w-full h-full object-cover" />}
                   {photo.downloadedAt && (
                     <div className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full flex items-center" style={{ background: 'rgba(0,212,170,0.9)', color: '#09090B' }}>
                       <CheckCircle className="w-3 h-3 mr-1" />

@@ -17,12 +17,17 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     pricingPackages: initialData?.pricingPackages || [],
     allPhotosPrice: initialData?.allPhotosPrice || "",
     freePhotosCount: initialData?.freePhotosCount ?? 0,
+    videoEnabled: initialData?.videoEnabled ?? false,
+    pricePerVideo: initialData?.pricePerVideo ?? "",
+    videoPricingPackages: initialData?.videoPricingPackages ?? [],
+    allVideosPrice: initialData?.allVideosPrice ?? "",
     organizerId: initialData?.organizerId || null,
     organizerCommissionPercentage:
       initialData?.organizerCommissionPercentage ?? "",
   });
 
   const [newPackage, setNewPackage] = useState({ quantity: "", price: "" });
+  const [newVideoPackage, setNewVideoPackage] = useState({ quantity: "", price: "" });
 
   const [errors, setErrors] = useState({});
 
@@ -135,6 +140,13 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       newErrors.location = "Localização é obrigatória";
     }
 
+    if ((formData.videoEnabled || formData.pricePerVideo !== "") && !validVideoPrice(formData.pricePerVideo)) {
+      newErrors.pricePerVideo = "Informe um preço positivo com até duas casas decimais";
+    }
+    if (formData.allVideosPrice !== "" && !validVideoPrice(formData.allVideosPrice)) {
+      newErrors.allVideosPrice = "Informe um preço positivo com até duas casas decimais";
+    }
+
     if (
       selectedOrganizer &&
       formData.organizerCommissionPercentage !== "" &&
@@ -167,6 +179,8 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         allPhotosPrice: formData.allPhotosPrice
           ? parseFloat(formData.allPhotosPrice)
           : null,
+        pricePerVideo: formData.pricePerVideo === "" ? null : formData.pricePerVideo,
+        allVideosPrice: formData.allVideosPrice === "" ? null : formData.allVideosPrice,
         freePhotosCount: Math.min(
           Math.max(parseInt(formData.freePhotosCount) || 0, 0),
           3
@@ -580,6 +594,87 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             </div>
           </div>
 
+          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+            <h3 className="text-lg font-semibold font-sora">Preços de Vídeos</h3>
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input
+                type="checkbox"
+                name="videoEnabled"
+                checked={formData.videoEnabled}
+                onChange={handleChange}
+                className="h-4 w-4 accent-lime"
+                disabled={isSubmitting}
+              />
+              Venda de vídeos habilitada
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="pricePerVideo" className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                  Vídeo Avulso (R$)
+                </label>
+                <input
+                  id="pricePerVideo" name="pricePerVideo" type="number" min="0.01" max="99999999.99" step="0.01"
+                  value={formData.pricePerVideo} onChange={handleChange} disabled={isSubmitting}
+                  required={formData.videoEnabled} className={`input ${errors.pricePerVideo ? "border-red-500" : ""}`}
+                />
+                {errors.pricePerVideo && <p className="mt-1 text-sm text-red-600">{errors.pricePerVideo}</p>}
+              </div>
+              <div>
+                <label htmlFor="allVideosPrice" className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                  Teto dos Vídeos Selecionados (R$)
+                </label>
+                <input
+                  id="allVideosPrice" name="allVideosPrice" type="number" min="0.01" max="99999999.99" step="0.01"
+                  value={formData.allVideosPrice} onChange={handleChange} disabled={isSubmitting}
+                  className={`input ${errors.allVideosPrice ? "border-red-500" : ""}`}
+                />
+                {errors.allVideosPrice && <p className="mt-1 text-sm text-red-600">{errors.allVideosPrice}</p>}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">Pacotes Exclusivos de Vídeos</p>
+              <div className="space-y-2">
+                {formData.videoPricingPackages.map((pack, index) => (
+                  <div key={index} className="flex items-center gap-2 py-2" style={{ borderBottom: '1px solid var(--border)' }}>
+                    <span className="flex-1 text-sm text-muted">
+                      {pack.quantity} vídeos - R$ {Number(pack.price).toFixed(2)}
+                    </span>
+                    <button
+                      type="button" title="Remover pacote de vídeos" aria-label="Remover pacote de vídeos"
+                      onClick={() => setFormData(prev => ({ ...prev, videoPricingPackages: prev.videoPricingPackages.filter((_, position) => position !== index) }))}
+                      disabled={isSubmitting} style={{ color: '#FF5050' }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 mt-2">
+                <input
+                  type="number" min="1" max="1000" step="1" aria-label="Quantidade de vídeos do pacote" placeholder="Qtd"
+                  value={newVideoPackage.quantity} onChange={event => setNewVideoPackage(prev => ({ ...prev, quantity: event.target.value }))}
+                  disabled={isSubmitting} className="input flex-1 min-w-0"
+                />
+                <input
+                  type="number" min="0.01" max="99999999.99" step="0.01" aria-label="Preço do pacote de vídeos" placeholder="Preço (R$)"
+                  value={newVideoPackage.price} onChange={event => setNewVideoPackage(prev => ({ ...prev, price: event.target.value }))}
+                  disabled={isSubmitting} className="input flex-1 min-w-0"
+                />
+                <button
+                  type="button" title="Adicionar pacote de vídeos" aria-label="Adicionar pacote de vídeos"
+                  className="btn btn-secondary w-10 h-10 p-0 justify-self-end flex items-center justify-center"
+                  disabled={isSubmitting || formData.videoPricingPackages.length >= 100 || !Number.isInteger(Number(newVideoPackage.quantity)) || Number(newVideoPackage.quantity) < 1 || Number(newVideoPackage.quantity) > 1000 || !validVideoPrice(newVideoPackage.price)}
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, videoPricingPackages: [...prev.videoPricingPackages, { quantity: Number(newVideoPackage.quantity), price: newVideoPackage.price }] }));
+                    setNewVideoPackage({ quantity: "", price: "" });
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Buttons */}
           <div className="flex items-center justify-end space-x-3 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
             <button
@@ -609,4 +704,8 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       </div>
     </div>
   );
+}
+
+function validVideoPrice(value) {
+  return /^\d+(\.\d{1,2})?$/.test(String(value)) && Number(value) > 0 && Number(value) <= 99999999.99;
 }

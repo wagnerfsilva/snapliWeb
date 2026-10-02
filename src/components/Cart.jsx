@@ -37,7 +37,7 @@ export default function Cart() {
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
             <span>
-              {itemCount} foto{itemCount > 1 ? "s" : ""}
+              {itemCount} arquivo{itemCount > 1 ? "s" : ""}
             </span>
           </div>
           {totalPrice > 0 && (
@@ -84,16 +84,16 @@ export default function Cart() {
                 {/* Items grouped by event */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {eventBreakdowns.map((evBreak) => {
-                    const photosInEvent = items.filter((item) => item.eventId === evBreak.eventId);
+                    const photosInEvent = items.filter((item) => item.eventId === evBreak.eventId && (item.mediaType || "photo") === evBreak.mediaType);
                     return (
-                      <div key={evBreak.eventId}>
+                      <div key={evBreak.groupKey}>
                         {/* Event header */}
                         <div className="flex items-center justify-between mb-2 px-1">
                           <p className="text-sm font-semibold text-lime truncate">
                             {evBreak.eventName}
                           </p>
                           <p className="text-xs text-muted ml-2 whitespace-nowrap">
-                            {evBreak.photoCount} foto{evBreak.photoCount > 1 ? "s" : ""}
+                            {evBreak.itemCount} {evBreak.mediaType === "video" ? "vídeo(s)" : "foto(s)"}
                             {" · "}
                             <span className="font-semibold text-white">
                               R$ {evBreak.breakdown.totalPrice.toFixed(2)}
@@ -115,7 +115,7 @@ export default function Cart() {
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">
-                                  Foto #{photo.id.slice(0, 8)}
+                                  {photo.mediaType === "video" ? "Vídeo" : "Foto"} #{photo.id.slice(0, 8)}
                                 </p>
                               </div>
                               <button
@@ -145,7 +145,7 @@ export default function Cart() {
                     {eventBreakdowns.length > 1 && (
                       <div className="space-y-1 mb-2">
                         {eventBreakdowns.map((evBreak) => (
-                          <div key={evBreak.eventId} className="flex justify-between text-sm text-muted">
+                          <div key={evBreak.groupKey} className="flex justify-between text-sm text-muted">
                             <span className="truncate mr-2">{evBreak.eventName}</span>
                             <span className="font-medium whitespace-nowrap">
                               R$ {evBreak.breakdown.totalPrice.toFixed(2)}

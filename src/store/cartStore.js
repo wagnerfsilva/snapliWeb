@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { videoBreakdown } from "../lib/videoPricing";
 
 // Calcula o melhor preço para um conjunto de fotos dado o pricing de um evento
 function calcBestPriceForGroup(photoCount, pricePerPhoto, pricingPackages = [], allPhotosPrice, freePhotosCount = 0) {
@@ -112,7 +113,7 @@ const useCartStore = create(
                 if (items.find((item) => item.id === photo.id)) return;
 
                 set({
-                    items: [...items, photo],
+                    items: [...items, { ...photo, mediaType: photo.mediaType || "photo" }],
                     events: {
                         ...events,
                         [eventId]: {
@@ -122,6 +123,10 @@ const useCartStore = create(
                             pricingPackages: pricing.pricingPackages,
                             allPhotosPrice: pricing.allPhotosPrice,
                             freePhotosCount: pricing.freePhotosCount,
+                            videoEnabled: pricing.videoEnabled ?? photo.event?.videoEnabled ?? events[eventId]?.videoEnabled,
+                            pricePerVideo: pricing.pricePerVideo ?? photo.event?.pricePerVideo ?? events[eventId]?.pricePerVideo,
+                            videoPricingPackages: pricing.videoPricingPackages ?? photo.event?.videoPricingPackages ?? events[eventId]?.videoPricingPackages,
+                            allVideosPrice: pricing.allVideosPrice ?? photo.event?.allVideosPrice ?? events[eventId]?.allVideosPrice,
                         },
                     },
                 });
@@ -156,35 +161,18 @@ const useCartStore = create(
 
             // Total geral somando o melhor preço de cada evento
             getTotalPrice: () => {
-                const { items, events } = get();
-                if (items.length === 0) return 0;
-
-                return Object.values(events).reduce((total, ev) => {
-                    const photosInEvent = items.filter((item) => item.eventId === ev.eventId);
-                    return total + calcBestPriceForGroup(
-                        photosInEvent.length,
-                        ev.pricePerPhoto,
-                        ev.pricingPackages,
-                        ev.allPhotosPrice,
-                        ev.freePhotosCount
-                    );
-                }, 0);
+                return Math.round(get().getPriceBreakdownPerEvent().reduce((total, group) => total + group.breakdown.totalPrice, 0) * 100) / 100;
             },
 
             // Breakdown por evento — retorna array de { eventId, eventName, photoCount, breakdown }
             getPriceBreakdownPerEvent: () => {
                 const { items, events } = get();
-                return Object.values(events).map((ev) => {
-                    const photosInEvent = items.filter((item) => item.eventId === ev.eventId);
-                    const breakdown = calcBreakdownForGroup(
-                        photosInEvent.length,
-                        ev.pricePerPhoto,
-                        ev.pricingPackages,
-                        ev.allPhotosPrice,
-                        ev.freePhotosCount
-                    );
-                    return { eventId: ev.eventId, eventName: ev.eventName, photoCount: photosInEvent.length, breakdown };
-                });
+                return Object.values(events).flatMap(ev => ["photo", "video"].flatMap(mediaType => {
+                    const media = items.filter(item => item.eventId === ev.eventId && (item.mediaType || "photo") === mediaType);
+                    if (!media.length) return [];
+                    const breakdown = mediaType === "video" ? videoBreakdown(media.length, ev) : calcBreakdownForGroup(media.length, ev.pricePerPhoto, ev.pricingPackages, ev.allPhotosPrice, ev.freePhotosCount);
+                    return [{ eventId: ev.eventId, eventName: ev.eventName, mediaType, groupKey: `${ev.eventId}:${mediaType}`, itemCount: media.length, photoCount: mediaType === "photo" ? media.length : 0, videoCount: mediaType === "video" ? media.length : 0, breakdown }];
+                }));
             },
 
             // Calcula o melhor preço para um dado grupo (usado externamente se necessário)
@@ -201,6 +189,8 @@ const useCartStore = create(
         }),
         {
             name: "snapli-cart-v2",
+            version: 1,
+            migrate: state => ({ ...state, items: (state.items || []).map(item => ({ ...item, mediaType: item.mediaType || "photo" })) }),
         }
     )
 );

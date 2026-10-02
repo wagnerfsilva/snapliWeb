@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { eventsAPI, photosAPI } from "../../lib/api";
 import toast from "react-hot-toast";
 import { Upload, Image, Loader2, CheckCircle, XCircle } from "lucide-react";
+import VideoUpload from "../../components/VideoUpload";
 
 export default function UploadPage() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function UploadPage() {
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [mediaType, setMediaType] = useState("photo");
 
   useEffect(() => {
     loadEvents();
@@ -113,7 +115,22 @@ export default function UploadPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold font-sora mb-8">Upload de Fotos</h1>
+      <h1 className="text-3xl font-bold font-sora mb-6">Upload</h1>
+      <div className="flex gap-1 mb-6" role="tablist" aria-label="Tipo de mídia">
+        {[{ value: "photo", label: "Fotos" }, { value: "video", label: "Vídeos" }].map(mode => <button
+          key={mode.value} role="tab" aria-selected={mediaType === mode.value} className={`btn ${mediaType === mode.value ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setMediaType(mode.value)} disabled={isUploading}
+        >{mode.label}</button>)}
+      </div>
+      {mediaType === "video" ? <div className="space-y-4 max-w-3xl">
+        <label className="block text-xs font-medium text-muted uppercase tracking-wider">Evento
+          <select className="input mt-2" value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)} disabled={isUploading}>
+            <option value="">Escolha um evento...</option>
+            {events.map(event => <option key={event.id} value={event.id}>{event.name}{event.videoEnabled ? "" : " (vídeos desabilitados)"}</option>)}
+          </select>
+        </label>
+        <VideoUpload key={selectedEvent} eventId={selectedEvent} onBusyChange={setIsUploading} />
+      </div> :
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Upload Area */}
@@ -245,7 +262,7 @@ export default function UploadPage() {
             )}
           </div>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

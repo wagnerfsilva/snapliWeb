@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { photosAPI } from "../../lib/api";
 import toast from "react-hot-toast";
+import MediaPreview from "../../components/MediaPreview";
 import {
   ArrowLeft,
   Image,
@@ -49,19 +50,19 @@ export default function EventGalleryPage() {
   };
 
   const handleDelete = async (photoId) => {
-    if (!confirm("Tem certeza que deseja excluir esta foto?")) return;
+    if (!confirm("Tem certeza que deseja excluir este arquivo?")) return;
 
     setIsDeletingId(photoId);
     try {
       const response = await photosAPI.delete(photoId);
       if (response.data.success) {
-        toast.success("Foto excluída com sucesso!");
+        toast.success("Arquivo excluído com sucesso!");
         setPhotos((prev) => prev.filter((p) => p.id !== photoId));
         setTotal((prev) => prev - 1);
         if (selectedPhoto?.id === photoId) setSelectedPhoto(null);
       }
     } catch (error) {
-      toast.error("Erro ao excluir foto");
+      toast.error(error.response?.data?.message || "Erro ao excluir arquivo");
     } finally {
       setIsDeletingId(null);
     }
@@ -101,10 +102,10 @@ export default function EventGalleryPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-sora">
-              {eventInfo ? `Fotos - ${eventInfo.name}` : "Fotos do Evento"}
+              {eventInfo ? `Mídia - ${eventInfo.name}` : "Mídia do Evento"}
             </h1>
             <p className="text-sm text-muted mt-1">
-              {total} foto{total !== 1 ? "s" : ""} encontrada{total !== 1 ? "s" : ""}
+              {total} arquivo{total !== 1 ? "s" : ""}
             </p>
           </div>
 
@@ -127,16 +128,16 @@ export default function EventGalleryPage() {
         <div className="text-center py-16">
           <Image className="h-16 w-16 text-dim mx-auto mb-4" />
           <h2 className="text-lg font-semibold mb-2">
-            Nenhuma foto encontrada
+            Nenhum arquivo encontrado
           </h2>
           <p className="text-muted mb-4">
-            Faça upload de fotos para este evento.
+            Este evento ainda não possui mídia enviada.
           </p>
           <Link
             to={`/admin/events/${id}/upload`}
             className="btn btn-primary inline-flex items-center"
           >
-            Upload de Fotos
+            Upload
           </Link>
         </div>
       )}
@@ -155,12 +156,7 @@ export default function EventGalleryPage() {
                   className="aspect-square cursor-pointer"
                   onClick={() => setSelectedPhoto(photo)}
                 >
-                  <img
-                    src={photo.watermarkedUrl}
-                    alt="Foto do evento"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                    <MediaPreview media={photo} />
                 </div>
 
                 {/* Actions overlay */}
@@ -185,8 +181,9 @@ export default function EventGalleryPage() {
                 {/* Info */}
                 <div className="p-2">
                   <p className="text-xs text-muted truncate">
-                    {photo.faceCount != null ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}` : ""}
+                    {photo.mediaType === "video" ? `Vídeo · ${photo.processingStatus}` : photo.faceCount != null ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}` : ""}
                   </p>
+                  {photo.processingStatus === "failed" && <button title="Reprocessar arquivo" aria-label="Reprocessar arquivo" className="btn btn-secondary btn-sm mt-2" onClick={() => handleRetry(photo.id)}><RefreshCw className="h-3 w-3" /></button>}
                 </div>
               </div>
             ))}
@@ -250,11 +247,7 @@ export default function EventGalleryPage() {
             )}
 
             {/* Image */}
-            <img
-              src={selectedPhoto.watermarkedUrl}
-              alt="Foto do evento"
-              className="max-w-full max-h-[85vh] object-contain rounded-lg"
-            />
+            <MediaPreview media={selectedPhoto} controls className="max-w-full max-h-[85vh] object-contain rounded-lg" />
 
             {/* Next */}
             {photos.findIndex((p) => p.id === selectedPhoto.id) <

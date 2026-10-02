@@ -75,6 +75,17 @@ export const photosAPI = {
     retryProcessing: (id) => api.post(`/photos/${id}/retry`),
 };
 
+export const videosAPI = {
+    start: data => api.post('/videos/uploads', data),
+    part: (id, partNumber, blob, onUploadProgress) => api.put(`/videos/uploads/${id}/parts/${partNumber}`, blob, {
+        headers: { 'Content-Type': 'application/octet-stream' }, onUploadProgress, timeout: 180000,
+    }),
+    complete: (id, parts) => api.post(`/videos/uploads/${id}/complete`, { parts }),
+    status: id => api.get(`/videos/${id}/status`),
+    cancel: id => api.delete(`/videos/uploads/${id}`),
+    retry: id => api.post(`/photos/${id}/retry`),
+};
+
 // Search API
 export const searchAPI = {
     searchByFace: (formData) =>

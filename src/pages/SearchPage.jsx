@@ -133,10 +133,10 @@ export default function SearchPage() {
     <div className="flex-1 max-w-[720px] mx-auto w-full px-6 py-12 sm:py-16">
       {/* Heading */}
       <h1 className="font-sora font-extrabold text-center mb-2" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)' }}>
-        Encontre suas <em className="not-italic text-lime">Fotos</em>
+        Encontre suas <em className="not-italic text-lime">Fotos e Vídeos</em>
       </h1>
       <p className="text-center text-muted text-lg mb-8">
-        Envie uma foto com seu rosto para encontrar todas as fotos onde você aparece
+        Envie uma foto com seu rosto para encontrar fotos e vídeos onde você aparece
       </p>
 
       {/* Tips */}
@@ -214,7 +214,7 @@ export default function SearchPage() {
             {isLoading ? (
               <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-lime mx-auto mb-2" />
-                <p className="text-muted">Buscando suas fotos...</p>
+                <p className="text-muted">Buscando fotos e vídeos...</p>
               </div>
             ) : (
               <div className="flex justify-center gap-4">
