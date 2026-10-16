@@ -6,7 +6,12 @@ import { useState, useMemo } from "react";
 import Cart from "../components/Cart";
 import MediaPreview from "../components/MediaPreview";
 
-// Agrupa fotos por eventId e retorna array ordenado pelo nome do evento
+function eventTime(event) {
+  const time = Date.parse(event?.date);
+  return Number.isNaN(time) ? -Infinity : time;
+}
+
+// Agrupa fotos por eventId e retorna array do evento mais recente ao mais antigo
 function groupPhotosByEvent(photos) {
   const map = {};
   photos.forEach((photo) => {
@@ -16,9 +21,12 @@ function groupPhotosByEvent(photos) {
     }
     map[id].photos.push(photo);
   });
-  return Object.values(map).sort((a, b) =>
-    (a.event?.name || "").localeCompare(b.event?.name || "")
-  );
+  return Object.values(map).sort((a, b) => {
+    const timeA = eventTime(a.event);
+    const timeB = eventTime(b.event);
+    if (timeA !== timeB) return timeB > timeA ? 1 : -1;
+    return (a.event?.name || "").localeCompare(b.event?.name || "");
+  });
 }
 
 // Tabela de preços do evento
