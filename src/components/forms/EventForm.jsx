@@ -27,15 +27,22 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
   });
 
   const [newPackage, setNewPackage] = useState({ quantity: "", price: "" });
-  const [newVideoPackage, setNewVideoPackage] = useState({ quantity: "", price: "" });
+  const [newVideoPackage, setNewVideoPackage] = useState({
+    quantity: "",
+    price: "",
+  });
 
   const [errors, setErrors] = useState({});
 
   // Organizador autocomplete (busca com termo, sem listar todos)
   const [selectedOrganizer, setSelectedOrganizer] = useState(
     initialData?.organizer
-      ? { id: initialData.organizer.id, name: initialData.organizer.name, email: initialData.organizer.email }
-      : null
+      ? {
+          id: initialData.organizer.id,
+          name: initialData.organizer.name,
+          email: initialData.organizer.email,
+        }
+      : null,
   );
   const [organizerQuery, setOrganizerQuery] = useState("");
   const [organizerResults, setOrganizerResults] = useState([]);
@@ -140,11 +147,19 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       newErrors.location = "Localização é obrigatória";
     }
 
-    if ((formData.videoEnabled || formData.pricePerVideo !== "") && !validVideoPrice(formData.pricePerVideo)) {
-      newErrors.pricePerVideo = "Informe um preço positivo com até duas casas decimais";
+    if (
+      (formData.videoEnabled || formData.pricePerVideo !== "") &&
+      !validVideoPrice(formData.pricePerVideo)
+    ) {
+      newErrors.pricePerVideo =
+        "Informe um preço positivo com até duas casas decimais";
     }
-    if (formData.allVideosPrice !== "" && !validVideoPrice(formData.allVideosPrice)) {
-      newErrors.allVideosPrice = "Informe um preço positivo com até duas casas decimais";
+    if (
+      formData.allVideosPrice !== "" &&
+      !validVideoPrice(formData.allVideosPrice)
+    ) {
+      newErrors.allVideosPrice =
+        "Informe um preço positivo com até duas casas decimais";
     }
 
     if (
@@ -153,7 +168,8 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       (Number(formData.organizerCommissionPercentage) < 0 ||
         Number(formData.organizerCommissionPercentage) > 100)
     ) {
-      newErrors.organizerCommissionPercentage = "Comissão deve ser entre 0 e 100";
+      newErrors.organizerCommissionPercentage =
+        "Comissão deve ser entre 0 e 100";
     }
 
     setErrors(newErrors);
@@ -179,11 +195,13 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         allPhotosPrice: formData.allPhotosPrice
           ? parseFloat(formData.allPhotosPrice)
           : null,
-        pricePerVideo: formData.pricePerVideo === "" ? null : formData.pricePerVideo,
-        allVideosPrice: formData.allVideosPrice === "" ? null : formData.allVideosPrice,
+        pricePerVideo:
+          formData.pricePerVideo === "" ? null : formData.pricePerVideo,
+        allVideosPrice:
+          formData.allVideosPrice === "" ? null : formData.allVideosPrice,
         freePhotosCount: Math.min(
           Math.max(parseInt(formData.freePhotosCount) || 0, 0),
-          3
+          3,
         ),
         organizerId: selectedOrganizer ? selectedOrganizer.id : null,
         organizerCommissionPercentage: selectedOrganizer
@@ -203,7 +221,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="card w-full max-w-2xl max-h-[90vh] overflow-y-auto !p-0">
         {/* Header */}
-        <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div
+          className="flex items-center justify-between p-6"
+          style={{ borderBottom: "1px solid var(--border)" }}
+        >
           <h2 className="text-2xl font-bold font-sora">
             {isEdit ? "Editar Evento" : "Criar Novo Evento"}
           </h2>
@@ -331,7 +352,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           )}
 
           {/* Organizador e Comissão */}
-          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+          <div
+            className="space-y-4 pt-6"
+            style={{ borderTop: "1px solid var(--border)" }}
+          >
             <h3 className="text-lg font-semibold font-sora">
               Organizador (opcional)
             </h3>
@@ -339,13 +363,17 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             {selectedOrganizer ? (
               <div
                 className="flex items-center justify-between gap-3 p-3 rounded-xl"
-                style={{ background: 'var(--bg)' }}
+                style={{ background: "var(--bg)" }}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <UserCircle2 className="h-5 w-5 text-lime shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{selectedOrganizer.name}</p>
-                    <p className="text-xs text-muted truncate">{selectedOrganizer.email}</p>
+                    <p className="text-sm font-medium truncate">
+                      {selectedOrganizer.name}
+                    </p>
+                    <p className="text-xs text-muted truncate">
+                      {selectedOrganizer.email}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -378,7 +406,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                 {showOrganizerDropdown && organizerQuery.trim().length >= 2 && (
                   <div
                     className="absolute z-10 mt-1 w-full rounded-xl overflow-hidden max-h-56 overflow-y-auto"
-                    style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
+                    style={{
+                      background: "var(--bg)",
+                      border: "1px solid var(--border)",
+                    }}
                   >
                     {isSearchingOrganizer && (
                       <div className="p-3 text-sm text-muted flex items-center gap-2">
@@ -442,7 +473,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           </div>
 
           {/* Preços */}
-          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+          <div
+            className="space-y-4 pt-6"
+            style={{ borderTop: "1px solid var(--border)" }}
+          >
             <h3 className="text-lg font-semibold font-sora">
               Configuração de Preços
             </h3>
@@ -479,7 +513,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                   <div
                     key={index}
                     className="flex items-center gap-2 p-3 rounded-xl"
-                    style={{ background: 'var(--bg)' }}
+                    style={{ background: "var(--bg)" }}
                   >
                     <span className="flex-1 text-sm text-muted">
                       {pkg.quantity} fotos - R$ {pkg.price.toFixed(2)}
@@ -487,7 +521,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                     <button
                       type="button"
                       onClick={() => handleRemovePackage(index)}
-                      style={{ color: '#FF5050' }}
+                      style={{ color: "#FF5050" }}
                       disabled={isSubmitting}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -536,9 +570,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                   Adicionar
                 </button>
               </div>
-              <p className="mt-1 text-sm text-muted">
-                Ex: 5 fotos por R$ 4,00
-              </p>
+              <p className="mt-1 text-sm text-muted">Ex: 5 fotos por R$ 4,00</p>
             </div>
 
             {/* Preço todas as fotos */}
@@ -594,8 +626,13 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             </div>
           </div>
 
-          <div className="space-y-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
-            <h3 className="text-lg font-semibold font-sora">Preços de Vídeos</h3>
+          <div
+            className="space-y-4 pt-6"
+            style={{ borderTop: "1px solid var(--border)" }}
+          >
+            <h3 className="text-lg font-semibold font-sora">
+              Preços de Vídeos
+            </h3>
             <label className="flex items-center gap-2 text-sm text-muted">
               <input
                 type="checkbox"
@@ -609,40 +646,87 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="pricePerVideo" className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                <label
+                  htmlFor="pricePerVideo"
+                  className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+                >
                   Vídeo Avulso (R$)
                 </label>
                 <input
-                  id="pricePerVideo" name="pricePerVideo" type="number" min="0.01" max="99999999.99" step="0.01"
-                  value={formData.pricePerVideo} onChange={handleChange} disabled={isSubmitting}
-                  required={formData.videoEnabled} className={`input ${errors.pricePerVideo ? "border-red-500" : ""}`}
+                  id="pricePerVideo"
+                  name="pricePerVideo"
+                  type="number"
+                  min="0.01"
+                  max="99999999.99"
+                  step="0.01"
+                  value={formData.pricePerVideo}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  required={formData.videoEnabled}
+                  className={`input ${errors.pricePerVideo ? "border-red-500" : ""}`}
                 />
-                {errors.pricePerVideo && <p className="mt-1 text-sm text-red-600">{errors.pricePerVideo}</p>}
+                {errors.pricePerVideo && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.pricePerVideo}
+                  </p>
+                )}
               </div>
               <div>
-                <label htmlFor="allVideosPrice" className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                <label
+                  htmlFor="allVideosPrice"
+                  className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+                >
                   Preço para Todos os Vídeos (R$)
                 </label>
                 <input
-                  id="allVideosPrice" name="allVideosPrice" type="number" min="0.01" max="99999999.99" step="0.01"
-                  value={formData.allVideosPrice} onChange={handleChange} disabled={isSubmitting}
+                  id="allVideosPrice"
+                  name="allVideosPrice"
+                  type="number"
+                  min="0.01"
+                  max="99999999.99"
+                  step="0.01"
+                  value={formData.allVideosPrice}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
                   className={`input ${errors.allVideosPrice ? "border-red-500" : ""}`}
                 />
-                {errors.allVideosPrice && <p className="mt-1 text-sm text-red-600">{errors.allVideosPrice}</p>}
+                {errors.allVideosPrice && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.allVideosPrice}
+                  </p>
+                )}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">Pacotes Exclusivos de Vídeos</p>
+              <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                Pacotes Exclusivos de Vídeos
+              </p>
               <div className="space-y-2">
                 {formData.videoPricingPackages.map((pack, index) => (
-                  <div key={index} className="flex items-center gap-2 py-2" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 py-2"
+                    style={{ borderBottom: "1px solid var(--border)" }}
+                  >
                     <span className="flex-1 text-sm text-muted">
-                      {pack.quantity} vídeos - R$ {Number(pack.price).toFixed(2)}
+                      {pack.quantity} vídeos - R${" "}
+                      {Number(pack.price).toFixed(2)}
                     </span>
                     <button
-                      type="button" title="Remover pacote de vídeos" aria-label="Remover pacote de vídeos"
-                      onClick={() => setFormData(prev => ({ ...prev, videoPricingPackages: prev.videoPricingPackages.filter((_, position) => position !== index) }))}
-                      disabled={isSubmitting} style={{ color: '#FF5050' }}
+                      type="button"
+                      title="Remover pacote de vídeos"
+                      aria-label="Remover pacote de vídeos"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          videoPricingPackages:
+                            prev.videoPricingPackages.filter(
+                              (_, position) => position !== index,
+                            ),
+                        }))
+                      }
+                      disabled={isSubmitting}
+                      style={{ color: "#FF5050" }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -651,21 +735,63 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 mt-2">
                 <input
-                  type="number" min="1" max="1000" step="1" aria-label="Quantidade de vídeos do pacote" placeholder="Qtd"
-                  value={newVideoPackage.quantity} onChange={event => setNewVideoPackage(prev => ({ ...prev, quantity: event.target.value }))}
-                  disabled={isSubmitting} className="input flex-1 min-w-0"
+                  type="number"
+                  min="1"
+                  max="1000"
+                  step="1"
+                  aria-label="Quantidade de vídeos do pacote"
+                  placeholder="Qtd"
+                  value={newVideoPackage.quantity}
+                  onChange={(event) =>
+                    setNewVideoPackage((prev) => ({
+                      ...prev,
+                      quantity: event.target.value,
+                    }))
+                  }
+                  disabled={isSubmitting}
+                  className="input flex-1 min-w-0"
                 />
                 <input
-                  type="number" min="0.01" max="99999999.99" step="0.01" aria-label="Preço do pacote de vídeos" placeholder="Preço (R$)"
-                  value={newVideoPackage.price} onChange={event => setNewVideoPackage(prev => ({ ...prev, price: event.target.value }))}
-                  disabled={isSubmitting} className="input flex-1 min-w-0"
+                  type="number"
+                  min="0.01"
+                  max="99999999.99"
+                  step="0.01"
+                  aria-label="Preço do pacote de vídeos"
+                  placeholder="Preço (R$)"
+                  value={newVideoPackage.price}
+                  onChange={(event) =>
+                    setNewVideoPackage((prev) => ({
+                      ...prev,
+                      price: event.target.value,
+                    }))
+                  }
+                  disabled={isSubmitting}
+                  className="input flex-1 min-w-0"
                 />
                 <button
-                  type="button" title="Adicionar pacote de vídeos" aria-label="Adicionar pacote de vídeos"
+                  type="button"
+                  title="Adicionar pacote de vídeos"
+                  aria-label="Adicionar pacote de vídeos"
                   className="btn btn-secondary w-10 h-10 p-0 justify-self-end flex items-center justify-center"
-                  disabled={isSubmitting || formData.videoPricingPackages.length >= 100 || !Number.isInteger(Number(newVideoPackage.quantity)) || Number(newVideoPackage.quantity) < 1 || Number(newVideoPackage.quantity) > 1000 || !validVideoPrice(newVideoPackage.price)}
+                  disabled={
+                    isSubmitting ||
+                    formData.videoPricingPackages.length >= 100 ||
+                    !Number.isInteger(Number(newVideoPackage.quantity)) ||
+                    Number(newVideoPackage.quantity) < 1 ||
+                    Number(newVideoPackage.quantity) > 1000 ||
+                    !validVideoPrice(newVideoPackage.price)
+                  }
                   onClick={() => {
-                    setFormData(prev => ({ ...prev, videoPricingPackages: [...prev.videoPricingPackages, { quantity: Number(newVideoPackage.quantity), price: newVideoPackage.price }] }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      videoPricingPackages: [
+                        ...prev.videoPricingPackages,
+                        {
+                          quantity: Number(newVideoPackage.quantity),
+                          price: newVideoPackage.price,
+                        },
+                      ],
+                    }));
                     setNewVideoPackage({ quantity: "", price: "" });
                   }}
                 >
@@ -676,7 +802,10 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center justify-end space-x-3 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+          <div
+            className="flex items-center justify-end space-x-3 pt-4"
+            style={{ borderTop: "1px solid var(--border)" }}
+          >
             <button
               type="button"
               onClick={onClose}
@@ -707,5 +836,9 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
 }
 
 function validVideoPrice(value) {
-  return /^\d+(\.\d{1,2})?$/.test(String(value)) && Number(value) > 0 && Number(value) <= 99999999.99;
+  return (
+    /^\d+(\.\d{1,2})?$/.test(String(value)) &&
+    Number(value) > 0 &&
+    Number(value) <= 99999999.99
+  );
 }

@@ -73,7 +73,7 @@ O aplicativo estará disponível em `http://localhost:5173`
 
 - **Página Inicial**: Apresentação do sistema
 - **Busca por Foto**: Upload de foto ou captura via câmera para encontrar imagens
-- **Galeria de Resultados**: Visualização de fotos encontradas (com marca d'água)
+- **Galeria de Resultados**: Visualização de fotos encontradas (com marca d'água). As prévias são exibidas inteiras, sem recorte, em cards de tamanho uniforme; fotos com proporção diferente do card podem ter faixas de fundo
 - **Carrinho de Compras**: Seleção de fotos para compra
 - **Checkout**: Finalização do pedido
 - **Portal de Download**: Download de fotos originais após pagamento

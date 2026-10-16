@@ -132,17 +132,34 @@ export default function SearchPage() {
   return (
     <div className="flex-1 max-w-[720px] mx-auto w-full px-6 py-12 sm:py-16">
       {/* Heading */}
-      <h1 className="font-sora font-extrabold text-center mb-2" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)' }}>
+      <h1
+        className="font-sora font-extrabold text-center mb-2"
+        style={{ fontSize: "clamp(1.8rem, 4vw, 2.5rem)" }}
+      >
         Encontre suas <em className="not-italic text-lime">Fotos e Vídeos</em>
       </h1>
       <p className="text-center text-muted text-lg mb-8">
-        Envie uma foto com seu rosto para encontrar fotos e vídeos onde você aparece
+        Envie uma foto com seu rosto para encontrar fotos e vídeos onde você
+        aparece
       </p>
 
       {/* Tips */}
-      <div className="rounded-xl p-5 mb-8" style={{ background: 'var(--surface)', borderLeft: '3px solid var(--lime)' }}>
+      <div
+        className="rounded-xl p-5 mb-8"
+        style={{
+          background: "var(--surface)",
+          borderLeft: "3px solid var(--lime)",
+        }}
+      >
         <div className="flex items-center gap-2 font-semibold text-sm text-lime mb-2">
-          <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <svg
+            className="w-[18px] h-[18px]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" x2="12" y1="8" y2="12" />
             <line x1="12" x2="12.01" y1="16" y2="16" />
@@ -155,7 +172,10 @@ export default function SearchPage() {
             "Sem óculos escuros ou acessórios cobrindo o rosto",
             "Boa iluminação faz diferença",
           ].map((tip) => (
-            <li key={tip} className="text-sm text-muted pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-1.5 before:h-1.5 before:rounded-full before:bg-dim">
+            <li
+              key={tip}
+              className="text-sm text-muted pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-1.5 before:h-1.5 before:rounded-full before:bg-dim"
+            >
               {tip}
             </li>
           ))}
@@ -175,7 +195,14 @@ export default function SearchPage() {
               }`}
             >
               <input {...getInputProps()} />
-              <svg className={`w-14 h-14 mx-auto mb-4 transition-colors ${isDragActive ? 'text-lime' : 'text-dim'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <svg
+                className={`w-14 h-14 mx-auto mb-4 transition-colors ${isDragActive ? "text-lime" : "text-dim"}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" x2="12" y1="3" y2="15" />
@@ -193,7 +220,14 @@ export default function SearchPage() {
                 onClick={handleCameraCapture}
                 className="btn btn-secondary flex items-center gap-2"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
                   <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
                   <circle cx="12" cy="13" r="3" />
                 </svg>
@@ -247,7 +281,10 @@ export default function SearchPage() {
               </button>
             </div>
 
-            <div className="relative rounded-xl overflow-hidden mb-4" style={{ background: '#000' }}>
+            <div
+              className="relative rounded-xl overflow-hidden mb-4"
+              style={{ background: "#000" }}
+            >
               <video
                 ref={videoRef}
                 autoPlay
@@ -262,7 +299,14 @@ export default function SearchPage() {
                 onClick={capturePhoto}
                 className="btn btn-primary flex items-center gap-2"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
                   <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
                   <circle cx="12" cy="13" r="3" />
                 </svg>

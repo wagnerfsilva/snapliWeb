@@ -116,153 +116,189 @@ export default function UploadPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold font-sora mb-6">Upload</h1>
-      <div className="flex gap-1 mb-6" role="tablist" aria-label="Tipo de mídia">
-        {[{ value: "photo", label: "Fotos" }, { value: "video", label: "Vídeos" }].map(mode => <button
-          key={mode.value} role="tab" aria-selected={mediaType === mode.value} className={`btn ${mediaType === mode.value ? "btn-primary" : "btn-secondary"}`}
-          onClick={() => setMediaType(mode.value)} disabled={isUploading}
-        >{mode.label}</button>)}
+      <div
+        className="flex gap-1 mb-6"
+        role="tablist"
+        aria-label="Tipo de mídia"
+      >
+        {[
+          { value: "photo", label: "Fotos" },
+          { value: "video", label: "Vídeos" },
+        ].map((mode) => (
+          <button
+            key={mode.value}
+            role="tab"
+            aria-selected={mediaType === mode.value}
+            className={`btn ${mediaType === mode.value ? "btn-primary" : "btn-secondary"}`}
+            onClick={() => setMediaType(mode.value)}
+            disabled={isUploading}
+          >
+            {mode.label}
+          </button>
+        ))}
       </div>
-      {mediaType === "video" ? <div className="space-y-4 max-w-3xl">
-        <label className="block text-xs font-medium text-muted uppercase tracking-wider">Evento
-          <select className="input mt-2" value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)} disabled={isUploading}>
-            <option value="">Escolha um evento...</option>
-            {events.map(event => <option key={event.id} value={event.id}>{event.name}{event.videoEnabled ? "" : " (vídeos desabilitados)"}</option>)}
-          </select>
-        </label>
-        <VideoUpload key={selectedEvent} eventId={selectedEvent} onBusyChange={setIsUploading} />
-      </div> :
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Upload Area */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Event Selection */}
-          <div className="card">
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
-              Selecione o Evento
-            </label>
+      {mediaType === "video" ? (
+        <div className="space-y-4 max-w-3xl">
+          <label className="block text-xs font-medium text-muted uppercase tracking-wider">
+            Evento
             <select
+              className="input mt-2"
               value={selectedEvent}
-              onChange={(e) => setSelectedEvent(e.target.value)}
-              className="input"
+              onChange={(event) => setSelectedEvent(event.target.value)}
               disabled={isUploading}
             >
               <option value="">Escolha um evento...</option>
               {events.map((event) => (
                 <option key={event.id} value={event.id}>
-                  {event.name} -{" "}
-                  {new Date(event.date).toLocaleDateString("pt-BR")}
+                  {event.name}
+                  {event.videoEnabled ? "" : " (vídeos desabilitados)"}
                 </option>
               ))}
             </select>
-          </div>
-
-          {/* Dropzone */}
-          <div className="card">
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
-                isDragActive
-                  ? "border-lime bg-lime/5"
-                  : "border-white/10 hover:border-lime/40"
-              } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
-            >
-              <input {...getInputProps()} />
-              <Upload className="h-16 w-16 text-dim mx-auto mb-4" />
-              <p className="text-lg font-medium mb-2">
-                {isDragActive
-                  ? "Solte as imagens aqui"
-                  : "Arraste fotos aqui ou clique para selecionar"}
-              </p>
-              <p className="text-sm text-muted">
-                Formatos aceitos: JPEG, PNG, WebP (máx. 10MB cada)
-              </p>
-            </div>
-          </div>
-
-          {/* Upload Progress */}
-          {isUploading && (
-            <div className="card">
-              <div className="flex items-center mb-2">
-                <Loader2 className="h-5 w-5 animate-spin text-lime mr-2" />
-                <span className="text-sm font-medium">
-                  Fazendo upload... {uploadProgress}%
-                </span>
-              </div>
-              <div className="w-full rounded-full h-2" style={{ background: 'var(--bg)' }}>
-                <div
-                  className="h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%`, background: 'var(--lime)' }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          {files.length > 0 && (
-            <div className="flex space-x-4">
-              <button
-                onClick={handleUpload}
-                disabled={isUploading || !selectedEvent}
-                className="btn btn-primary flex-1 flex items-center justify-center"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    Enviando...
-                  </>
-                ) : (
-                  `Enviar ${files.length} foto(s)`
-                )}
-              </button>
-              <button
-                onClick={() => setFiles([])}
-                disabled={isUploading}
-                className="btn btn-secondary"
-              >
-                Limpar
-              </button>
-            </div>
-          )}
+          </label>
+          <VideoUpload
+            key={selectedEvent}
+            eventId={selectedEvent}
+            onBusyChange={setIsUploading}
+          />
         </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Upload Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Event Selection */}
+            <div className="card">
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                Selecione o Evento
+              </label>
+              <select
+                value={selectedEvent}
+                onChange={(e) => setSelectedEvent(e.target.value)}
+                className="input"
+                disabled={isUploading}
+              >
+                <option value="">Escolha um evento...</option>
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name} -{" "}
+                    {new Date(event.date).toLocaleDateString("pt-BR")}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* Right Column - Preview */}
-        <div className="lg:col-span-1">
-          <div className="card sticky top-6">
-            <h3 className="font-semibold font-sora mb-4">
-              Fotos Selecionadas ({files.length})
-            </h3>
-
-            {files.length === 0 ? (
-              <div className="text-center py-8">
-                <Image className="h-12 w-12 text-dim mx-auto mb-2" />
+            {/* Dropzone */}
+            <div className="card">
+              <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
+                  isDragActive
+                    ? "border-lime bg-lime/5"
+                    : "border-white/10 hover:border-lime/40"
+                } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+              >
+                <input {...getInputProps()} />
+                <Upload className="h-16 w-16 text-dim mx-auto mb-4" />
+                <p className="text-lg font-medium mb-2">
+                  {isDragActive
+                    ? "Solte as imagens aqui"
+                    : "Arraste fotos aqui ou clique para selecionar"}
+                </p>
                 <p className="text-sm text-muted">
-                  Nenhuma foto selecionada
+                  Formatos aceitos: JPEG, PNG, WebP (máx. 10MB cada)
                 </p>
               </div>
-            ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                {files.map((item, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={item.preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
-                    {!isUploading && (
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <XCircle className="h-5 w-5" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+            </div>
+
+            {/* Upload Progress */}
+            {isUploading && (
+              <div className="card">
+                <div className="flex items-center mb-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-lime mr-2" />
+                  <span className="text-sm font-medium">
+                    Fazendo upload... {uploadProgress}%
+                  </span>
+                </div>
+                <div
+                  className="w-full rounded-full h-2"
+                  style={{ background: "var(--bg)" }}
+                >
+                  <div
+                    className="h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${uploadProgress}%`,
+                      background: "var(--lime)",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            {files.length > 0 && (
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleUpload}
+                  disabled={isUploading || !selectedEvent}
+                  className="btn btn-primary flex-1 flex items-center justify-center"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      Enviando...
+                    </>
+                  ) : (
+                    `Enviar ${files.length} foto(s)`
+                  )}
+                </button>
+                <button
+                  onClick={() => setFiles([])}
+                  disabled={isUploading}
+                  className="btn btn-secondary"
+                >
+                  Limpar
+                </button>
               </div>
             )}
           </div>
+
+          {/* Right Column - Preview */}
+          <div className="lg:col-span-1">
+            <div className="card sticky top-6">
+              <h3 className="font-semibold font-sora mb-4">
+                Fotos Selecionadas ({files.length})
+              </h3>
+
+              {files.length === 0 ? (
+                <div className="text-center py-8">
+                  <Image className="h-12 w-12 text-dim mx-auto mb-2" />
+                  <p className="text-sm text-muted">Nenhuma foto selecionada</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  {files.map((item, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={item.preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      {!isUploading && (
+                        <button
+                          onClick={() => removeFile(index)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <XCircle className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>}
+      )}
     </div>
   );
 }

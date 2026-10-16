@@ -15,7 +15,8 @@ import api from "../lib/api";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { items, events, clearCart, getTotalPrice, getPriceBreakdownPerEvent } = useCartStore();
+  const { items, events, clearCart, getTotalPrice, getPriceBreakdownPerEvent } =
+    useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPixPayment, setShowPixPayment] = useState(false);
@@ -60,7 +61,8 @@ export default function CheckoutPage() {
           setPixData((prev) => ({
             ...prev,
             pixQrCode: response.data.payment.pixQrCode,
-            pixCopyPaste: response.data.payment.pixCopyPaste || prev?.pixCopyPaste,
+            pixCopyPaste:
+              response.data.payment.pixCopyPaste || prev?.pixCopyPaste,
           }));
         } else {
           retryFetchQrCode(orderId, attempt + 1);
@@ -210,9 +212,7 @@ export default function CheckoutPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="max-w-md w-full mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold font-sora mb-4">
-            Carrinho Vazio
-          </h2>
+          <h2 className="text-2xl font-bold font-sora mb-4">Carrinho Vazio</h2>
           <p className="text-muted mb-6">Você não tem fotos no carrinho.</p>
           <button
             onClick={() => navigate("/search")}
@@ -231,7 +231,10 @@ export default function CheckoutPage() {
       <div className="flex items-center justify-center py-12">
         <div className="max-w-md w-full mx-auto px-4">
           <div className="card p-8 text-center">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(0,212,170,0.15)' }}>
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ background: "rgba(0,212,170,0.15)" }}
+            >
               <Check className="h-8 w-8 text-teal" />
             </div>
             <h2 className="text-2xl font-bold font-sora mb-2">
@@ -265,7 +268,10 @@ export default function CheckoutPage() {
 
           <div className="card p-8">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--lime-dim)' }}>
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ background: "var(--lime-dim)" }}
+              >
                 <QrCode className="h-8 w-8 text-lime" />
               </div>
               <h1 className="text-2xl font-bold font-sora mb-2">
@@ -277,7 +283,10 @@ export default function CheckoutPage() {
             </div>
 
             {/* Total */}
-            <div className="rounded-xl p-4 mb-6 text-center" style={{ background: 'var(--bg)' }}>
+            <div
+              className="rounded-xl p-4 mb-6 text-center"
+              style={{ background: "var(--bg)" }}
+            >
               <p className="text-sm text-muted mb-1">Valor total</p>
               <p className="text-3xl font-bold text-lime">
                 R$ {totalPrice.toFixed(2)}
@@ -290,16 +299,26 @@ export default function CheckoutPage() {
 
             {/* Aviso de valor mínimo PIX */}
             {totalPrice < 5 && (
-              <div className="rounded-xl p-4 mb-6" style={{ background: 'rgba(255,200,0,0.1)', border: '1px solid rgba(255,200,0,0.2)' }}>
-                <p className="text-sm font-medium" style={{ color: '#FFC800' }}>
-                  O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
+              <div
+                className="rounded-xl p-4 mb-6"
+                style={{
+                  background: "rgba(255,200,0,0.1)",
+                  border: "1px solid rgba(255,200,0,0.2)",
+                }}
+              >
+                <p className="text-sm font-medium" style={{ color: "#FFC800" }}>
+                  O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais
+                  fotos ao carrinho.
                 </p>
               </div>
             )}
 
             {/* QR Code */}
             <div className="mb-6">
-              <div className="rounded-xl p-6 flex justify-center" style={{ background: '#fff' }}>
+              <div
+                className="rounded-xl p-6 flex justify-center"
+                style={{ background: "#fff" }}
+              >
                 {pixData.pixQrCode ? (
                   <img
                     src={pixData.pixQrCode}
@@ -307,11 +326,12 @@ export default function CheckoutPage() {
                     className="w-64 h-64"
                   />
                 ) : (
-                  <div className="w-64 h-64 flex flex-col items-center justify-center rounded gap-3" style={{ background: 'var(--bg)' }}>
+                  <div
+                    className="w-64 h-64 flex flex-col items-center justify-center rounded gap-3"
+                    style={{ background: "var(--bg)" }}
+                  >
                     <Loader2 className="h-8 w-8 text-dim animate-spin" />
-                    <p className="text-dim text-sm">
-                      Gerando QR Code...
-                    </p>
+                    <p className="text-dim text-sm">Gerando QR Code...</p>
                   </div>
                 )}
               </div>
@@ -350,11 +370,20 @@ export default function CheckoutPage() {
 
             {/* Status de validação */}
             {isValidatingPayment && (
-              <div className="rounded-xl p-4 mb-6" style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)' }}>
+              <div
+                className="rounded-xl p-4 mb-6"
+                style={{
+                  background: "rgba(56,189,248,0.08)",
+                  border: "1px solid rgba(56,189,248,0.2)",
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin" style={{ color: '#38BDF8' }} />
+                  <Loader2
+                    className="h-5 w-5 animate-spin"
+                    style={{ color: "#38BDF8" }}
+                  />
                   <div className="flex-1">
-                    <p className="font-medium" style={{ color: '#38BDF8' }}>
+                    <p className="font-medium" style={{ color: "#38BDF8" }}>
                       Aguardando pagamento...
                     </p>
                     <p className="text-sm text-muted">
@@ -367,7 +396,7 @@ export default function CheckoutPage() {
             )}
 
             {/* Instruções */}
-            <div className="rounded-xl p-4" style={{ background: 'var(--bg)' }}>
+            <div className="rounded-xl p-4" style={{ background: "var(--bg)" }}>
               <p className="font-medium mb-3">Como pagar:</p>
               <ol className="space-y-2 text-sm text-muted">
                 <li className="flex gap-2">
@@ -395,8 +424,17 @@ export default function CheckoutPage() {
 
             {/* Dev Mode: Botão para confirmar pagamento manualmente */}
             {process.env.NODE_ENV === "development" && (
-              <div className="mt-6 p-4 rounded-xl" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.2)' }}>
-                <p className="text-sm font-medium mb-2" style={{ color: '#FFC800' }}>
+              <div
+                className="mt-6 p-4 rounded-xl"
+                style={{
+                  background: "rgba(255,200,0,0.08)",
+                  border: "1px solid rgba(255,200,0,0.2)",
+                }}
+              >
+                <p
+                  className="text-sm font-medium mb-2"
+                  style={{ color: "#FFC800" }}
+                >
                   🔧 Modo Desenvolvimento
                 </p>
                 <button
@@ -434,16 +472,12 @@ export default function CheckoutPage() {
           Voltar
         </button>
 
-        <h1 className="text-3xl font-bold font-sora mb-8">
-          Finalizar Compra
-        </h1>
+        <h1 className="text-3xl font-bold font-sora mb-8">Finalizar Compra</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Formulário */}
           <div className="card">
-            <h2 className="text-xl font-semibold mb-6">
-              Dados do Cliente
-            </h2>
+            <h2 className="text-xl font-semibold mb-6">Dados do Cliente</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -464,7 +498,7 @@ export default function CheckoutPage() {
                   disabled={isProcessing}
                 />
                 {errors.customerName && (
-                  <p className="mt-1 text-sm" style={{ color: '#FF5050' }}>
+                  <p className="mt-1 text-sm" style={{ color: "#FF5050" }}>
                     {errors.customerName}
                   </p>
                 )}
@@ -488,7 +522,7 @@ export default function CheckoutPage() {
                   disabled={isProcessing}
                 />
                 {errors.customerEmail && (
-                  <p className="mt-1 text-sm" style={{ color: '#FF5050' }}>
+                  <p className="mt-1 text-sm" style={{ color: "#FF5050" }}>
                     {errors.customerEmail}
                   </p>
                 )}
@@ -519,22 +553,29 @@ export default function CheckoutPage() {
 
           {/* Resumo do Pedido */}
           <div className="card">
-            <h2 className="text-xl font-semibold mb-6">
-              Resumo do Pedido
-            </h2>
+            <h2 className="text-xl font-semibold mb-6">Resumo do Pedido</h2>
 
             {/* Eventos */}
             {eventBreakdowns.length > 0 && (
-              <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div
+                className="mb-6 pb-6"
+                style={{ borderBottom: "1px solid var(--border)" }}
+              >
                 <p className="text-sm font-medium text-muted mb-2">
                   {eventBreakdowns.length === 1 ? "Evento" : "Eventos"}
                 </p>
                 <div className="space-y-1">
                   {eventBreakdowns.map((ev) => (
-                    <div key={ev.groupKey} className="flex justify-between items-baseline gap-2">
-                      <p className="text-sm font-semibold truncate">{ev.eventName}</p>
+                    <div
+                      key={ev.groupKey}
+                      className="flex justify-between items-baseline gap-2"
+                    >
+                      <p className="text-sm font-semibold truncate">
+                        {ev.eventName}
+                      </p>
                       <p className="text-xs text-muted whitespace-nowrap">
-                        {ev.itemCount} {ev.mediaType === "video" ? "vídeo(s)" : "foto(s)"}
+                        {ev.itemCount}{" "}
+                        {ev.mediaType === "video" ? "vídeo(s)" : "foto(s)"}
                       </p>
                     </div>
                   ))}
@@ -543,7 +584,10 @@ export default function CheckoutPage() {
             )}
 
             {/* Fotos */}
-            <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div
+              className="mb-6 pb-6"
+              style={{ borderBottom: "1px solid var(--border)" }}
+            >
               <p className="text-sm font-medium text-muted mb-3">
                 Arquivos Selecionados
               </p>
@@ -553,7 +597,8 @@ export default function CheckoutPage() {
                     key={photo.id}
                     src={photo.watermarkedUrl}
                     alt="Foto"
-                    className="w-full h-16 object-cover rounded-lg"
+                    className="w-full h-16 object-contain rounded-lg"
+                    style={{ background: "var(--bg)" }}
                   />
                 ))}
               </div>
@@ -574,38 +619,51 @@ export default function CheckoutPage() {
               </div>
 
               {/* Per-event breakdown */}
-              {eventBreakdowns.length > 1 && eventBreakdowns.map((ev) => (
-                <div key={ev.groupKey} className="flex justify-between text-sm text-muted">
-                  <span className="truncate mr-2">{ev.eventName}:</span>
-                  <span className="font-medium whitespace-nowrap">
-                    R$ {ev.breakdown.totalPrice.toFixed(2)}
-                  </span>
-                </div>
-              ))}
-              {eventBreakdowns.length === 1 && eventBreakdowns[0].breakdown.details && (
-                <div className="flex justify-between text-sm text-muted">
-                  <span>Melhor opção:</span>
-                  <span className="font-medium">{eventBreakdowns[0].breakdown.details}</span>
-                </div>
-              )}
+              {eventBreakdowns.length > 1 &&
+                eventBreakdowns.map((ev) => (
+                  <div
+                    key={ev.groupKey}
+                    className="flex justify-between text-sm text-muted"
+                  >
+                    <span className="truncate mr-2">{ev.eventName}:</span>
+                    <span className="font-medium whitespace-nowrap">
+                      R$ {ev.breakdown.totalPrice.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              {eventBreakdowns.length === 1 &&
+                eventBreakdowns[0].breakdown.details && (
+                  <div className="flex justify-between text-sm text-muted">
+                    <span>Melhor opção:</span>
+                    <span className="font-medium">
+                      {eventBreakdowns[0].breakdown.details}
+                    </span>
+                  </div>
+                )}
 
-              <div className="flex justify-between text-lg font-bold pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+              <div
+                className="flex justify-between text-lg font-bold pt-3"
+                style={{ borderTop: "1px solid var(--border)" }}
+              >
                 <span>Total:</span>
-                <span className="text-lime">
-                  R$ {totalPrice.toFixed(2)}
-                </span>
+                <span className="text-lime">R$ {totalPrice.toFixed(2)}</span>
               </div>
 
               {totalPrice < 5 && (
-                <div className="rounded-xl p-3 mt-3" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.2)' }}>
-                  <p className="text-sm" style={{ color: '#FFC800' }}>
-                    O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais fotos ao carrinho.
+                <div
+                  className="rounded-xl p-3 mt-3"
+                  style={{
+                    background: "rgba(255,200,0,0.08)",
+                    border: "1px solid rgba(255,200,0,0.2)",
+                  }}
+                >
+                  <p className="text-sm" style={{ color: "#FFC800" }}>
+                    O valor mínimo para pagamento PIX é R$ 5,00. Adicione mais
+                    fotos ao carrinho.
                   </p>
                 </div>
               )}
             </div>
-
-
           </div>
         </div>
       </div>

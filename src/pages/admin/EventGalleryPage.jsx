@@ -109,7 +109,10 @@ export default function EventGalleryPage() {
             </p>
           </div>
 
-          <button onClick={loadPhotos} className="btn btn-secondary flex items-center space-x-2">
+          <button
+            onClick={loadPhotos}
+            className="btn btn-secondary flex items-center space-x-2"
+          >
             <RefreshCw className="h-4 w-4" />
             <span>Atualizar</span>
           </button>
@@ -150,13 +153,16 @@ export default function EventGalleryPage() {
               <div
                 key={photo.id}
                 className="group relative rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/10"
-                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                }}
               >
                 <div
                   className="aspect-square cursor-pointer"
                   onClick={() => setSelectedPhoto(photo)}
                 >
-                    <MediaPreview media={photo} />
+                  <MediaPreview media={photo} />
                 </div>
 
                 {/* Actions overlay */}
@@ -167,13 +173,20 @@ export default function EventGalleryPage() {
                       handleDelete(photo.id);
                     }}
                     disabled={isDeletingId === photo.id}
-                    className="p-1.5 rounded-full" style={{ background: 'var(--surface)' }}
+                    className="p-1.5 rounded-full"
+                    style={{ background: "var(--surface)" }}
                     title="Excluir"
                   >
                     {isDeletingId === photo.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: '#FF5050' }} />
+                      <Loader2
+                        className="h-3.5 w-3.5 animate-spin"
+                        style={{ color: "#FF5050" }}
+                      />
                     ) : (
-                      <Trash2 className="h-3.5 w-3.5" style={{ color: '#FF5050' }} />
+                      <Trash2
+                        className="h-3.5 w-3.5"
+                        style={{ color: "#FF5050" }}
+                      />
                     )}
                   </button>
                 </div>
@@ -181,9 +194,22 @@ export default function EventGalleryPage() {
                 {/* Info */}
                 <div className="p-2">
                   <p className="text-xs text-muted truncate">
-                    {photo.mediaType === "video" ? `Vídeo · ${photo.processingStatus}` : photo.faceCount != null ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}` : ""}
+                    {photo.mediaType === "video"
+                      ? `Vídeo · ${photo.processingStatus}`
+                      : photo.faceCount != null
+                        ? `${photo.faceCount} rosto${photo.faceCount !== 1 ? "s" : ""}`
+                        : ""}
                   </p>
-                  {photo.processingStatus === "failed" && <button title="Reprocessar arquivo" aria-label="Reprocessar arquivo" className="btn btn-secondary btn-sm mt-2" onClick={() => handleRetry(photo.id)}><RefreshCw className="h-3 w-3" /></button>}
+                  {photo.processingStatus === "failed" && (
+                    <button
+                      title="Reprocessar arquivo"
+                      aria-label="Reprocessar arquivo"
+                      className="btn btn-secondary btn-sm mt-2"
+                      onClick={() => handleRetry(photo.id)}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -247,7 +273,11 @@ export default function EventGalleryPage() {
             )}
 
             {/* Image */}
-            <MediaPreview media={selectedPhoto} controls className="max-w-full max-h-[85vh] object-contain rounded-lg" />
+            <MediaPreview
+              media={selectedPhoto}
+              controls
+              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+            />
 
             {/* Next */}
             {photos.findIndex((p) => p.id === selectedPhoto.id) <
@@ -265,12 +295,16 @@ export default function EventGalleryPage() {
               <div className="flex items-center space-x-3">
                 {selectedPhoto.faceCount != null && (
                   <span className="text-xs text-gray-300">
-                    {selectedPhoto.faceCount} rosto{selectedPhoto.faceCount !== 1 ? "s" : ""} detectado{selectedPhoto.faceCount !== 1 ? "s" : ""}
+                    {selectedPhoto.faceCount} rosto
+                    {selectedPhoto.faceCount !== 1 ? "s" : ""} detectado
+                    {selectedPhoto.faceCount !== 1 ? "s" : ""}
                   </span>
                 )}
                 {selectedPhoto.createdAt && (
                   <span className="text-xs text-gray-300">
-                    {new Date(selectedPhoto.createdAt).toLocaleDateString("pt-BR")}
+                    {new Date(selectedPhoto.createdAt).toLocaleDateString(
+                      "pt-BR",
+                    )}
                   </span>
                 )}
               </div>

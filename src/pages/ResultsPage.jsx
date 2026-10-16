@@ -34,14 +34,20 @@ function PricingTable({ event, mediaType = "photo" }) {
   if (!event) return null;
   const isVideo = mediaType === "video";
   const pricePerPhoto = isVideo ? event.pricePerVideo : event.pricePerPhoto;
-  const pricingPackages = isVideo ? event.videoPricingPackages : event.pricingPackages;
+  const pricingPackages = isVideo
+    ? event.videoPricingPackages
+    : event.pricingPackages;
   const allPhotosPrice = isVideo ? event.allVideosPrice : event.allPhotosPrice;
   const freePhotosCount = event.freePhotosCount;
 
   // Monta linhas: 1 por X, pacotes, todas
   const rows = [];
   if (pricePerPhoto) {
-    rows.push({ label: isVideo ? "1 vídeo" : "1 foto", price: parseFloat(pricePerPhoto), highlight: false });
+    rows.push({
+      label: isVideo ? "1 vídeo" : "1 foto",
+      price: parseFloat(pricePerPhoto),
+      highlight: false,
+    });
   }
   if (pricingPackages && pricingPackages.length > 0) {
     const sorted = [...pricingPackages].sort((a, b) => a.quantity - b.quantity);
@@ -49,7 +55,7 @@ function PricingTable({ event, mediaType = "photo" }) {
       rows.push({
         label: `${pkg.quantity} ${isVideo ? "vídeos" : "fotos"}`,
         price: parseFloat(pkg.price),
-        priceEach: pricePerPhoto ? (parseFloat(pkg.price) / pkg.quantity) : null,
+        priceEach: pricePerPhoto ? parseFloat(pkg.price) / pkg.quantity : null,
         highlight: false,
       });
     });
@@ -70,36 +76,56 @@ function PricingTable({ event, mediaType = "photo" }) {
       {freePhotosCount > 0 && (
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
-          style={{ background: 'var(--amber-dim)', color: 'var(--amber)' }}
+          style={{ background: "var(--amber-dim)", color: "var(--amber)" }}
         >
           <Zap className="h-3.5 w-3.5 flex-shrink-0" />
           <span>
-            +{freePhotosCount} {isVideo ? "vídeo" : "foto"}{freePhotosCount > 1 ? "s" : ""} grátis nesta compra
+            +{freePhotosCount} {isVideo ? "vídeo" : "foto"}
+            {freePhotosCount > 1 ? "s" : ""} grátis nesta compra
           </span>
         </div>
       )}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{ border: "1px solid var(--border)" }}
+      >
         {rows.map((row, i) => (
           <div
             key={i}
             className="flex items-center justify-between px-4 py-2.5 gap-4"
             style={
               row.highlight
-                ? { background: 'var(--amber-dim)', borderTop: i > 0 ? '1px solid rgba(245,158,11,0.15)' : 'none' }
-                : { background: i % 2 === 0 ? 'var(--bg)' : 'var(--surface)', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }
+                ? {
+                    background: "var(--amber-dim)",
+                    borderTop:
+                      i > 0 ? "1px solid rgba(245,158,11,0.15)" : "none",
+                  }
+                : {
+                    background: i % 2 === 0 ? "var(--bg)" : "var(--surface)",
+                    borderTop: i > 0 ? "1px solid var(--border)" : "none",
+                  }
             }
           >
             <div className="flex items-center gap-2">
-              {row.highlight && <Zap className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--amber)' }} />}
+              {row.highlight && (
+                <Zap
+                  className="h-3.5 w-3.5 flex-shrink-0"
+                  style={{ color: "var(--amber)" }}
+                />
+              )}
               <span
                 className="text-sm font-semibold"
-                style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
+                style={{
+                  color: row.highlight ? "var(--amber)" : "var(--text)",
+                }}
               >
                 {row.label}
               </span>
               {row.highlight && (
-                <span className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
-                  style={{ background: 'var(--amber)', color: '#09090B' }}>
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5"
+                  style={{ background: "var(--amber)", color: "#09090B" }}
+                >
                   melhor valor
                 </span>
               )}
@@ -111,8 +137,10 @@ function PricingTable({ event, mediaType = "photo" }) {
                 </span>
               )}
               <span
-                className={`font-bold tabular-nums ${row.highlight ? 'text-lg' : 'text-base'}`}
-                style={{ color: row.highlight ? 'var(--amber)' : 'var(--text)' }}
+                className={`font-bold tabular-nums ${row.highlight ? "text-lg" : "text-base"}`}
+                style={{
+                  color: row.highlight ? "var(--amber)" : "var(--text)",
+                }}
               >
                 R$ {row.price.toFixed(2)}
               </span>
@@ -129,12 +157,15 @@ export default function ResultsPage() {
   const { addPhoto, items } = useCartStore();
   const navigate = useNavigate();
 
-  const eventGroups = useMemo(() => groupPhotosByEvent(searchResults || []), [searchResults]);
+  const eventGroups = useMemo(
+    () => groupPhotosByEvent(searchResults || []),
+    [searchResults],
+  );
   const multiEvent = eventGroups.length > 1;
 
   const [activeTab, setActiveTab] = useState(0);
   const [mediaFilter, setMediaFilter] = useState("all");
-  const hasVideos = searchResults?.some(item => item.mediaType === "video");
+  const hasVideos = searchResults?.some((item) => item.mediaType === "video");
 
   const isPhotoInCart = (photoId) => items.some((item) => item.id === photoId);
 
@@ -169,7 +200,10 @@ export default function ResultsPage() {
             <p className="text-muted mb-6">
               Não encontramos fotos com seu rosto. Tente com outra imagem.
             </p>
-            <button onClick={() => navigate("/search")} className="btn btn-primary">
+            <button
+              onClick={() => navigate("/search")}
+              className="btn btn-primary"
+            >
               Nova Busca
             </button>
           </div>
@@ -184,7 +218,8 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold font-sora mb-2">
-            Encontramos {searchResults.length} arquivo{searchResults.length > 1 ? "s" : ""}
+            Encontramos {searchResults.length} arquivo
+            {searchResults.length > 1 ? "s" : ""}
             {multiEvent && ` em ${eventGroups.length} eventos`}!
           </h1>
           <p className="text-muted">
@@ -192,14 +227,36 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        {hasVideos && <div className="flex gap-1 mb-6" role="tablist" aria-label="Resultados por tipo">
-          {[{ value: "all", label: "Todos" }, { value: "photo", label: "Fotos" }, { value: "video", label: "Vídeos" }].map(filter =>
-            <button key={filter.value} role="tab" aria-selected={mediaFilter === filter.value} className={`btn ${mediaFilter === filter.value ? "btn-primary" : "btn-secondary"}`} onClick={() => setMediaFilter(filter.value)}>{filter.label}</button>)}
-        </div>}
+        {hasVideos && (
+          <div
+            className="flex gap-1 mb-6"
+            role="tablist"
+            aria-label="Resultados por tipo"
+          >
+            {[
+              { value: "all", label: "Todos" },
+              { value: "photo", label: "Fotos" },
+              { value: "video", label: "Vídeos" },
+            ].map((filter) => (
+              <button
+                key={filter.value}
+                role="tab"
+                aria-selected={mediaFilter === filter.value}
+                className={`btn ${mediaFilter === filter.value ? "btn-primary" : "btn-secondary"}`}
+                onClick={() => setMediaFilter(filter.value)}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tab bar — only when 2+ events */}
         {multiEvent && (
-          <div className="flex gap-1 mb-6 overflow-x-auto pb-1" style={{ borderBottom: '2px solid var(--border)' }}>
+          <div
+            className="flex gap-1 mb-6 overflow-x-auto pb-1"
+            style={{ borderBottom: "2px solid var(--border)" }}
+          >
             {eventGroups.map((group, idx) => (
               <button
                 key={group.eventId}
@@ -207,8 +264,13 @@ export default function ResultsPage() {
                 className="flex-shrink-0 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all whitespace-nowrap"
                 style={
                   activeTab === idx
-                    ? { background: 'var(--lime)', color: '#09090B', borderBottom: '2px solid var(--lime)', marginBottom: '-2px' }
-                    : { color: 'var(--text-muted)', background: 'transparent' }
+                    ? {
+                        background: "var(--lime)",
+                        color: "#09090B",
+                        borderBottom: "2px solid var(--lime)",
+                        marginBottom: "-2px",
+                      }
+                    : { color: "var(--text-muted)", background: "transparent" }
                 }
               >
                 {group.event?.name || "Evento"}
@@ -224,7 +286,11 @@ export default function ResultsPage() {
         {eventGroups.map((group, idx) => {
           if (multiEvent && idx !== activeTab) return null;
 
-          const visibleMedia = group.photos.filter(media => mediaFilter === "all" || (media.mediaType || "photo") === mediaFilter);
+          const visibleMedia = group.photos.filter(
+            (media) =>
+              mediaFilter === "all" ||
+              (media.mediaType || "photo") === mediaFilter,
+          );
           if (!visibleMedia.length) return null;
 
           const allGroupInCart = visibleMedia.every((p) => isPhotoInCart(p.id));
@@ -238,17 +304,27 @@ export default function ResultsPage() {
                     <div className="flex items-center gap-2 text-sm text-muted">
                       <span>
                         {group.event?.date
-                          ? new Date(group.event.date).toLocaleDateString("pt-BR")
+                          ? new Date(group.event.date).toLocaleDateString(
+                              "pt-BR",
+                            )
                           : ""}
-                        {group.event?.location ? ` · ${group.event.location}` : ""}
+                        {group.event?.location
+                          ? ` · ${group.event.location}`
+                          : ""}
                       </span>
                     </div>
                   )}
-                  {visibleMedia.some(media => media.mediaType !== "video") && <PricingTable event={group.event} />}
-                  {visibleMedia.some(media => media.mediaType === "video") && <PricingTable event={group.event} mediaType="video" />}
+                  {visibleMedia.some(
+                    (media) => media.mediaType !== "video",
+                  ) && <PricingTable event={group.event} />}
+                  {visibleMedia.some(
+                    (media) => media.mediaType === "video",
+                  ) && <PricingTable event={group.event} mediaType="video" />}
                 </div>
                 <button
-                  onClick={() => handleAddAllInGroup({ ...group, photos: visibleMedia })}
+                  onClick={() =>
+                    handleAddAllInGroup({ ...group, photos: visibleMedia })
+                  }
                   disabled={allGroupInCart}
                   className="btn btn-primary whitespace-nowrap flex items-center gap-2 self-start"
                 >
@@ -272,28 +348,45 @@ export default function ResultsPage() {
                   <div
                     key={photo.id}
                     className="group relative rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/20"
-                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                    style={{
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                    }}
                   >
-                    <div className="aspect-square">
-                      <MediaPreview media={photo} className={`w-full h-full ${photo.mediaType === "video" ? "object-contain" : "object-cover"}`} />
+                    <div
+                      className="aspect-square"
+                      style={{ background: "var(--bg)" }}
+                    >
+                      <MediaPreview
+                        media={photo}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
 
                     <div className="p-2">
-                      {photo.mediaType === "video" && <p className="text-xs text-muted mb-1">Vídeo · {Math.ceil((photo.durationMs || 0) / 1000)}s</p>}
+                      {photo.mediaType === "video" && (
+                        <p className="text-xs text-muted mb-1">
+                          Vídeo · {Math.ceil((photo.durationMs || 0) / 1000)}s
+                        </p>
+                      )}
                       <div className="flex items-center justify-between mb-1">
                         {!multiEvent && (
                           <span className="text-xs font-medium truncate">
                             {photo.event?.name}
                           </span>
                         )}
-                        <span className={`badge badge-info text-[10px] px-1.5 py-0.5 whitespace-nowrap ${multiEvent ? 'w-full text-center' : 'ml-1'}`}>
+                        <span
+                          className={`badge badge-info text-[10px] px-1.5 py-0.5 whitespace-nowrap ${multiEvent ? "w-full text-center" : "ml-1"}`}
+                        >
                           {Math.round(photo.similarity)}% match
                         </span>
                       </div>
 
                       {!multiEvent && (
                         <p className="text-[10px] text-dim mb-2">
-                          {new Date(photo.event?.date).toLocaleDateString("pt-BR")}
+                          {new Date(photo.event?.date).toLocaleDateString(
+                            "pt-BR",
+                          )}
                         </p>
                       )}
 
@@ -324,7 +417,10 @@ export default function ResultsPage() {
 
         {/* Actions */}
         <div className="mt-4 flex justify-center">
-          <button onClick={() => navigate("/search")} className="btn btn-secondary">
+          <button
+            onClick={() => navigate("/search")}
+            className="btn btn-secondary"
+          >
             Nova Busca
           </button>
         </div>

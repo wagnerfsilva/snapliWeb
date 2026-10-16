@@ -32,7 +32,7 @@ export default function Cart() {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 rounded-xl px-6 py-4 shadow-lg flex flex-col items-center gap-2 transition-all z-40 min-w-[140px] font-semibold"
-          style={{ background: 'var(--lime)', color: '#09090B' }}
+          style={{ background: "var(--lime)", color: "#09090B" }}
         >
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
@@ -41,16 +41,14 @@ export default function Cart() {
             </span>
           </div>
           {totalPrice > 0 && (
-            <div className="text-sm font-bold">
-              R$ {totalPrice.toFixed(2)}
-            </div>
+            <div className="text-sm font-bold">R$ {totalPrice.toFixed(2)}</div>
           )}
         </button>
       ) : (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 rounded-full p-4 shadow-lg flex items-center gap-2 transition-all z-40"
-          style={{ background: 'var(--lime)', color: '#09090B' }}
+          style={{ background: "var(--lime)", color: "#09090B" }}
         >
           <ShoppingCart className="h-6 w-6" />
         </button>
@@ -60,14 +58,26 @@ export default function Cart() {
       {isOpen && (
         <>
           {/* Overlay */}
-          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setIsOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/60 z-40"
+            onClick={() => setIsOpen(false)}
+          />
 
           {/* Carrinho */}
-          <div className="fixed top-0 right-0 h-full w-full max-w-md z-50 flex flex-col" style={{ background: 'var(--surface)' }}>
+          <div
+            className="fixed top-0 right-0 h-full w-full max-w-md z-50 flex flex-col"
+            style={{ background: "var(--surface)" }}
+          >
             {/* Header */}
-            <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div
+              className="flex items-center justify-between p-6"
+              style={{ borderBottom: "1px solid var(--border)" }}
+            >
               <h2 className="text-2xl font-bold font-sora">Meu Carrinho</h2>
-              <button onClick={() => setIsOpen(false)} className="text-muted hover:text-white transition-colors">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-muted hover:text-white transition-colors"
+              >
                 <X className="h-6 w-6" />
               </button>
             </div>
@@ -77,14 +87,20 @@ export default function Cart() {
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <ShoppingCart className="h-16 w-16 text-dim mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Carrinho vazio</h3>
-                <p className="text-muted">Adicione fotos para começar sua compra</p>
+                <p className="text-muted">
+                  Adicione fotos para começar sua compra
+                </p>
               </div>
             ) : (
               <>
                 {/* Items grouped by event */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {eventBreakdowns.map((evBreak) => {
-                    const photosInEvent = items.filter((item) => item.eventId === evBreak.eventId && (item.mediaType || "photo") === evBreak.mediaType);
+                    const photosInEvent = items.filter(
+                      (item) =>
+                        item.eventId === evBreak.eventId &&
+                        (item.mediaType || "photo") === evBreak.mediaType,
+                    );
                     return (
                       <div key={evBreak.groupKey}>
                         {/* Event header */}
@@ -93,7 +109,10 @@ export default function Cart() {
                             {evBreak.eventName}
                           </p>
                           <p className="text-xs text-muted ml-2 whitespace-nowrap">
-                            {evBreak.itemCount} {evBreak.mediaType === "video" ? "vídeo(s)" : "foto(s)"}
+                            {evBreak.itemCount}{" "}
+                            {evBreak.mediaType === "video"
+                              ? "vídeo(s)"
+                              : "foto(s)"}
                             {" · "}
                             <span className="font-semibold text-white">
                               R$ {evBreak.breakdown.totalPrice.toFixed(2)}
@@ -106,22 +125,26 @@ export default function Cart() {
                             <div
                               key={photo.id}
                               className="flex items-center gap-3 p-3 rounded-xl"
-                              style={{ background: 'var(--bg)' }}
+                              style={{ background: "var(--bg)" }}
                             >
                               <img
                                 src={photo.watermarkedUrl}
                                 alt="Foto"
-                                className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                                className="w-14 h-14 object-contain rounded-lg flex-shrink-0"
+                                style={{ background: "var(--surface)" }}
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">
-                                  {photo.mediaType === "video" ? "Vídeo" : "Foto"} #{photo.id.slice(0, 8)}
+                                  {photo.mediaType === "video"
+                                    ? "Vídeo"
+                                    : "Foto"}{" "}
+                                  #{photo.id.slice(0, 8)}
                                 </p>
                               </div>
                               <button
                                 onClick={() => removePhoto(photo.id)}
                                 className="transition-colors flex-shrink-0"
-                                style={{ color: '#FF5050' }}
+                                style={{ color: "#FF5050" }}
                               >
                                 <Trash2 className="h-5 w-5" />
                               </button>
@@ -141,29 +164,48 @@ export default function Cart() {
 
                 {/* Total */}
                 {totalPrice > 0 && (
-                  <div className="p-4" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
+                  <div
+                    className="p-4"
+                    style={{
+                      background: "var(--bg)",
+                      borderTop: "1px solid var(--border)",
+                    }}
+                  >
                     {eventBreakdowns.length > 1 && (
                       <div className="space-y-1 mb-2">
                         {eventBreakdowns.map((evBreak) => (
-                          <div key={evBreak.groupKey} className="flex justify-between text-sm text-muted">
-                            <span className="truncate mr-2">{evBreak.eventName}</span>
+                          <div
+                            key={evBreak.groupKey}
+                            className="flex justify-between text-sm text-muted"
+                          >
+                            <span className="truncate mr-2">
+                              {evBreak.eventName}
+                            </span>
                             <span className="font-medium whitespace-nowrap">
                               R$ {evBreak.breakdown.totalPrice.toFixed(2)}
                             </span>
                           </div>
                         ))}
-                        <div className="border-t mt-1 pt-1" style={{ borderColor: 'var(--border)' }} />
+                        <div
+                          className="border-t mt-1 pt-1"
+                          style={{ borderColor: "var(--border)" }}
+                        />
                       </div>
                     )}
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total:</span>
-                      <span className="text-lime">R$ {totalPrice.toFixed(2)}</span>
+                      <span className="text-lime">
+                        R$ {totalPrice.toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 )}
 
                 {/* Footer */}
-                <div className="p-6 space-y-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <div
+                  className="p-6 space-y-3"
+                  style={{ borderTop: "1px solid var(--border)" }}
+                >
                   <button
                     onClick={handleCheckout}
                     className="btn btn-primary w-full flex items-center justify-center gap-2"
@@ -171,7 +213,10 @@ export default function Cart() {
                     <span>Finalizar Compra</span>
                     <ArrowRight className="h-5 w-5" />
                   </button>
-                  <button onClick={clearCart} className="btn btn-secondary w-full">
+                  <button
+                    onClick={clearCart}
+                    className="btn btn-secondary w-full"
+                  >
                     Limpar Carrinho
                   </button>
                 </div>

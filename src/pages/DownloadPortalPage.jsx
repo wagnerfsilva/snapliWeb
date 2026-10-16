@@ -103,7 +103,10 @@ export default function DownloadPortalPage() {
         } else {
           window.open(downloadUrl, "_blank");
         }
-      } else if (isAndroid && photos.find(photo => photo.id === photoId)?.mediaType !== "video") {
+      } else if (
+        isAndroid &&
+        photos.find((photo) => photo.id === photoId)?.mediaType !== "video"
+      ) {
         // Android: try direct download via anchor tag
         try {
           const resp = await fetch(downloadUrl);
@@ -160,22 +163,24 @@ export default function DownloadPortalPage() {
       try {
         let downloadUrl = originalUrls[photo.id];
         if (!downloadUrl) {
-          const response = await api.get(`/downloads/${token}/photo/${photo.id}`);
+          const response = await api.get(
+            `/downloads/${token}/photo/${photo.id}`,
+          );
           downloadUrl = response.data.downloadUrl;
         }
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         if (isIOS) {
-          window.open(downloadUrl, '_blank');
-          await new Promise(r => setTimeout(r, 1500));
+          window.open(downloadUrl, "_blank");
+          await new Promise((r) => setTimeout(r, 1500));
         } else {
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = downloadUrl;
           link.download = photo.originalFilename;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          await new Promise(r => setTimeout(r, 500));
+          await new Promise((r) => setTimeout(r, 500));
         }
       } catch (err) {
         console.error(`Erro ao baixar ${photo.originalFilename}:`, err);
@@ -213,7 +218,10 @@ export default function DownloadPortalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "var(--bg)" }}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime mx-auto"></div>
           <p className="mt-4 text-muted">Carregando suas fotos...</p>
@@ -224,17 +232,18 @@ export default function DownloadPortalPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+      <div
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: "var(--bg)" }}
+      >
         <div className="max-w-md w-full card p-8 text-center">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF5050' }} />
-          <h2 className="text-2xl font-bold font-sora mb-2">
-            Acesso Negado
-          </h2>
+          <AlertCircle
+            className="w-16 h-16 mx-auto mb-4"
+            style={{ color: "#FF5050" }}
+          />
+          <h2 className="text-2xl font-bold font-sora mb-2">Acesso Negado</h2>
           <p className="text-muted mb-6">{error}</p>
-          <button
-            onClick={() => navigate("/")}
-            className="btn btn-primary"
-          >
+          <button onClick={() => navigate("/")} className="btn btn-primary">
             Voltar ao Início
           </button>
         </div>
@@ -245,27 +254,65 @@ export default function DownloadPortalPage() {
   const daysRemaining = getDaysRemaining(order?.downloadExpiresAt);
 
   return (
-    <div className="min-h-screen py-8 px-4" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+    <div
+      className="min-h-screen py-8 px-4"
+      style={{ background: "var(--bg)", color: "var(--text)" }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Link alert */}
-        <div className="card p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3" style={{ borderLeft: '3px solid #FFC800', background: 'rgba(255,200,0,0.06)' }}>
+        <div
+          className="card p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3"
+          style={{
+            borderLeft: "3px solid #FFC800",
+            background: "rgba(255,200,0,0.06)",
+          }}
+        >
           <div className="flex items-start gap-3 flex-1">
-            <Link className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#FFC800' }} />
+            <Link
+              className="w-5 h-5 mt-0.5 flex-shrink-0"
+              style={{ color: "#FFC800" }}
+            />
             <div>
-              <p className="font-semibold text-sm" style={{ color: '#FFC800' }}>Salve este link!</p>
-              <p className="text-xs text-muted mt-0.5">Este é o único jeito de acessar suas fotos. Guarde o link ou envie para o seu e-mail.</p>
-              <p className="text-xs font-mono mt-1 truncate max-w-xs sm:max-w-md" style={{ color: 'var(--text-dim)' }}>{window.location.href}</p>
+              <p className="font-semibold text-sm" style={{ color: "#FFC800" }}>
+                Salve este link!
+              </p>
+              <p className="text-xs text-muted mt-0.5">
+                Este é o único jeito de acessar suas fotos. Guarde o link ou
+                envie para o seu e-mail.
+              </p>
+              <p
+                className="text-xs font-mono mt-1 truncate max-w-xs sm:max-w-md"
+                style={{ color: "var(--text-dim)" }}
+              >
+                {window.location.href}
+              </p>
             </div>
           </div>
           <button
             onClick={handleCopyLink}
             className="btn btn-sm flex items-center gap-2 whitespace-nowrap self-start sm:self-auto"
-            style={linkCopied ? { background: 'rgba(0,212,170,0.15)', color: '#00D4AA', border: '1px solid rgba(0,212,170,0.3)' } : { background: 'rgba(255,200,0,0.12)', color: '#FFC800', border: '1px solid rgba(255,200,0,0.3)' }}
+            style={
+              linkCopied
+                ? {
+                    background: "rgba(0,212,170,0.15)",
+                    color: "#00D4AA",
+                    border: "1px solid rgba(0,212,170,0.3)",
+                  }
+                : {
+                    background: "rgba(255,200,0,0.12)",
+                    color: "#FFC800",
+                    border: "1px solid rgba(255,200,0,0.3)",
+                  }
+            }
           >
             {linkCopied ? (
-              <><CheckCircle className="w-4 h-4" /> Copiado!</>
+              <>
+                <CheckCircle className="w-4 h-4" /> Copiado!
+              </>
             ) : (
-              <><Copy className="w-4 h-4" /> Copiar Link</>
+              <>
+                <Copy className="w-4 h-4" /> Copiar Link
+              </>
             )}
           </button>
         </div>
@@ -278,7 +325,8 @@ export default function DownloadPortalPage() {
                 Seus Arquivos Estão Prontos!
               </h1>
               <p className="text-muted">
-                Olá, <strong className="text-white">{order?.customerName}</strong>
+                Olá,{" "}
+                <strong className="text-white">{order?.customerName}</strong>
               </p>
             </div>
             <div className="text-right">
@@ -290,8 +338,14 @@ export default function DownloadPortalPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="rounded-xl p-4" style={{ background: 'rgba(56,189,248,0.08)' }}>
-              <div className="flex items-center mb-2" style={{ color: '#38BDF8' }}>
+            <div
+              className="rounded-xl p-4"
+              style={{ background: "rgba(56,189,248,0.08)" }}
+            >
+              <div
+                className="flex items-center mb-2"
+                style={{ color: "#38BDF8" }}
+              >
                 <ImageIcon className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Total de Arquivos</span>
               </div>
@@ -300,26 +354,37 @@ export default function DownloadPortalPage() {
               </div>
             </div>
 
-            <div className="rounded-xl p-4" style={{ background: 'rgba(0,212,170,0.08)' }}>
-              <div className="flex items-center mb-2" style={{ color: '#00D4AA' }}>
+            <div
+              className="rounded-xl p-4"
+              style={{ background: "rgba(0,212,170,0.08)" }}
+            >
+              <div
+                className="flex items-center mb-2"
+                style={{ color: "#00D4AA" }}
+              >
                 <CheckCircle className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Pagamento</span>
               </div>
               <div className="text-2xl font-bold text-white">
                 R$ {parseFloat(order?.totalAmount || 0).toFixed(2)}
               </div>
-              <div className="text-sm mt-1" style={{ color: '#00D4AA' }}>
+              <div className="text-sm mt-1" style={{ color: "#00D4AA" }}>
                 Confirmado em {formatDate(order?.paidAt)}
               </div>
             </div>
 
             <div
               className="rounded-xl p-4"
-              style={{ background: daysRemaining > 7 ? 'rgba(56,189,248,0.08)' : 'rgba(255,200,0,0.08)' }}
+              style={{
+                background:
+                  daysRemaining > 7
+                    ? "rgba(56,189,248,0.08)"
+                    : "rgba(255,200,0,0.08)",
+              }}
             >
               <div
                 className="flex items-center mb-2"
-                style={{ color: daysRemaining > 7 ? '#38BDF8' : '#FFC800' }}
+                style={{ color: daysRemaining > 7 ? "#38BDF8" : "#FFC800" }}
               >
                 <Clock className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Disponível por</span>
@@ -329,7 +394,7 @@ export default function DownloadPortalPage() {
               </div>
               <div
                 className="text-sm mt-1"
-                style={{ color: daysRemaining > 7 ? '#38BDF8' : '#FFC800' }}
+                style={{ color: daysRemaining > 7 ? "#38BDF8" : "#FFC800" }}
               >
                 Até{" "}
                 {new Date(order?.downloadExpiresAt).toLocaleDateString("pt-BR")}
@@ -338,8 +403,14 @@ export default function DownloadPortalPage() {
           </div>
 
           {daysRemaining <= 7 && (
-            <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.2)' }}>
-              <p style={{ color: '#FFC800' }}>
+            <div
+              className="mt-4 p-4 rounded-xl"
+              style={{
+                background: "rgba(255,200,0,0.08)",
+                border: "1px solid rgba(255,200,0,0.2)",
+              }}
+            >
+              <p style={{ color: "#FFC800" }}>
                 ⚠️ <strong>Atenção:</strong> Seu período de download está
                 terminando. Faça o download de todas as suas fotos o quanto
                 antes!
@@ -362,7 +433,7 @@ export default function DownloadPortalPage() {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-dark"></div>
                   {downloadAllProgress
                     ? `Baixando ${downloadAllProgress.done}/${downloadAllProgress.total}...`
-                    : 'Preparando...'}
+                    : "Preparando..."}
                 </>
               ) : (
                 <>
@@ -374,11 +445,21 @@ export default function DownloadPortalPage() {
           </div>
 
           {/* Mobile download tip */}
-          <div className="mb-6 p-4 rounded-xl flex items-start gap-3 md:hidden" style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.15)' }}>
-            <Smartphone className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#38BDF8' }} />
+          <div
+            className="mb-6 p-4 rounded-xl flex items-start gap-3 md:hidden"
+            style={{
+              background: "rgba(56,189,248,0.08)",
+              border: "1px solid rgba(56,189,248,0.15)",
+            }}
+          >
+            <Smartphone
+              className="w-5 h-5 mt-0.5 flex-shrink-0"
+              style={{ color: "#38BDF8" }}
+            />
             <p className="text-sm text-muted">
-              <strong className="text-white">Dica:</strong> Ao clicar em "Baixar", a foto abrirá em
-              uma nova aba. Segure o dedo sobre a imagem e toque em{" "}
+              <strong className="text-white">Dica:</strong> Ao clicar em
+              "Baixar", a foto abrirá em uma nova aba. Segure o dedo sobre a
+              imagem e toque em{" "}
               <strong className="text-white">"Salvar Imagem"</strong> ou{" "}
               <strong className="text-white">"Adicionar às Fotos"</strong>.
             </p>
@@ -389,14 +470,37 @@ export default function DownloadPortalPage() {
               <div
                 key={photo.id}
                 className="rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/10"
-                style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
+                style={{
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                }}
               >
                 {/* Photo Preview */}
-                <div className="aspect-video relative" style={{ background: '#1a1a1e' }}>
-                  {photo.mediaType === "video" ? <MediaPreview media={photo} controls className="w-full h-full object-contain" /> :
-                    <img src={originalUrls[photo.id] || photo.previewUrl} alt={photo.originalFilename} className="w-full h-full object-cover" />}
+                <div
+                  className="aspect-video relative"
+                  style={{ background: "#1a1a1e" }}
+                >
+                  {photo.mediaType === "video" ? (
+                    <MediaPreview
+                      media={photo}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={originalUrls[photo.id] || photo.previewUrl}
+                      alt={photo.originalFilename}
+                      className="w-full h-full object-contain"
+                    />
+                  )}
                   {photo.downloadedAt && (
-                    <div className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full flex items-center" style={{ background: 'rgba(0,212,170,0.9)', color: '#09090B' }}>
+                    <div
+                      className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full flex items-center"
+                      style={{
+                        background: "rgba(0,212,170,0.9)",
+                        color: "#09090B",
+                      }}
+                    >
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Baixada
                     </div>
@@ -420,7 +524,7 @@ export default function DownloadPortalPage() {
                       </div>
                     )}
                     {photo.downloadCount > 0 && (
-                      <div style={{ color: '#00D4AA' }}>
+                      <div style={{ color: "#00D4AA" }}>
                         Downloads: {photo.downloadCount}
                       </div>
                     )}
@@ -452,7 +556,10 @@ export default function DownloadPortalPage() {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-6 rounded-xl p-6 text-center" style={{ background: 'var(--lime-dim)' }}>
+        <div
+          className="mt-6 rounded-xl p-6 text-center"
+          style={{ background: "var(--lime-dim)" }}
+        >
           <h3 className="font-semibold text-lime mb-2">
             💾 Downloads Ilimitados
           </h3>
