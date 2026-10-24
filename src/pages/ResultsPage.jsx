@@ -38,7 +38,7 @@ function PricingTable({ event, mediaType = "photo" }) {
     ? event.videoPricingPackages
     : event.pricingPackages;
   const allPhotosPrice = isVideo ? event.allVideosPrice : event.allPhotosPrice;
-  const freePhotosCount = event.freePhotosCount;
+  const freeCount = isVideo ? event.freeVideosCount : event.freePhotosCount;
 
   // Monta linhas: 1 por X, pacotes, todas
   const rows = [];
@@ -73,15 +73,15 @@ function PricingTable({ event, mediaType = "photo" }) {
 
   return (
     <div className="space-y-2">
-      {freePhotosCount > 0 && (
+      {freeCount > 0 && (
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
           style={{ background: "var(--amber-dim)", color: "var(--amber)" }}
         >
           <Zap className="h-3.5 w-3.5 flex-shrink-0" />
           <span>
-            +{freePhotosCount} {isVideo ? "vídeo" : "foto"}
-            {freePhotosCount > 1 ? "s" : ""} grátis nesta compra
+            +{freeCount} {isVideo ? "vídeo" : "foto"}
+            {freeCount > 1 ? "s" : ""} grátis nesta compra
           </span>
         </div>
       )}
@@ -175,6 +175,7 @@ export default function ResultsPage() {
       pricingPackages: photo.event?.pricingPackages,
       allPhotosPrice: photo.event?.allPhotosPrice,
       freePhotosCount: photo.event?.freePhotosCount,
+      freeVideosCount: photo.event?.freeVideosCount,
       videoEnabled: photo.event?.videoEnabled,
       pricePerVideo: photo.event?.pricePerVideo,
       videoPricingPackages: photo.event?.videoPricingPackages,

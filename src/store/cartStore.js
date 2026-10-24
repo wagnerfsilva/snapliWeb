@@ -123,6 +123,7 @@ const useCartStore = create(
                             pricingPackages: pricing.pricingPackages,
                             allPhotosPrice: pricing.allPhotosPrice,
                             freePhotosCount: pricing.freePhotosCount,
+                            freeVideosCount: pricing.freeVideosCount ?? photo.event?.freeVideosCount ?? events[eventId]?.freeVideosCount ?? 0,
                             videoEnabled: pricing.videoEnabled ?? photo.event?.videoEnabled ?? events[eventId]?.videoEnabled,
                             pricePerVideo: pricing.pricePerVideo ?? photo.event?.pricePerVideo ?? events[eventId]?.pricePerVideo,
                             videoPricingPackages: pricing.videoPricingPackages ?? photo.event?.videoPricingPackages ?? events[eventId]?.videoPricingPackages,
@@ -171,7 +172,7 @@ const useCartStore = create(
                     const media = items.filter(item => item.eventId === ev.eventId && (item.mediaType || "photo") === mediaType);
                     if (!media.length) return [];
                     const isVideo = mediaType === "video";
-                    const breakdown = calcBreakdownForGroup(media.length, isVideo ? ev.pricePerVideo : ev.pricePerPhoto, isVideo ? ev.videoPricingPackages : ev.pricingPackages, isVideo ? ev.allVideosPrice : ev.allPhotosPrice, ev.freePhotosCount, mediaType);
+                    const breakdown = calcBreakdownForGroup(media.length, isVideo ? ev.pricePerVideo : ev.pricePerPhoto, isVideo ? ev.videoPricingPackages : ev.pricingPackages, isVideo ? ev.allVideosPrice : ev.allPhotosPrice, isVideo ? ev.freeVideosCount : ev.freePhotosCount, mediaType);
                     return [{ eventId: ev.eventId, eventName: ev.eventName, mediaType, groupKey: `${ev.eventId}:${mediaType}`, itemCount: media.length, photoCount: mediaType === "photo" ? media.length : 0, videoCount: mediaType === "video" ? media.length : 0, breakdown }];
                 }));
             },

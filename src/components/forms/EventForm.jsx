@@ -17,6 +17,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     pricingPackages: initialData?.pricingPackages || [],
     allPhotosPrice: initialData?.allPhotosPrice || "",
     freePhotosCount: initialData?.freePhotosCount ?? 0,
+    freeVideosCount: initialData?.freeVideosCount ?? 0,
     videoEnabled: initialData?.videoEnabled ?? false,
     pricePerVideo: initialData?.pricePerVideo ?? "",
     videoPricingPackages: initialData?.videoPricingPackages ?? [],
@@ -147,6 +148,12 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
       newErrors.location = "Localização é obrigatória";
     }
 
+    if (!Number.isInteger(Number(formData.freeVideosCount)) ||
+        Number(formData.freeVideosCount) < 0 ||
+        Number(formData.freeVideosCount) > 3) {
+      newErrors.freeVideosCount = "Informe uma quantidade inteira entre 0 e 3";
+    }
+
     if (
       (formData.videoEnabled || formData.pricePerVideo !== "") &&
       !validVideoPrice(formData.pricePerVideo)
@@ -203,6 +210,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           Math.max(parseInt(formData.freePhotosCount) || 0, 0),
           3,
         ),
+        freeVideosCount: Number(formData.freeVideosCount),
         organizerId: selectedOrganizer ? selectedOrganizer.id : null,
         organizerCommissionPercentage: selectedOrganizer
           ? parseFloat(formData.organizerCommissionPercentage) || 0
@@ -621,7 +629,8 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               />
               <p className="mt-1 text-sm text-muted">
                 Quantidade de fotos que o cliente pode levar grátis ao comprar
-                outras fotos deste evento (máx. 3). Deixe 0 para desativar.
+                outras fotos deste evento (máx. 3). Não se aplica a vídeos.
+                Deixe 0 para desativar.
               </p>
             </div>
           </div>
@@ -644,6 +653,36 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               />
               Venda de vídeos habilitada
             </label>
+            <div>
+              <label
+                htmlFor="freeVideosCount"
+                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+              >
+                Vídeo(s) Grátis na Compra
+              </label>
+              <input
+                type="number"
+                id="freeVideosCount"
+                name="freeVideosCount"
+                value={formData.freeVideosCount}
+                onChange={handleChange}
+                step="1"
+                min="0"
+                max="3"
+                className="input"
+                disabled={isSubmitting}
+              />
+              {errors.freeVideosCount && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.freeVideosCount}
+                </p>
+              )}
+              <p className="mt-1 text-sm text-muted">
+                Quantidade de vídeos que o cliente pode levar grátis ao comprar
+                outros vídeos deste evento (máx. 3). Não se aplica a fotos.
+                Deixe 0 para desativar.
+              </p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
