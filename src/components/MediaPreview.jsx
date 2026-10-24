@@ -18,6 +18,8 @@ export default function MediaPreview({
         src={media.previewUrl}
         poster={media.thumbnailUrl || media.watermarkedUrl}
         controls
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture
         playsInline
         preload="none"
         className={className}
