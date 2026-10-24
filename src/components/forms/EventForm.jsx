@@ -653,36 +653,6 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
               />
               Venda de vídeos habilitada
             </label>
-            <div>
-              <label
-                htmlFor="freeVideosCount"
-                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
-              >
-                Vídeo(s) Grátis na Compra
-              </label>
-              <input
-                type="number"
-                id="freeVideosCount"
-                name="freeVideosCount"
-                value={formData.freeVideosCount}
-                onChange={handleChange}
-                step="1"
-                min="0"
-                max="3"
-                className="input"
-                disabled={isSubmitting}
-              />
-              {errors.freeVideosCount && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.freeVideosCount}
-                </p>
-              )}
-              <p className="mt-1 text-sm text-muted">
-                Quantidade de vídeos que o cliente pode levar grátis ao comprar
-                outros vídeos deste evento (máx. 3). Não se aplica a fotos.
-                Deixe 0 para desativar.
-              </p>
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
@@ -837,6 +807,39 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
+            </div>
+
+            {/* Vídeos grátis na compra */}
+            <div>
+              <label
+                htmlFor="freeVideosCount"
+                className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
+              >
+                Vídeo(s) Grátis na Compra
+              </label>
+              <input
+                type="number"
+                id="freeVideosCount"
+                name="freeVideosCount"
+                value={formData.freeVideosCount}
+                onChange={handleChange}
+                step="1"
+                min="0"
+                max="3"
+                className="input"
+                placeholder="0"
+                disabled={isSubmitting}
+              />
+              {errors.freeVideosCount && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.freeVideosCount}
+                </p>
+              )}
+              <p className="mt-1 text-sm text-muted">
+                Quantidade de vídeos que o cliente pode levar grátis ao comprar
+                outros vídeos deste evento (máx. 3). Não se aplica a fotos.
+                Deixe 0 para desativar.
+              </p>
             </div>
           </div>
 
