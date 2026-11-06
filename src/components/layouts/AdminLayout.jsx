@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { authAPI } from "../../lib/api";
 import toast from "react-hot-toast";
 import {
   LayoutDashboard,
@@ -33,9 +35,17 @@ const NAVIGATION_BY_ROLE = {
 };
 
 export default function AdminLayout() {
-  const { user, clearAuth } = useAuthStore();
+  const { user, clearAuth, updateUser } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // O papel exibido na UI deve sempre refletir o usuario do token enviado a API
+  useEffect(() => {
+    authAPI
+      .me()
+      .then((res) => updateUser(res.data.data.user))
+      .catch(() => {});
+  }, [updateUser]);
 
   const handleLogout = () => {
     clearAuth();

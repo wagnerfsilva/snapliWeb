@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -13,7 +14,7 @@ const api = axios.create({
 // Request interceptor - add auth token
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = useAuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,8 +33,7 @@ api.interceptors.response.use(
             // Only redirect to login if user is on an admin page
             const isAdminPage = window.location.pathname.startsWith('/admin');
             if (isAdminPage) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+                useAuthStore.getState().clearAuth();
                 window.location.href = '/admin/login';
             }
         }
