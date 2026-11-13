@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 const STATUS_CONFIG = {
+  courtesy: { label: "Cortesia", color: "#38BDF8", bg: "rgba(56,189,248,0.12)", icon: CheckCircle },
   paid: { label: "Pago", color: "#00D4AA", bg: "rgba(0,212,170,0.12)", icon: CheckCircle },
   completed: { label: "Completo", color: "#00D4AA", bg: "rgba(0,212,170,0.12)", icon: CheckCircle },
   pending: { label: "Pendente", color: "#FFC800", bg: "rgba(255,200,0,0.12)", icon: Clock },
@@ -31,6 +32,7 @@ export default function EventSales({ eventId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [syncingOrderId, setSyncingOrderId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     loadOrders();
@@ -69,9 +71,13 @@ export default function EventSales({ eventId }) {
     }
   };
 
-  const copyDownloadLink = (url) => {
-    navigator.clipboard.writeText(url);
-    toast.success("Link copiado!");
+  const copyDownloadLink = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+    } catch {
+      toast.error("Não foi possível copiar o link.");
+    }
   };
 
   const paidOrders = orders.filter(o => ["paid", "completed"].includes(o.status));
@@ -81,13 +87,14 @@ export default function EventSales({ eventId }) {
   const ticketMedioFotos = totalPhotos > 0 ? totalRevenue / totalPhotos : 0;
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredOrders = normalizedQuery
+  const matchingOrders = normalizedQuery
     ? orders.filter((order) =>
         [order.customerName, order.customerEmail]
           .filter(Boolean)
           .some((field) => field.toLowerCase().includes(normalizedQuery))
       )
     : orders;
+  const filteredOrders = matchingOrders.filter(order => !statusFilter || order.status === statusFilter);
 
   if (isLoading) {
     return (
@@ -102,7 +109,7 @@ export default function EventSales({ eventId }) {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold font-sora">Vendas</h2>
+        <h2 className="text-lg font-semibold font-sora">Vendas e cortesias</h2>
         <button
           onClick={loadOrders}
           className="btn btn-secondary flex items-center space-x-2 text-sm"
@@ -162,6 +169,16 @@ export default function EventSales({ eventId }) {
       </div>
 
       {orders.length > 0 && (
+        <label className="block mb-4">
+          Status do pedido
+          <select className="input mt-2" value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
+            <option value="">Todos</option>
+            {Object.entries(STATUS_CONFIG).map(([status, config]) => <option key={status} value={status}>{config.label}</option>)}
+          </select>
+        </label>
+      )}
+
+      {orders.length > 0 && (
         <div className="relative mb-4">
           <Search className="h-4 w-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -177,12 +194,12 @@ export default function EventSales({ eventId }) {
       {orders.length === 0 ? (
         <div className="text-center py-8 text-muted">
           <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhuma venda registrada</p>
+          <p>Nenhum pedido registrado</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="text-center py-8 text-muted">
           <Search className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhuma venda encontrada para "{searchQuery}"</p>
+          <p>Nenhum pedido encontrado com os filtros atuais</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -191,7 +208,7 @@ export default function EventSales({ eventId }) {
               <tr className="border-b border-white/10">
                 <th className="text-left py-3 px-2 text-muted font-medium">Cliente</th>
                 <th className="text-left py-3 px-2 text-muted font-medium">Email</th>
-                <th className="text-center py-3 px-2 text-muted font-medium">Fotos</th>
+                <th className="text-center py-3 px-2 text-muted font-medium">Arquivos</th>
                 <th className="text-right py-3 px-2 text-muted font-medium">Valor</th>
                 <th className="text-center py-3 px-2 text-muted font-medium">Status</th>
                 <th className="text-center py-3 px-2 text-muted font-medium">Data</th>
@@ -207,7 +224,7 @@ export default function EventSales({ eventId }) {
                 return (
                   <tr key={order.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                     <td className="py-3 px-2 font-medium">{order.customerName}</td>
-                    <td className="py-3 px-2 text-muted">{order.customerEmail}</td>
+                    <td className="py-3 px-2 text-muted">{order.customerEmail || "—"}</td>
                     <td className="py-3 px-2 text-center">{order.photoCount}</td>
                     <td className="py-3 px-2 text-right font-mono">
                       R$ {parseFloat(order.totalAmount).toFixed(2)}

@@ -85,6 +85,18 @@ O aplicativo estará disponível em `http://localhost:5173`
 - **Agenda** (`/admin/agenda`): calendário mensal por padrão, com visões semanal e anual, navegação de períodos e botão Hoje. Exibe eventos de fotos conforme as permissões atuais e permite que administradores, fotógrafos e organizadores criem compromissos pessoais com data, título e descrição. Clique em um dia para selecioná-lo, no `+` para criar ou em um evento para consultar os detalhes. Compromissos são privados e não criam eventos de venda de fotos
 - **Upload de Fotos**: Upload em lote com preview
 - **Detalhes do Evento**: Visualização e gerenciamento de fotos por evento
+- **Cortesias** (`/admin/courtesies`, somente admin): envie uma foto de referência,
+  revise fotos e vídeos encontrados em eventos ativos, filtre por evento e
+  selecione até 1000 arquivos. Informe o nome do destinatário e, se desejar,
+  e-mail. **Criar pedido cortesia** libera os originais sem PIX e sem envio de
+  e-mail. Copie e compartilhe manualmente o link, válido por 90 dias, acessível
+  por qualquer pessoa que o receber, sem login. A seleção fora do filtro continua
+  visível no contador; uma nova busca limpa a seleção. O link também pode ser
+  recuperado nos pedidos de cada evento pelo filtro **Cortesia**. Cortesias não
+  compõem vendas, receita, comissões ou saldo de resgates.
+
+As cortesias requerem a API atualizada e a migração
+`20261113000003-add-courtesy-orders` aplicada antes de publicar o frontend.
 
 A agenda requer a API atualizada e a migração `20261113000002-create-agenda-entries`.
 As datas da agenda representam dias inteiros, sem conversão de fuso horário.

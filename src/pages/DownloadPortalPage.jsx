@@ -363,13 +363,15 @@ export default function DownloadPortalPage() {
                 style={{ color: "#00D4AA" }}
               >
                 <CheckCircle className="w-5 h-5 mr-2" />
-                <span className="font-semibold">Pagamento</span>
+                <span className="font-semibold">{order?.status === "courtesy" ? "Cortesia" : "Pagamento"}</span>
               </div>
               <div className="text-2xl font-bold text-white">
-                R$ {parseFloat(order?.totalAmount || 0).toFixed(2)}
+                {order?.status === "courtesy" ? "Sem cobrança" : `R$ ${parseFloat(order?.totalAmount || 0).toFixed(2)}`}
               </div>
               <div className="text-sm mt-1" style={{ color: "#00D4AA" }}>
-                Confirmado em {formatDate(order?.paidAt)}
+                {order?.status === "courtesy"
+                  ? `Criado em ${formatDate(order?.createdAt)}`
+                  : `Confirmado em ${formatDate(order?.paidAt)}`}
               </div>
             </div>
 
@@ -573,7 +575,7 @@ export default function DownloadPortalPage() {
         {/* Support */}
         <div className="mt-4 text-center text-dim text-sm">
           <p>Problemas com o download? Entre em contato conosco.</p>
-          <p className="mt-2">Email: {order?.customerEmail}</p>
+          {order?.customerEmail && <p className="mt-2">Email: {order.customerEmail}</p>}
         </div>
       </div>
     </div>

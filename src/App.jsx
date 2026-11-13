@@ -18,6 +18,7 @@ import AdminEventGallery from "./pages/admin/EventGalleryPage";
 import AdminOrganizers from "./pages/admin/OrganizersPage";
 import AdminPhotographers from "./pages/admin/PhotographersPage";
 import AdminWithdrawals from "./pages/admin/WithdrawalsPage";
+import CourtesyOrderPage from "./pages/admin/CourtesyOrderPage";
 
 // Layout components
 import PublicLayout from "./components/layouts/PublicLayout";
@@ -87,6 +88,14 @@ function App() {
         />
         <Route path="events" element={<AdminEvents />} />
         <Route path="agenda" element={<AdminAgenda />} />
+        <Route
+          path="courtesies"
+          element={
+            <RoleRoute roles={["admin"]}>
+              <CourtesyOrderPage />
+            </RoleRoute>
+          }
+        />
         <Route path="events/:id" element={<AdminEventDetail />} />
         <Route
           path="events/:id/upload"
