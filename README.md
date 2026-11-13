@@ -83,6 +83,7 @@ O aplicativo estará disponível em `http://localhost:5173`
 - **Dashboard**: Visão geral de eventos e estatísticas
 - **Gerenciamento de Eventos**: CRUD completo de eventos
 - **Agenda** (`/admin/agenda`): calendário mensal por padrão, com visões semanal e anual, navegação de períodos e botão Hoje. Exibe eventos de fotos conforme as permissões atuais e permite que administradores, fotógrafos e organizadores criem compromissos pessoais com data, título e descrição. Clique em um dia para selecioná-lo, no `+` para criar ou em um evento para consultar os detalhes. Compromissos são privados e não criam eventos de venda de fotos
+- **Navegação e Agenda no celular**: abaixo de 1024 px, o menu administrativo abre pelo botão no cabeçalho e pode ser fechado pelo `X`, tocando fora ou pressionando Escape. A visão mensal usa uma grade compacta com os compromissos do dia selecionado logo abaixo; a semanal lista os sete dias verticalmente. A visão anual mostra um mês por linha no celular e ganha colunas em telas maiores. Os formulários se ajustam à tela sem rolagem horizontal; em desktop, a barra lateral e as grades de mês/semana são mantidas
 - **Upload de Fotos**: Upload em lote com preview
 - **Detalhes do Evento**: Visualização e gerenciamento de fotos por evento
 - **Cortesias** (`/admin/courtesies`, somente admin): envie uma foto de referência,

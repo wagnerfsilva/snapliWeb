@@ -55,7 +55,11 @@ export default function AgendaPage() {
   }, [startDate, endDate, refresh]);
 
   useEffect(() => {
-    if (modal) dialogRef.current.showModal();
+    if (!modal) return;
+    if (!dialogRef.current.open) dialogRef.current.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
   }, [modal]);
 
   const byDate = new Map();
@@ -128,7 +132,7 @@ export default function AgendaPage() {
         key={itemKey(item)}
         type="button"
         onClick={() => { setDeleteError(""); setModal({ type: "detail", item }); }}
-        className={`w-full rounded-lg px-2 py-1 text-left text-xs break-words focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime ${
+        className={`min-h-11 w-full min-w-0 rounded-lg px-3 py-2 text-left text-sm [overflow-wrap:anywhere] lg:min-h-0 lg:px-2 lg:py-1 lg:text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime ${
           item.source === "event" ? "bg-teal/10 text-teal" : "bg-lime/10 text-lime"
         }`}
       >
@@ -137,40 +141,61 @@ export default function AgendaPage() {
     );
   }
 
-  return (
-    <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-sora">Agenda</h1>
-          <p className="text-muted mt-1">Seus eventos e compromissos em um só lugar.</p>
+  function renderDayAgenda(day) {
+    const dayItems = byDate.get(dateKey(day)) || [];
+    return (
+      <section key={dateKey(day)} aria-label={`Compromissos de ${formatDate(day, "dd/MM/yyyy")}`}
+        className="min-w-0 rounded-xl border p-3">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h3 className="min-w-0 font-semibold capitalize">{formatDate(day, "EEEE, dd 'de' MMMM")}</h3>
+          <button type="button" onClick={() => openCreate(day)} aria-label={`Criar evento em ${formatDate(day, "dd/MM/yyyy")}`}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-lime hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime">
+            <Plus className="h-5 w-5" />
+          </button>
         </div>
-        <button type="button" className="btn btn-primary flex items-center gap-2" onClick={() => openCreate()}>
+        {dayItems.length ? (
+          <div className="space-y-2">{dayItems.map(renderItem)}</div>
+        ) : (
+          <p className="text-sm text-muted">Nenhum compromisso neste dia.</p>
+        )}
+      </section>
+    );
+  }
+
+  return (
+    <div className="min-w-0">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:mb-8">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold font-sora sm:text-3xl">Agenda</h1>
+          <p className="text-sm text-muted mt-1 sm:text-base">Seus eventos e compromissos em um só lugar.</p>
+        </div>
+        <button type="button" className="btn btn-primary flex min-h-11 items-center gap-2" onClick={() => openCreate()}>
           <Plus className="h-5 w-5" /> Novo evento
         </button>
       </div>
 
-      <div className="card">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => {
+      <div className="card min-w-0 p-3 sm:p-6">
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 lg:gap-3">
+            <button type="button" className="btn btn-secondary btn-sm min-h-11 lg:min-h-0" onClick={() => {
               const date = new Date();
               setAnchor(date);
               setSelectedDate(date);
             }}>Hoje</button>
-            <button type="button" className="rounded-lg p-2 hover:bg-white/10" aria-label="Período anterior"
+            <button type="button" className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-white/10 lg:h-9 lg:w-9" aria-label="Período anterior"
               onClick={() => { const date = moveCalendar(anchor, view, -1); setAnchor(date); setSelectedDate(date); }}>
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button type="button" className="rounded-lg p-2 hover:bg-white/10" aria-label="Próximo período"
+            <button type="button" className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-white/10 lg:h-9 lg:w-9" aria-label="Próximo período"
               onClick={() => { const date = moveCalendar(anchor, view, 1); setAnchor(date); setSelectedDate(date); }}>
               <ChevronRight className="h-5 w-5" />
             </button>
-            <h2 className="text-lg font-semibold capitalize" aria-live="polite">{title}</h2>
+            <h2 className="w-full min-w-0 text-base font-semibold capitalize lg:w-auto lg:text-lg" aria-live="polite">{title}</h2>
           </div>
-          <div className="flex gap-1 rounded-xl border p-1" role="group" aria-label="Visualização do calendário">
+          <div className="flex w-full gap-1 rounded-xl border p-1 lg:w-auto" role="group" aria-label="Visualização do calendário">
             {VIEWS.map(([value, label]) => (
               <button key={value} type="button" aria-pressed={view === value} onClick={() => setView(value)}
-                className={`btn btn-sm ${view === value ? "btn-primary" : "text-muted hover:text-white"}`}>
+                className={`btn btn-sm min-h-11 flex-1 lg:min-h-0 lg:flex-none ${view === value ? "btn-primary" : "text-muted hover:text-white"}`}>
                 {label}
               </button>
             ))}
@@ -202,8 +227,8 @@ export default function AgendaPage() {
               });
               const count = items.filter(item => item.date.startsWith(format(month, "yyyy-MM"))).length;
               return (
-                <section key={dateKey(month)} className="rounded-xl border p-4">
-                  <button type="button" className="mb-3 w-full text-left font-semibold capitalize text-lime"
+                <section key={dateKey(month)} className="min-w-0 rounded-xl border p-3 sm:p-4">
+                  <button type="button" className="mb-1 min-h-11 w-full text-left font-semibold capitalize text-lime lg:mb-3 lg:min-h-0"
                     onClick={() => { setAnchor(month); setSelectedDate(month); setView("month"); }}>
                     {formatDate(month, "MMMM")} <span className="text-xs font-normal text-muted">({count} eventos)</span>
                   </button>
@@ -216,7 +241,7 @@ export default function AgendaPage() {
                         <button key={dateKey(day)} type="button" onClick={() => selectDay(day)}
                           aria-label={`${formatDate(day, "dd 'de' MMMM 'de' yyyy")}, ${count} eventos`}
                           aria-current={isSameDay(day, today) ? "date" : undefined}
-                          className={`relative rounded-lg py-2 hover:bg-white/10 ${isSameDay(day, today) ? "text-lime font-bold" : ""}`}>
+                          className={`relative min-h-11 rounded-lg py-2 hover:bg-white/10 lg:min-h-0 ${isSameDay(day, today) ? "text-lime font-bold" : ""}`}>
                           {format(day, "d")}
                           {count > 0 && <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-lime" />}
                         </button>
@@ -228,7 +253,40 @@ export default function AgendaPage() {
             })}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="lg:hidden">
+            {view === "month" ? (
+              <>
+                <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted">
+                  {WEEKDAYS.map(day => <span key={day} className="pb-2">{day}</span>)}
+                </div>
+                <div className="grid grid-cols-7 gap-1" aria-label="Dias do mês">
+                  {days.map(day => {
+                    const dayItems = byDate.get(dateKey(day)) || [];
+                    const selected = isSameDay(day, selectedDate);
+                    return (
+                      <button key={dateKey(day)} type="button" onClick={() => selectDay(day)}
+                        aria-label={`${formatDate(day, "dd 'de' MMMM 'de' yyyy")}, ${dayItems.length} eventos`}
+                        aria-pressed={selected} aria-current={isSameDay(day, today) ? "date" : undefined}
+                        className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime ${
+                          selected ? "bg-white/10 ring-1 ring-lime" : "hover:bg-white/5"
+                        } ${isSameDay(day, today) ? "text-lime font-bold" : !isSameMonth(day, anchor) ? "text-muted" : ""}`}>
+                        <span>{format(day, "d")}</span>
+                        <span aria-hidden="true" className="flex h-1.5 items-center gap-1">
+                          {dayItems.some(item => item.source === "agenda") && <span className="h-1 w-1 rounded-full bg-lime" />}
+                          {dayItems.some(item => item.source === "event") && <span className="h-1 w-1 rounded-full bg-teal" />}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-4" aria-live="polite">{renderDayAgenda(selectedDate)}</div>
+              </>
+            ) : (
+              <div className="space-y-3">{days.map(renderDayAgenda)}</div>
+            )}
+          </div>
+          <div className="hidden overflow-x-auto lg:block">
             <div className="min-w-[630px]">
               <div className="grid grid-cols-7 text-center text-sm text-muted">
                 {WEEKDAYS.map(day => <div key={day} className="pb-3">{day}</div>)}
@@ -261,18 +319,19 @@ export default function AgendaPage() {
               </div>
             </div>
           </div>
+          </>
         )}
       </div>
 
       {modal && (
         <dialog ref={dialogRef} aria-labelledby="agenda-dialog-title"
-          className="m-auto w-[calc(100%_-_2rem)] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border bg-dark-surface p-6 text-white backdrop:bg-black/70"
+          className="m-auto w-[calc(100%_-_2rem)] max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl border bg-dark-surface p-4 text-white backdrop:bg-black/70 sm:p-6"
           onCancel={event => { event.preventDefault(); if (!saving) setModal(null); }}>
           <div className="mb-6 flex items-start justify-between gap-4">
             <h2 id="agenda-dialog-title" className="text-xl font-semibold break-words min-w-0">
               {modal.type === "create" ? "Novo evento na agenda" : modal.item.title}
             </h2>
-            <button type="button" aria-label="Fechar" disabled={saving} onClick={() => setModal(null)} className="p-1 text-muted hover:text-white">
+            <button type="button" aria-label="Fechar" disabled={saving} onClick={() => setModal(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted hover:text-white">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -281,23 +340,23 @@ export default function AgendaPage() {
               <p className="text-sm text-muted">Crie um compromisso pessoal. Ele não cria um evento de venda de fotos.</p>
               <div>
                 <label htmlFor="agenda-title" className="mb-1 block text-sm">Título</label>
-                <input id="agenda-title" autoFocus required maxLength={255} className="input" value={form.title}
+                <input id="agenda-title" autoFocus required maxLength={255} className="input text-base lg:text-[0.95rem]" value={form.title}
                   onChange={event => setForm({ ...form, title: event.target.value })} disabled={saving} />
               </div>
               <div>
                 <label htmlFor="agenda-date" className="mb-1 block text-sm">Data</label>
-                <input id="agenda-date" type="date" required className="input [color-scheme:dark]" value={form.date}
+                <input id="agenda-date" type="date" required className="input min-w-0 text-base [color-scheme:dark] lg:text-[0.95rem]" value={form.date}
                   onChange={event => setForm({ ...form, date: event.target.value })} disabled={saving} />
               </div>
               <div>
                 <label htmlFor="agenda-description" className="mb-1 block text-sm">Descrição</label>
-                <textarea id="agenda-description" maxLength={5000} rows={4} className="input" value={form.description}
+                <textarea id="agenda-description" maxLength={5000} rows={4} className="input text-base lg:text-[0.95rem]" value={form.description}
                   onChange={event => setForm({ ...form, description: event.target.value })} disabled={saving} />
               </div>
               {formError && <p role="alert" className="text-sm text-red-400">{formError}</p>}
-              <div className="flex justify-end gap-3">
-                <button type="button" className="btn btn-secondary" disabled={saving} onClick={() => setModal(null)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary flex items-center gap-2" disabled={saving}>
+              <div className="flex flex-wrap justify-end gap-2 sm:gap-3">
+                <button type="button" className="btn btn-secondary min-h-11" disabled={saving} onClick={() => setModal(null)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary flex min-h-11 items-center gap-2" disabled={saving}>
                   {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                   {saving ? "Salvando..." : "Salvar evento"}
                 </button>
@@ -306,14 +365,14 @@ export default function AgendaPage() {
           ) : (
             <div className="space-y-4">
               <p className="text-lime">{formatDate(parseISO(modal.item.date), "dd 'de' MMMM 'de' yyyy")}</p>
-              <p className="whitespace-pre-wrap break-words text-sm text-muted">{modal.item.description || "Sem descrição."}</p>
+              <p className="whitespace-pre-wrap text-sm text-muted [overflow-wrap:anywhere]">{modal.item.description || "Sem descrição."}</p>
               {modal.item.source === "event" && (
-                <Link to={`/admin/events/${modal.item.id}`} className="btn btn-secondary inline-block">Ver evento de fotos</Link>
+                <Link to={`/admin/events/${modal.item.id}`} className="btn btn-secondary inline-flex min-h-11 items-center">Ver evento de fotos</Link>
               )}
               {modal.item.source === "agenda" && (
                 <div>
                   {deleteError && <p role="alert" className="mb-3 text-sm text-red-400">{deleteError}</p>}
-                  <button type="button" className="btn btn-danger flex items-center gap-2 disabled:opacity-50"
+                  <button type="button" className="btn btn-danger flex min-h-11 items-center gap-2 disabled:opacity-50"
                     disabled={saving} onClick={() => deleteEntry(modal.item)}>
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     {saving ? "Removendo..." : "Remover compromisso"}
