@@ -1,14 +1,14 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { Check, Plus } from "lucide-react";
 import { ordersAPI, searchAPI } from "../../lib/api";
-import MediaPreview from "../../components/MediaPreview";
+import SearchResultsGallery from "../../components/SearchResultsGallery";
 
 const MAX_ITEMS = 1000;
 
 export default function CourtesyOrderPage() {
   const [photos, setPhotos] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [eventId, setEventId] = useState("");
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -16,10 +16,7 @@ export default function CourtesyOrderPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [order, setOrder] = useState(null);
   const busy = searching || creating;
-  const events = [...new Map(photos.map(photo => [photo.eventId, photo.event])).values()];
-  const visiblePhotos = photos.filter(photo => !eventId || photo.eventId === eventId);
-  const visibleSelected = visiblePhotos.filter(photo => selected.includes(photo.id)).length;
-  const hiddenSelected = selected.length - visibleSelected;
+  const eventCount = new Set(photos.map(photo => photo.eventId)).size;
 
   const search = async event => {
     const file = event.target.files?.[0];
@@ -32,7 +29,6 @@ export default function CourtesyOrderPage() {
     setSearching(true);
     setPhotos([]);
     setSelected([]);
-    setEventId("");
     setOrder(null);
     setSearched(false);
     try {
@@ -59,7 +55,7 @@ export default function CourtesyOrderPage() {
     }
   };
 
-  const selectVisible = () => {
+  const selectVisible = visiblePhotos => {
     const combined = [...new Set([...selected, ...visiblePhotos.map(photo => photo.id)])];
     if (combined.length > MAX_ITEMS) {
       toast.error(`O limite é de ${MAX_ITEMS} arquivos. Selecione menos arquivos.`);
@@ -116,36 +112,71 @@ export default function CourtesyOrderPage() {
 
       {searched && !order && (
         <section className="card space-y-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <label htmlFor="courtesy-event">Evento</label>
-            <select id="courtesy-event" className="input" value={eventId} onChange={event => setEventId(event.target.value)} disabled={busy}>
-              <option value="">Todos os eventos encontrados</option>
-              {events.map(event => <option key={event.id} value={event.id}>{event.name}</option>)}
-            </select>
-          </div>
+          <h2 className="text-2xl font-bold font-sora">
+            Encontramos {photos.length} arquivo{photos.length !== 1 ? "s" : ""}
+            {eventCount > 1 && ` em ${eventCount} eventos`}!
+          </h2>
           <p>Revise os resultados: o reconhecimento facial pode incluir outras pessoas.</p>
-          <div className="flex flex-wrap gap-3 items-center">
-            <button type="button" className="btn btn-secondary" disabled={busy || !visiblePhotos.length} onClick={selectVisible}>Selecionar resultados do filtro</button>
-            <button type="button" className="btn btn-secondary" disabled={busy || !selected.length} onClick={() => setSelected([])}>Limpar seleção</button>
-            <span role="status">{selected.length} / {MAX_ITEMS} selecionados{hiddenSelected > 0 ? ` (${hiddenSelected} fora do filtro)` : ""}</span>
-          </div>
-          {!visiblePhotos.length && <p className="text-muted">Nenhum arquivo encontrado.</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {visiblePhotos.map(photo => (
-              <article key={photo.id} className="rounded-xl border border-white/10 overflow-hidden">
-                <div className="aspect-video bg-black/20">
-                  <MediaPreview media={photo} controls={photo.mediaType === "video"} className="w-full h-full object-contain" />
-                </div>
-                <label className="flex gap-3 p-3 items-start">
-                  <input type="checkbox" checked={selected.includes(photo.id)} disabled={busy} onChange={() => toggle(photo.id)} />
-                  <span className="min-w-0">
-                    <span className="block break-all">{photo.originalFilename}</span>
-                    <span className="block text-sm text-muted">{photo.event.name} - {photo.mediaType === "video" ? "Vídeo" : "Foto"}</span>
-                  </span>
-                </label>
-              </article>
-            ))}
-          </div>
+          {!photos.length ? (
+            <div className="text-muted">
+              <p>Nenhum arquivo encontrado.</p>
+              <p role="status">0 de 0 selecionados</p>
+            </div>
+          ) : (
+            <SearchResultsGallery
+              photos={photos}
+              disabled={busy}
+              renderGroupHeader={(group, visibleMedia) => {
+                const visibleSelected = visibleMedia.filter(photo => selected.includes(photo.id)).length;
+                const hiddenSelected = selected.length - visibleSelected;
+                const allSelected = visibleMedia.length > 0 && visibleSelected === visibleMedia.length;
+                return (
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted">
+                        {group.event?.date ? new Date(group.event.date).toLocaleDateString("pt-BR") : ""}
+                        {group.event?.location ? ` · ${group.event.location}` : ""}
+                      </p>
+                      <p role="status">
+                        {selected.length} de {photos.length} selecionados
+                        {hiddenSelected > 0 ? ` (${hiddenSelected} fora do filtro)` : ""}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className="btn btn-secondary" disabled={busy || !selected.length} onClick={() => setSelected([])}>
+                        Limpar seleção
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary whitespace-nowrap flex items-center gap-2 self-start"
+                        disabled={busy || !visibleMedia.length || allSelected}
+                        onClick={() => selectVisible(visibleMedia)}
+                      >
+                        <Check className="h-4 w-4" />
+                        {allSelected ? "Todos selecionados" : `Selecionar Todos (${visibleMedia.length})`}
+                      </button>
+                    </div>
+                  </div>
+                );
+              }}
+              renderAction={(photo, className) => {
+                const isSelected = selected.includes(photo.id);
+                return (
+                  <button
+                    type="button"
+                    className={`${className} ${isSelected ? "btn-success" : "btn-primary"}`}
+                    disabled={busy}
+                    aria-pressed={isSelected}
+                    aria-label={`${isSelected ? "Remover" : "Selecionar"} ${photo.originalFilename}`}
+                    onClick={() => toggle(photo.id)}
+                  >
+                    {isSelected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                    {isSelected ? "Selecionado" : "Selecionar"}
+                  </button>
+                );
+              }}
+            />
+          )}
         </section>
       )}
 

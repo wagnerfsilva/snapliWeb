@@ -86,8 +86,13 @@ O aplicativo estará disponível em `http://localhost:5173`
 - **Upload de Fotos**: Upload em lote com preview
 - **Detalhes do Evento**: Visualização e gerenciamento de fotos por evento
 - **Cortesias** (`/admin/courtesies`, somente admin): envie uma foto de referência,
-  revise fotos e vídeos encontrados em eventos ativos, filtre por evento e
-  selecione até 1000 arquivos. Informe o nome do destinatário e, se desejar,
+  revise fotos e vídeos encontrados em eventos ativos usando a mesma galeria
+  pública: eventos em abas do mais recente ao mais antigo, filtros de fotos/vídeos,
+  cards com correspondência facial e ampliação de prévias. A primeira aba é a do
+  evento mais recente. Selecione individualmente ou todos os arquivos da aba/filtro,
+  até 1000 por pedido, mantendo a seleção ao trocar de evento. O contador mostra
+  selecionados sobre o total encontrado na busca, não sobre o limite de 1000.
+  Informe o nome do destinatário e, se desejar,
   e-mail. **Criar pedido cortesia** libera os originais sem PIX e sem envio de
   e-mail. Copie e compartilhe manualmente o link, válido por 90 dias, acessível
   por qualquer pessoa que o receber, sem login. A seleção fora do filtro continua

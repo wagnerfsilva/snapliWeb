@@ -6,37 +6,11 @@ import {
   ShoppingCart,
   Check,
   Zap,
-  Play,
-  X,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import Cart from "../components/Cart";
-import MediaPreview from "../components/MediaPreview";
-
-function eventTime(event) {
-  const time = Date.parse(event?.date);
-  return Number.isNaN(time) ? -Infinity : time;
-}
-
-// Agrupa fotos por eventId e retorna array do evento mais recente ao mais antigo
-function groupPhotosByEvent(photos) {
-  const map = {};
-  photos.forEach((photo) => {
-    const id = photo.eventId;
-    if (!map[id]) {
-      map[id] = { eventId: id, event: photo.event, photos: [] };
-    }
-    map[id].photos.push(photo);
-  });
-  return Object.values(map).sort((a, b) => {
-    const timeA = eventTime(a.event);
-    const timeB = eventTime(b.event);
-    if (timeA !== timeB) return timeB > timeA ? 1 : -1;
-    return (a.event?.name || "").localeCompare(b.event?.name || "");
-  });
-}
+import SearchResultsGallery from "../components/SearchResultsGallery";
+import { groupPhotosByEvent } from "../lib/searchResults";
 
 // Tabela de preços do evento
 function PricingTable({ event, mediaType = "photo" }) {
@@ -172,28 +146,6 @@ export default function ResultsPage() {
   );
   const multiEvent = eventGroups.length > 1;
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [mediaFilter, setMediaFilter] = useState("all");
-  const [lightbox, setLightbox] = useState(null);
-  const hasVideos = searchResults?.some((item) => item.mediaType === "video");
-
-  useEffect(() => {
-    if (!lightbox) return undefined;
-    const lastIndex = lightbox.list.length - 1;
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") setLightbox(null);
-      if (event.key === "ArrowLeft")
-        setLightbox((prev) => ({ ...prev, index: Math.max(0, prev.index - 1) }));
-      if (event.key === "ArrowRight")
-        setLightbox((prev) => ({
-          ...prev,
-          index: Math.min(lastIndex, prev.index + 1),
-        }));
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [lightbox]);
-
   const isPhotoInCart = (photoId) => items.some((item) => item.id === photoId);
 
   const handleAddToCart = (photo) => {
@@ -255,80 +207,15 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        {hasVideos && (
-          <div
-            className="flex gap-1 mb-6"
-            role="tablist"
-            aria-label="Resultados por tipo"
-          >
-            {[
-              { value: "all", label: "Todos" },
-              { value: "photo", label: "Fotos" },
-              { value: "video", label: "Vídeos" },
-            ].map((filter) => (
-              <button
-                key={filter.value}
-                role="tab"
-                aria-selected={mediaFilter === filter.value}
-                className={`btn ${mediaFilter === filter.value ? "btn-primary" : "btn-secondary"}`}
-                onClick={() => setMediaFilter(filter.value)}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Tab bar — only when 2+ events */}
-        {multiEvent && (
-          <div
-            className="flex gap-1 mb-6 overflow-x-auto pb-1"
-            style={{ borderBottom: "2px solid var(--border)" }}
-          >
-            {eventGroups.map((group, idx) => (
-              <button
-                key={group.eventId}
-                onClick={() => setActiveTab(idx)}
-                className="flex-shrink-0 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all whitespace-nowrap"
-                style={
-                  activeTab === idx
-                    ? {
-                        background: "var(--lime)",
-                        color: "#09090B",
-                        borderBottom: "2px solid var(--lime)",
-                        marginBottom: "-2px",
-                      }
-                    : { color: "var(--text-muted)", background: "transparent" }
-                }
-              >
-                {group.event?.name || "Evento"}
-                <span className="ml-2 text-xs opacity-70">
-                  ({group.photos.length})
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Tab content — iterate over visible groups */}
-        {eventGroups.map((group, idx) => {
-          if (multiEvent && idx !== activeTab) return null;
-
-          const visibleMedia = group.photos.filter(
-            (media) =>
-              mediaFilter === "all" ||
-              (media.mediaType || "photo") === mediaFilter,
-          );
-          if (!visibleMedia.length) return null;
-
-          const allGroupInCart = visibleMedia.every((p) => isPhotoInCart(p.id));
-
-          return (
-            <div key={group.eventId}>
-              {/* Event info + select-all row */}
+        <SearchResultsGallery
+          photos={searchResults}
+          renderGroupHeader={(group, visibleMedia, multipleEvents) => {
+            if (!visibleMedia.length) return null;
+            const allGroupInCart = visibleMedia.every(photo => isPhotoInCart(photo.id));
+            return (
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                 <div className="flex flex-col gap-3 flex-1 max-w-sm">
-                  {multiEvent && (
+                  {multipleEvents && (
                     <div className="flex items-center gap-2 text-sm text-muted">
                       <span>
                         {group.event?.date
@@ -369,100 +256,20 @@ export default function ResultsPage() {
                   )}
                 </button>
               </div>
-
-              {/* Photo grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-10">
-                {visibleMedia.map((photo, index) => (
-                  <div
-                    key={photo.id}
-                    className="group relative rounded-xl overflow-hidden transition-all hover:ring-1 hover:ring-white/20"
-                    style={{
-                      background: "var(--surface)",
-                      border: "1px solid var(--border)",
-                    }}
-                  >
-                    <div
-                      className="aspect-square relative cursor-pointer"
-                      style={{ background: "var(--bg)" }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={
-                        photo.mediaType === "video"
-                          ? "Assistir prévia do vídeo"
-                          : "Ampliar foto"
-                      }
-                      onClick={() => setLightbox({ list: visibleMedia, index })}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          setLightbox({ list: visibleMedia, index });
-                        }
-                      }}
-                    >
-                      <MediaPreview
-                        media={photo}
-                        className="w-full h-full object-contain"
-                      />
-                      {photo.mediaType === "video" && photo.previewUrl && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <span className="p-3 rounded-full bg-black/60 text-white">
-                            <Play className="h-5 w-5" />
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-2">
-                      {photo.mediaType === "video" && (
-                        <p className="text-xs text-muted mb-1">
-                          Vídeo · {Math.ceil((photo.durationMs || 0) / 1000)}s
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between mb-1">
-                        {!multiEvent && (
-                          <span className="text-xs font-medium truncate">
-                            {photo.event?.name}
-                          </span>
-                        )}
-                        <span
-                          className={`badge badge-info text-[10px] px-1.5 py-0.5 whitespace-nowrap ${multiEvent ? "w-full text-center" : "ml-1"}`}
-                        >
-                          {Math.round(photo.similarity)}% match
-                        </span>
-                      </div>
-
-                      {!multiEvent && (
-                        <p className="text-[10px] text-dim mb-2">
-                          {new Date(photo.event?.date).toLocaleDateString(
-                            "pt-BR",
-                          )}
-                        </p>
-                      )}
-
-                      {isPhotoInCart(photo.id) ? (
-                        <button
-                          disabled
-                          className="w-full btn btn-success btn-sm text-xs py-1.5 flex items-center justify-center gap-1 mt-1"
-                        >
-                          <Check className="h-3 w-3" />
-                          No Carrinho
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleAddToCart(photo)}
-                          className="w-full btn btn-primary btn-sm text-xs py-1.5 flex items-center justify-center gap-1 mt-1"
-                        >
-                          <ShoppingCart className="h-3 w-3" />
-                          Adicionar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          }}
+          renderAction={(photo, className) => isPhotoInCart(photo.id) ? (
+            <button type="button" disabled className={`${className} btn-success`}>
+              <Check className="h-3 w-3" />
+              No Carrinho
+            </button>
+          ) : (
+            <button type="button" onClick={() => handleAddToCart(photo)} className={`${className} btn-primary`}>
+              <ShoppingCart className="h-3 w-3" />
+              Adicionar
+            </button>
+          )}
+        />
 
         {/* Actions */}
         <div className="mt-4 flex justify-center">
@@ -477,82 +284,6 @@ export default function ResultsPage() {
         {/* Cart */}
         <Cart />
 
-        {lightbox &&
-          (() => {
-            const current = lightbox.list[lightbox.index];
-            const inCart = isPhotoInCart(current.id);
-            const go = (step) =>
-              setLightbox((prev) => ({ ...prev, index: prev.index + step }));
-            return (
-              <div
-                className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-                role="dialog"
-                aria-modal="true"
-                onClick={() => setLightbox(null)}
-              >
-                <div
-                  className="relative max-w-5xl max-h-[90vh] w-full flex flex-col items-center justify-center gap-3"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <button
-                    onClick={() => setLightbox(null)}
-                    aria-label="Fechar"
-                    className="absolute -top-10 right-0 text-white hover:text-gray-300"
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-
-                  {lightbox.index > 0 && (
-                    <button
-                      onClick={() => go(-1)}
-                      aria-label="Anterior"
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-black/70"
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </button>
-                  )}
-
-                  <MediaPreview
-                    key={current.id}
-                    media={current}
-                    controls
-                    className="max-w-full max-h-[75vh] object-contain rounded-lg"
-                  />
-
-                  {lightbox.index < lightbox.list.length - 1 && (
-                    <button
-                      onClick={() => go(1)}
-                      aria-label="Próximo"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-black/70"
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </button>
-                  )}
-
-                  <div className="w-full flex items-center justify-between gap-3 px-1">
-                    <span className="text-xs text-gray-300">
-                      {current.mediaType === "video" ? "Vídeo" : "Foto"} ·
-                      prévia com marca d'água
-                    </span>
-                    {inCart ? (
-                      <span className="btn btn-success btn-sm text-xs flex items-center gap-1">
-                        <Check className="h-3 w-3" />
-                        No Carrinho
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleAddToCart(current)}
-                        className="btn btn-primary btn-sm text-xs flex items-center gap-1"
-                      >
-                        <ShoppingCart className="h-3 w-3" />
-                        Adicionar
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
       </div>
     </div>
   );
