@@ -82,8 +82,12 @@ O aplicativo estará disponível em `http://localhost:5173`
 
 - **Dashboard**: Visão geral de eventos e estatísticas
 - **Gerenciamento de Eventos**: CRUD completo de eventos
+- **Agenda** (`/admin/agenda`): calendário mensal por padrão, com visões semanal e anual, navegação de períodos e botão Hoje. Exibe eventos de fotos conforme as permissões atuais e permite que administradores, fotógrafos e organizadores criem compromissos pessoais com data, título e descrição. Clique em um dia para selecioná-lo, no `+` para criar ou em um evento para consultar os detalhes. Compromissos são privados e não criam eventos de venda de fotos
 - **Upload de Fotos**: Upload em lote com preview
 - **Detalhes do Evento**: Visualização e gerenciamento de fotos por evento
+
+A agenda requer a API atualizada e a migração `20261113000002-create-agenda-entries`.
+As datas da agenda representam dias inteiros, sem conversão de fuso horário.
 
 ## 🧪 Scripts Disponíveis
 

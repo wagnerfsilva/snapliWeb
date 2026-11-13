@@ -60,6 +60,12 @@ export const eventsAPI = {
     getStatistics: (id) => api.get(`/events/${id}/statistics`),
 };
 
+// Agenda API
+export const agendaAPI = {
+    getAll: (params) => api.get('/agenda', { params }),
+    create: (data) => api.post('/agenda', data),
+};
+
 // Photos API
 export const photosAPI = {
     upload: (formData, onUploadProgress) =>

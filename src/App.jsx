@@ -11,6 +11,7 @@ import DownloadPortalPage from "./pages/DownloadPortalPage";
 import AdminLogin from "./pages/admin/LoginPage";
 import AdminDashboard from "./pages/admin/DashboardPage";
 import AdminEvents from "./pages/admin/EventsPage";
+import AdminAgenda from "./pages/admin/AgendaPage";
 import AdminEventDetail from "./pages/admin/EventDetailPage";
 import AdminUpload from "./pages/admin/UploadPage";
 import AdminEventGallery from "./pages/admin/EventGalleryPage";
@@ -85,6 +86,7 @@ function App() {
           }
         />
         <Route path="events" element={<AdminEvents />} />
+        <Route path="agenda" element={<AdminAgenda />} />
         <Route path="events/:id" element={<AdminEventDetail />} />
         <Route
           path="events/:id/upload"

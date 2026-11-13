@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import {
   LayoutDashboard,
   Calendar,
+  CalendarDays,
   Upload,
   LogOut,
   Users,
@@ -18,6 +19,7 @@ const NAVIGATION_BY_ROLE = {
   admin: [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Agenda", href: "/admin/agenda", icon: CalendarDays },
     { name: "Upload", href: "/admin/upload", icon: Upload },
     { name: "Fotógrafos", href: "/admin/photographers", icon: Camera },
     { name: "Organizadores", href: "/admin/organizers", icon: Users },
@@ -26,10 +28,12 @@ const NAVIGATION_BY_ROLE = {
   fotografo: [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Agenda", href: "/admin/agenda", icon: CalendarDays },
     { name: "Upload", href: "/admin/upload", icon: Upload },
   ],
   organizador: [
     { name: "Meus Eventos", href: "/admin/events", icon: Calendar },
+    { name: "Agenda", href: "/admin/agenda", icon: CalendarDays },
     { name: "Resgates", href: "/admin/withdrawals", icon: Wallet },
   ],
 };
