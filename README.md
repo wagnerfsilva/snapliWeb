@@ -113,6 +113,9 @@ As cortesias requerem a API atualizada e a migração
 
 A agenda requer a API atualizada e a migração `20261113000002-create-agenda-entries`.
 As datas da agenda representam dias inteiros, sem conversão de fuso horário.
+Na legenda, nos compromissos e nas bolinhas dos calendários mensal e anual,
+verde-lima identifica eventos de fotos e turquesa identifica compromissos pessoais.
+Dias com os dois tipos mostram as duas bolinhas, sem repetir marcadores do mesmo tipo.
 Nos detalhes de um compromisso pessoal, use **Remover compromisso** e confirme
 a exclusão. Apenas o criador pode removê-lo, mesmo para usuários administradores;
 eventos de fotos não exibem esse botão.

@@ -133,11 +133,24 @@ export default function AgendaPage() {
         type="button"
         onClick={() => { setDeleteError(""); setModal({ type: "detail", item }); }}
         className={`min-h-11 w-full min-w-0 rounded-lg px-3 py-2 text-left text-sm [overflow-wrap:anywhere] lg:min-h-0 lg:px-2 lg:py-1 lg:text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime ${
-          item.source === "event" ? "bg-teal/10 text-teal" : "bg-lime/10 text-lime"
+          item.source === "event" ? "bg-lime/10 text-lime" : "bg-teal/10 text-teal"
         }`}
       >
         {item.title}
       </button>
+    );
+  }
+
+  function renderDayMarkers(dayItems, className = "") {
+    return (
+      <span aria-hidden="true" className={`flex h-1.5 items-center justify-center gap-1 ${className}`}>
+        {dayItems.some(item => item.source === "agenda") && (
+          <span title="Compromisso pessoal" className="h-1 w-1 rounded-full bg-teal" />
+        )}
+        {dayItems.some(item => item.source === "event") && (
+          <span title="Evento de fotos" className="h-1 w-1 rounded-full bg-lime" />
+        )}
+      </span>
     );
   }
 
@@ -203,8 +216,8 @@ export default function AgendaPage() {
         </div>
 
         <div className="mb-4 flex flex-wrap gap-4 text-xs text-muted">
-          <span><span className="text-lime">●</span> Compromissos pessoais</span>
-          <span><span className="text-teal">●</span> Eventos de fotos</span>
+          <span><span className="text-teal">●</span> Compromissos pessoais</span>
+          <span><span className="text-lime">●</span> Eventos de fotos</span>
         </div>
 
         {loading ? (
@@ -236,14 +249,14 @@ export default function AgendaPage() {
                     {WEEKDAYS.map(day => <span key={day} className="pb-2 text-muted">{day.charAt(0)}</span>)}
                     {monthDays.map(day => {
                       if (!isSameMonth(day, month)) return <span key={dateKey(day)} />;
-                      const count = byDate.get(dateKey(day))?.length || 0;
+                      const dayItems = byDate.get(dateKey(day)) || [];
                       return (
                         <button key={dateKey(day)} type="button" onClick={() => selectDay(day)}
-                          aria-label={`${formatDate(day, "dd 'de' MMMM 'de' yyyy")}, ${count} eventos`}
+                          aria-label={`${formatDate(day, "dd 'de' MMMM 'de' yyyy")}, ${dayItems.length} eventos`}
                           aria-current={isSameDay(day, today) ? "date" : undefined}
                           className={`relative min-h-11 rounded-lg py-2 hover:bg-white/10 lg:min-h-0 ${isSameDay(day, today) ? "text-lime font-bold" : ""}`}>
                           {format(day, "d")}
-                          {count > 0 && <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-lime" />}
+                          {renderDayMarkers(dayItems, "absolute bottom-0 left-1/2 -translate-x-1/2")}
                         </button>
                       );
                     })}
@@ -272,10 +285,7 @@ export default function AgendaPage() {
                           selected ? "bg-white/10 ring-1 ring-lime" : "hover:bg-white/5"
                         } ${isSameDay(day, today) ? "text-lime font-bold" : !isSameMonth(day, anchor) ? "text-muted" : ""}`}>
                         <span>{format(day, "d")}</span>
-                        <span aria-hidden="true" className="flex h-1.5 items-center gap-1">
-                          {dayItems.some(item => item.source === "agenda") && <span className="h-1 w-1 rounded-full bg-lime" />}
-                          {dayItems.some(item => item.source === "event") && <span className="h-1 w-1 rounded-full bg-teal" />}
-                        </span>
+                        {renderDayMarkers(dayItems)}
                       </button>
                     );
                   })}
