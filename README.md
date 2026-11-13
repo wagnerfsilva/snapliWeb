@@ -88,6 +88,9 @@ O aplicativo estará disponível em `http://localhost:5173`
 
 A agenda requer a API atualizada e a migração `20261113000002-create-agenda-entries`.
 As datas da agenda representam dias inteiros, sem conversão de fuso horário.
+Nos detalhes de um compromisso pessoal, use **Remover compromisso** e confirme
+a exclusão. Apenas o criador pode removê-lo, mesmo para usuários administradores;
+eventos de fotos não exibem esse botão.
 
 ## 🧪 Scripts Disponíveis
 

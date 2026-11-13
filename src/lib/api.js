@@ -64,6 +64,7 @@ export const eventsAPI = {
 export const agendaAPI = {
     getAll: (params) => api.get('/agenda', { params }),
     create: (data) => api.post('/agenda', data),
+    delete: (id) => api.delete(`/agenda/${id}`),
 };
 
 // Photos API

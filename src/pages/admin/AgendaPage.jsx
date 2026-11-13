@@ -5,7 +5,7 @@ import {
   isSameDay, isSameMonth, parseISO, startOfMonth, startOfWeek,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarDays, ChevronLeft, ChevronRight, Loader2, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { agendaAPI } from "../../lib/api";
 import { dateKey, getCalendarRange, moveCalendar } from "../../lib/calendar";
@@ -27,6 +27,7 @@ export default function AgendaPage() {
   const [form, setForm] = useState({ title: "", date: "", description: "" });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const dialogRef = useRef(null);
   const today = new Date();
   const range = getCalendarRange(anchor, view);
@@ -62,7 +63,6 @@ export default function AgendaPage() {
     if (!byDate.has(item.date)) byDate.set(item.date, []);
     byDate.get(item.date).push(item);
   }
-  const selectedItems = byDate.get(dateKey(selectedDate)) || [];
   const days = eachDayOfInterval(range);
   const title = view === "year"
     ? formatDate(anchor, "yyyy")
@@ -106,12 +106,28 @@ export default function AgendaPage() {
     }
   }
 
+  async function deleteEntry(item) {
+    if (!window.confirm(`Remover o compromisso "${item.title}"? Esta ação não pode ser desfeita.`)) return;
+    setSaving(true);
+    setDeleteError("");
+    try {
+      await agendaAPI.delete(item.id);
+      setItems(current => current.filter(entry => itemKey(entry) !== itemKey(item)));
+      setModal(null);
+      toast.success("Compromisso removido com sucesso!");
+    } catch (error) {
+      setDeleteError(error.response?.data?.message || "Erro ao remover compromisso");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function renderItem(item) {
     return (
       <button
         key={itemKey(item)}
         type="button"
-        onClick={() => setModal({ type: "detail", item })}
+        onClick={() => { setDeleteError(""); setModal({ type: "detail", item }); }}
         className={`w-full rounded-lg px-2 py-1 text-left text-xs break-words focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime ${
           item.source === "event" ? "bg-teal/10 text-teal" : "bg-lime/10 text-lime"
         }`}
@@ -248,20 +264,6 @@ export default function AgendaPage() {
         )}
       </div>
 
-      {!loading && !loadError && view !== "year" && (
-        <section className="card mt-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-semibold capitalize">{formatDate(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy")}</h2>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => openCreate()}>Adicionar evento</button>
-          </div>
-          {selectedItems.length === 0 ? (
-            <p className="flex items-center gap-2 text-muted"><CalendarDays className="h-5 w-5" /> Nenhum evento neste dia.</p>
-          ) : (
-            <div className="space-y-2">{selectedItems.map(renderItem)}</div>
-          )}
-        </section>
-      )}
-
       {modal && (
         <dialog ref={dialogRef} aria-labelledby="agenda-dialog-title"
           className="m-auto w-[calc(100%_-_2rem)] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border bg-dark-surface p-6 text-white backdrop:bg-black/70"
@@ -307,6 +309,16 @@ export default function AgendaPage() {
               <p className="whitespace-pre-wrap break-words text-sm text-muted">{modal.item.description || "Sem descrição."}</p>
               {modal.item.source === "event" && (
                 <Link to={`/admin/events/${modal.item.id}`} className="btn btn-secondary inline-block">Ver evento de fotos</Link>
+              )}
+              {modal.item.source === "agenda" && (
+                <div>
+                  {deleteError && <p role="alert" className="mb-3 text-sm text-red-400">{deleteError}</p>}
+                  <button type="button" className="btn btn-danger flex items-center gap-2 disabled:opacity-50"
+                    disabled={saving} onClick={() => deleteEntry(modal.item)}>
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    {saving ? "Removendo..." : "Remover compromisso"}
+                  </button>
+                </div>
               )}
             </div>
           )}
