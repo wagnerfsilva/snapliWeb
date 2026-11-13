@@ -96,7 +96,14 @@ O aplicativo estará disponível em `http://localhost:5173`
   e-mail. **Criar pedido cortesia** libera os originais sem PIX e sem envio de
   e-mail. Copie e compartilhe manualmente o link, válido por 90 dias, acessível
   por qualquer pessoa que o receber, sem login. A seleção fora do filtro continua
-  visível no contador; uma nova busca limpa a seleção. O link também pode ser
+  visível no contador; uma nova busca limpa a seleção. A seção **Cortesias criadas**
+  lista todos os pedidos em linhas compactas, com nome, quantidade, criação,
+  validade e ações para copiar o link, abrir o portal ou **Remover**. A lista tem
+  paginação de 20 registros e é atualizada após criar ou remover uma cortesia.
+  Remover pede confirmação e exclui permanentemente a cortesia e seus itens,
+  desativando o link sem apagar fotos ou vídeos originais. Downloads já feitos
+  e URLs S3 já assinadas não são recolhidos (estas expiram em até 1 hora).
+  O link também pode ser
   recuperado nos pedidos de cada evento pelo filtro **Cortesia**. Cortesias não
   compõem vendas, receita, comissões ou saldo de resgates.
 

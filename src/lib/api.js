@@ -106,6 +106,8 @@ export const searchAPI = {
 
 // Orders API
 export const ordersAPI = {
+    getCourtesies: (params, signal) => api.get('/orders/courtesy', { params, signal }),
+    deleteCourtesy: (orderId) => api.delete(`/orders/courtesy/${orderId}`),
     createCourtesy: (data) => api.post('/orders/courtesy', data),
     getByEvent: (eventId) => api.get(`/orders/event/${eventId}`),
     syncWithAsaas: (orderId) => api.post(`/orders/${orderId}/sync-asaas`),

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Check, Plus } from "lucide-react";
 import { ordersAPI, searchAPI } from "../../lib/api";
 import SearchResultsGallery from "../../components/SearchResultsGallery";
+import CourtesyOrdersList from "../../components/admin/CourtesyOrdersList";
 
 const MAX_ITEMS = 1000;
 
@@ -14,7 +15,7 @@ export default function CourtesyOrderPage() {
   const [creating, setCreating] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
-  const [order, setOrder] = useState(null);
+  const [listVersion, setListVersion] = useState(0);
   const busy = searching || creating;
   const eventCount = new Set(photos.map(photo => photo.eventId)).size;
 
@@ -29,7 +30,6 @@ export default function CourtesyOrderPage() {
     setSearching(true);
     setPhotos([]);
     setSelected([]);
-    setOrder(null);
     setSearched(false);
     try {
       const formData = new FormData();
@@ -66,33 +66,29 @@ export default function CourtesyOrderPage() {
 
   const createOrder = async event => {
     event.preventDefault();
-    if (busy || order) return;
+    if (busy) return;
     if (!customerName.trim() || !selected.length) {
       toast.error("Informe o nome e selecione ao menos um arquivo.");
       return;
     }
     setCreating(true);
     try {
-      const response = await ordersAPI.createCourtesy({
+      await ordersAPI.createCourtesy({
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim() || null,
         items: selected.map(photoId => ({ photoId })),
       });
-      setOrder(response.data.order);
+      setPhotos([]);
+      setSelected([]);
+      setSearched(false);
+      setCustomerName("");
+      setCustomerEmail("");
+      setListVersion(value => value + 1);
       toast.success("Pedido cortesia criado!");
     } catch (error) {
       toast.error(error.response?.data?.error || error.response?.data?.message || "Erro ao criar cortesia");
     } finally {
       setCreating(false);
-    }
-  };
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(order.downloadUrl);
-      toast.success("Link copiado!");
-    } catch {
-      toast.error("Não foi possível copiar. Selecione e copie o link abaixo.");
     }
   };
 
@@ -110,7 +106,7 @@ export default function CourtesyOrderPage() {
         {searching && <p role="status">Buscando fotos e vídeos...</p>}
       </section>
 
-      {searched && !order && (
+      {searched && (
         <section className="card space-y-4">
           <h2 className="text-2xl font-bold font-sora">
             Encontramos {photos.length} arquivo{photos.length !== 1 ? "s" : ""}
@@ -180,7 +176,7 @@ export default function CourtesyOrderPage() {
         </section>
       )}
 
-      {searched && !order && photos.length > 0 && (
+      {searched && photos.length > 0 && (
         <form className="card space-y-4" onSubmit={createOrder}>
           <h2 className="text-lg font-semibold">Destinatário e confirmação</h2>
           <label className="block">Nome do destinatário
@@ -197,20 +193,7 @@ export default function CourtesyOrderPage() {
         </form>
       )}
 
-      {order && (
-        <section className="card space-y-4" aria-label="Pedido cortesia criado">
-          <h2 className="text-lg font-semibold">Cortesia criada para {order.customerName}</h2>
-          <p>{order.itemCount} arquivo(s). Válido até {new Date(order.downloadExpiresAt).toLocaleString("pt-BR")}.</p>
-          <label className="block">Link público de download
-            <input className="input mt-2" readOnly value={order.downloadUrl} onFocus={event => event.target.select()} />
-          </label>
-          <div className="flex flex-wrap gap-3">
-            <button type="button" className="btn btn-primary" onClick={copyLink}>Copiar link</button>
-            <a className="btn btn-secondary" href={order.downloadUrl} target="_blank" rel="noopener noreferrer">Abrir portal</a>
-          </div>
-          <p className="text-sm text-muted">Compartilhe manualmente. O link também está disponível nos pedidos de cada evento. Para criar outra cortesia, envie uma nova foto de referência.</p>
-        </section>
-      )}
+      <CourtesyOrdersList key={listVersion} />
     </div>
   );
 }
