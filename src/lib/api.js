@@ -6,6 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 // Create axios instance
 const api = axios.create({
     baseURL: API_URL,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -73,6 +74,7 @@ export const photosAPI = {
         api.post('/photos/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
             onUploadProgress,
+            timeout: 0,
         }),
     getByEvent: (eventId, params) => api.get(`/photos/event/${eventId}`, { params }),
     getGallery: (eventId, params) => api.get(`/photos/event/${eventId}/gallery`, { params }),
