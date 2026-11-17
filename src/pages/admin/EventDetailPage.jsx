@@ -461,7 +461,7 @@ export default function EventDetailPage() {
                       onChange={(e) => setWithdrawalAmount(e.target.value)}
                       step="0.01"
                       min="0.01"
-                      max={balance.balance.availableBalance}
+                      max={Number(balance.balance.availableBalance).toFixed(2)}
                       className="input"
                       placeholder="0.00"
                       disabled={isSubmittingWithdrawal}
