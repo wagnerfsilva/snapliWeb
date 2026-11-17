@@ -25,6 +25,7 @@ export default function EventGalleryPage() {
   const [total, setTotal] = useState(0);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [isDeletingId, setIsDeletingId] = useState(null);
+  const isArchived = Boolean(eventInfo?.archivedAt);
 
   useEffect(() => {
     loadPhotos();
@@ -134,14 +135,16 @@ export default function EventGalleryPage() {
             Nenhum arquivo encontrado
           </h2>
           <p className="text-muted mb-4">
-            Este evento ainda não possui mídia enviada.
+            {isArchived
+              ? "Este evento foi arquivado e sua mídia foi removida."
+              : "Este evento ainda não possui mídia enviada."}
           </p>
-          <Link
+          {!isArchived && <Link
             to={`/admin/events/${id}/upload`}
             className="btn btn-primary inline-flex items-center"
           >
             Upload
-          </Link>
+          </Link>}
         </div>
       )}
 

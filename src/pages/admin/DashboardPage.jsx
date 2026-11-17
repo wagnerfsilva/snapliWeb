@@ -47,6 +47,7 @@ export default function DashboardPage() {
           limit: 5,
           sortBy: "createdAt",
           sortOrder: "DESC",
+          includeArchived: true,
         }),
       ]);
 

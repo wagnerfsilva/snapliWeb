@@ -15,17 +15,22 @@ export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const canCreateEvent = user?.role !== "organizador";
 
   useEffect(() => {
     loadEvents();
-  }, []);
+  }, [showArchived]);
 
   const loadEvents = async () => {
     try {
-      const response = await eventsAPI.getAll({ page: 1, limit: 100 });
+      const response = await eventsAPI.getAll({
+        page: 1,
+        limit: 100,
+        ...(showArchived && { includeArchived: true }),
+      });
       if (response.data.success) {
         setEvents(response.data.data.events);
       }
@@ -63,6 +68,16 @@ export default function EventsPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold font-sora">Eventos</h1>
 
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center space-x-2 text-sm text-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+            />
+            <span>Mostrar arquivados</span>
+          </label>
+
         {canCreateEvent && (
           <div className="flex items-center space-x-3">
             <button
@@ -74,6 +89,7 @@ export default function EventsPage() {
             </button>
           </div>
         )}
+        </div>
       </div>
 
       {events.length === 0 ? (
@@ -219,7 +235,9 @@ export default function EventsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {event.isActive ? (
+                        {event.archivedAt ? (
+                          <span className="badge badge-danger">Arquivado</span>
+                        ) : event.isActive ? (
                           <span className="badge badge-success">Ativo</span>
                         ) : (
                           <span className="badge badge-danger">Inativo</span>

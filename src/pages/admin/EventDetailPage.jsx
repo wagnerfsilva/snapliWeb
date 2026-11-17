@@ -190,7 +190,9 @@ export default function EventDetailPage() {
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               <h1 className="text-3xl font-bold font-sora">{event.name}</h1>
-              {event.isActive ? (
+              {event.archivedAt ? (
+                <span className="badge badge-danger">Arquivado</span>
+              ) : event.isActive ? (
                 <span className="badge badge-success">Ativo</span>
               ) : (
                 <span className="badge badge-danger">Inativo</span>
@@ -240,6 +242,13 @@ export default function EventDetailPage() {
           </div>
         </div>
       </div>
+
+      {event.archivedAt && (
+        <div className="card mb-6 text-muted text-sm">
+          Evento arquivado em {new Date(event.archivedAt).toLocaleDateString("pt-BR")}.
+          As fotos e vídeos foram removidos; vendas e métricas continuam disponíveis.
+        </div>
+      )}
 
       {/* Description */}
       {event.description && (
@@ -354,7 +363,7 @@ export default function EventDetailPage() {
       )}
 
       {/* Actions */}
-      {!isOrganizador && (
+      {!isOrganizador && !event.archivedAt && (
         <div className="card">
           <h2 className="text-lg font-semibold font-sora mb-4">Ações</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
