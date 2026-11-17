@@ -27,7 +27,7 @@ const STATUS_CONFIG = {
   refunded: { label: "Estornado", color: "#FF5050", bg: "rgba(255,80,80,0.12)", icon: XCircle },
 };
 
-export default function EventSales({ eventId }) {
+export default function EventSales({ eventId, archived = false }) {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [syncingOrderId, setSyncingOrderId] = useState(null);
@@ -212,7 +212,9 @@ export default function EventSales({ eventId }) {
                 <th className="text-right py-3 px-2 text-muted font-medium">Valor</th>
                 <th className="text-center py-3 px-2 text-muted font-medium">Status</th>
                 <th className="text-center py-3 px-2 text-muted font-medium">Data</th>
-                <th className="text-center py-3 px-2 text-muted font-medium">Ações</th>
+                {!archived && (
+                  <th className="text-center py-3 px-2 text-muted font-medium">Ações</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -243,7 +245,7 @@ export default function EventSales({ eventId }) {
                         ? new Date(order.paidAt).toLocaleDateString("pt-BR")
                         : new Date(order.createdAt).toLocaleDateString("pt-BR")}
                     </td>
-                    <td className="py-3 px-2">
+                    {!archived && <td className="py-3 px-2">
                       <div className="flex items-center justify-center space-x-1">
                         {/* Sync with Asaas */}
                         {isPending && order.paymentId && (
@@ -290,7 +292,7 @@ export default function EventSales({ eventId }) {
                           <span className="text-xs text-muted">Sem pagamento</span>
                         )}
                       </div>
-                    </td>
+                    </td>}
                   </tr>
                 );
               })}

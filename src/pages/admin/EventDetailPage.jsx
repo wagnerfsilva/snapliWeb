@@ -220,7 +220,7 @@ export default function EventDetailPage() {
           </div>
 
           <div className="flex items-center space-x-2">
-            {!isOrganizador && (
+            {!isOrganizador && !event.archivedAt && (
               <>
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -389,7 +389,7 @@ export default function EventDetailPage() {
       {/* Sales (admin/fotografo only — organizador vê apenas agregados no saldo) */}
       {!isOrganizador && (
         <div className="mt-6">
-          <EventSales eventId={id} />
+          <EventSales eventId={id} archived={Boolean(event.archivedAt)} />
         </div>
       )}
 
