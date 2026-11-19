@@ -68,7 +68,7 @@ export default function OrderPhotoUpdate({ order, eventId, onClose, onUpdated })
             <X className="h-5 w-5" />
           </button>
         </div>
-        <p>Envie uma foto do rosto da pessoa. A busca considera apenas novas fotos deste evento, adicionadas após o pagamento e que ainda não estão no pedido.</p>
+        <p>Envie uma foto do rosto da pessoa. A busca considera todas as fotos desta pessoa no mesmo evento que ainda não estão no pedido, independentemente da data de inclusão.</p>
         <label className="block space-y-2">
           <span>Foto de referência</span>
           <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={search} className="block" />
