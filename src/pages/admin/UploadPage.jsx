@@ -20,7 +20,7 @@ export default function UploadPage() {
   }, []);
 
   useEffect(() => {
-    if (id && events.length > 0) {
+    if (id && events.some(event => event.id === id)) {
       setSelectedEvent(id);
     }
   }, [id, events]);
@@ -31,9 +31,14 @@ export default function UploadPage() {
         page: 1,
         limit: 100,
         isActive: true,
+        approvalStatus: "approved",
       });
       if (response.data.success) {
         setEvents(response.data.data.events);
+        if (id && !response.data.data.events.some(event => event.id === id)) {
+          setSelectedEvent("");
+          toast.error("Evento indisponível para upload. Verifique a aprovação e o status.");
+        }
       }
     } catch (error) {
       toast.error("Erro ao carregar eventos");
@@ -59,7 +64,7 @@ export default function UploadPage() {
   });
 
   const handleUpload = async () => {
-    if (!selectedEvent) {
+    if (!selectedEvent || !events.some(event => event.id === selectedEvent)) {
       toast.error("Selecione um evento");
       return;
     }

@@ -25,6 +25,7 @@ export default function EventGalleryPage() {
   const [total, setTotal] = useState(0);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [isDeletingId, setIsDeletingId] = useState(null);
+  const [loadError, setLoadError] = useState("");
   const isArchived = Boolean(eventInfo?.archivedAt);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function EventGalleryPage() {
 
   const loadPhotos = async () => {
     setIsLoading(true);
+    setLoadError("");
     try {
       const response = await photosAPI.getGallery(id, { page, limit: 24 });
       if (response.data.success) {
@@ -43,8 +45,10 @@ export default function EventGalleryPage() {
         setTotal(data.pagination?.total || 0);
       }
     } catch (error) {
-      toast.error("Erro ao carregar fotos do evento");
-      console.error(error);
+      const message = error.response?.data?.message || "Erro ao carregar fotos do evento";
+      setLoadError(message);
+      setPhotos([]);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +132,8 @@ export default function EventGalleryPage() {
       )}
 
       {/* Empty state */}
-      {!isLoading && photos.length === 0 && (
+      {!isLoading && loadError && <p className="card text-muted">{loadError}</p>}
+      {!isLoading && !loadError && photos.length === 0 && (
         <div className="text-center py-16">
           <Image className="h-16 w-16 text-dim mx-auto mb-4" />
           <h2 className="text-lg font-semibold mb-2">

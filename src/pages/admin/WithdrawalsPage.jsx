@@ -125,7 +125,9 @@ export default function WithdrawalsPage() {
             const statusInfo = STATUS_CONFIG[req.status] || STATUS_CONFIG.pending;
             const StatusIcon = statusInfo.icon;
             const actions = isAdmin ? NEXT_ACTIONS[req.status] || [] : [];
-            const pixKey = req.pixKey || req.organizer?.pixKey;
+            const beneficiary = req.photographer || req.organizer;
+            const beneficiaryLabel = req.photographerId ? "Fotógrafo" : "Organizador";
+            const pixKey = req.pixKey || beneficiary?.pixKey;
 
             return (
               <div key={req.id} className="card">
@@ -143,9 +145,9 @@ export default function WithdrawalsPage() {
                         {statusInfo.label}
                       </span>
                     </div>
-                    {isAdmin && req.organizer && (
+                    {isAdmin && beneficiary && (
                       <p className="text-sm text-muted">
-                        Organizador: {req.organizer.name} ({req.organizer.email})
+                        {beneficiaryLabel}: {beneficiary.name} ({beneficiary.email})
                       </p>
                     )}
                     {pixKey && (

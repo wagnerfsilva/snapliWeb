@@ -57,6 +57,7 @@ export const eventsAPI = {
     getById: (id) => api.get(`/events/${id}`),
     create: (data) => api.post('/events', data),
     update: (id, data) => api.put(`/events/${id}`, data),
+    approve: (id, data = {}) => api.patch(`/events/${id}/approve`, data),
     delete: (id) => api.delete(`/events/${id}`),
     getStatistics: (id) => api.get(`/events/${id}/statistics`),
 };
@@ -123,6 +124,7 @@ export const ordersAPI = {
 export const usersAPI = {
     getAll: (params) => api.get('/users', { params }),
     searchOrganizers: (q) => api.get('/users/search-organizers', { params: { q } }),
+    searchPhotographers: (q) => api.get('/users/search-photographers', { params: { q } }),
     create: (data) => api.post('/users', data),
     update: (id, data) => api.patch(`/users/${id}`, data),
     toggleActive: (id) => api.patch(`/users/${id}/toggle-active`),

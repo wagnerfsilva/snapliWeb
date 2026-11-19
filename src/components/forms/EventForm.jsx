@@ -1,9 +1,86 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { X, Loader2, Plus, Trash2, Search, UserCircle2 } from "lucide-react";
 import { usersAPI } from "../../lib/api";
+import { useAuthStore } from "../../store/authStore";
+import toast from "react-hot-toast";
 
-export default function EventForm({ onClose, onSuccess, initialData = null }) {
+function CommissionField({ label, selected, onSelect, search, fixed, readOnly, percentage, onPercentageChange, error, disabled }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (fixed || readOnly || query.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    let active = true;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await search(query.trim());
+        if (active) setResults(response.data.data.users);
+      } catch {
+        if (active) toast.error(`Erro ao buscar ${label.toLowerCase()}`);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }, 300);
+    return () => { active = false; clearTimeout(timer); };
+  }, [query, fixed, readOnly, search, label]);
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold font-sora">{label}{fixed ? "" : " (opcional)"}</h3>
+      {selected ? (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-xl" style={{ background: "var(--bg)" }}>
+          <div className="flex items-center gap-2 min-w-0">
+            <UserCircle2 className="h-5 w-5 text-muted shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{selected.name}</p>
+              <p className="text-xs text-muted truncate">{selected.email}</p>
+            </div>
+          </div>
+          {!fixed && !readOnly && (
+            <button type="button" onClick={() => { onSelect(null); setQuery(""); }} className="text-dim hover:text-white" disabled={disabled} aria-label={`Remover ${label.toLowerCase()}`}>
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      ) : readOnly ? <p className="text-sm text-muted">Não associado</p> : (
+        <div className="relative">
+          <label className="relative block">
+            <Search className="h-4 w-4 text-dim absolute left-3 top-1/2 -translate-y-1/2" />
+            <input aria-label={`Buscar ${label.toLowerCase()}`} value={query} onChange={e => setQuery(e.target.value)} placeholder={`Buscar ${label.toLowerCase()} por nome ou email...`} className="input pl-9" disabled={disabled} />
+          </label>
+          {query.trim().length >= 2 && (
+            <div className="absolute z-10 mt-1 w-full rounded-xl max-h-56 overflow-y-auto" style={{ background: "var(--bg)", border: "1px solid var(--border)" }}>
+              {loading ? <p className="p-3 text-sm text-muted">Buscando...</p> : results.length ? results.map(person => (
+                <button key={person.id} type="button" className="w-full text-left p-3 hover:bg-white/5" onClick={() => { onSelect(person); setQuery(""); }}>
+                  <p className="text-sm font-medium">{person.name}</p>
+                  <p className="text-xs text-muted">{person.email}</p>
+                </button>
+              )) : <p className="p-3 text-sm text-muted">Nenhum resultado encontrado</p>}
+            </div>
+          )}
+        </div>
+      )}
+      {selected && (
+        <label className="block text-xs font-medium text-muted uppercase tracking-wider">
+          Comissão do {label} (%)
+          <input type="number" aria-label={`Comissão do ${label}`} value={percentage} onChange={e => onPercentageChange(e.target.value)} step="0.01" min="0" max="100" required={!readOnly} readOnly={readOnly} disabled={disabled} className="input mt-2" />
+        </label>
+      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+export default function EventForm({ onClose, onSuccess, initialData = null, approval = false }) {
   const isEdit = !!initialData;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+  const readOnlyCommissions = isEdit && !isAdmin;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -25,6 +102,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
     organizerId: initialData?.organizerId || null,
     organizerCommissionPercentage:
       initialData?.organizerCommissionPercentage ?? "",
+    photographerCommissionPercentage: initialData?.photographerCommissionPercentage ?? "",
   });
 
   const [newPackage, setNewPackage] = useState({ quantity: "", price: "" });
@@ -35,7 +113,6 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
 
   const [errors, setErrors] = useState({});
 
-  // Organizador autocomplete (busca com termo, sem listar todos)
   const [selectedOrganizer, setSelectedOrganizer] = useState(
     initialData?.organizer
       ? {
@@ -45,55 +122,9 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         }
       : null,
   );
-  const [organizerQuery, setOrganizerQuery] = useState("");
-  const [organizerResults, setOrganizerResults] = useState([]);
-  const [isSearchingOrganizer, setIsSearchingOrganizer] = useState(false);
-  const [showOrganizerDropdown, setShowOrganizerDropdown] = useState(false);
-  const organizerSearchTimeout = useRef(null);
-
-  useEffect(() => {
-    if (organizerQuery.trim().length < 2) {
-      setOrganizerResults([]);
-      return;
-    }
-
-    if (organizerSearchTimeout.current) {
-      clearTimeout(organizerSearchTimeout.current);
-    }
-
-    organizerSearchTimeout.current = setTimeout(async () => {
-      setIsSearchingOrganizer(true);
-      try {
-        const response = await usersAPI.searchOrganizers(organizerQuery.trim());
-        if (response.data.success) {
-          setOrganizerResults(response.data.data.users);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar organizadores:", error);
-      } finally {
-        setIsSearchingOrganizer(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(organizerSearchTimeout.current);
-  }, [organizerQuery]);
-
-  const handleSelectOrganizer = (organizer) => {
-    setSelectedOrganizer(organizer);
-    setFormData((prev) => ({ ...prev, organizerId: organizer.id }));
-    setOrganizerQuery("");
-    setOrganizerResults([]);
-    setShowOrganizerDropdown(false);
-  };
-
-  const handleRemoveOrganizer = () => {
-    setSelectedOrganizer(null);
-    setFormData((prev) => ({
-      ...prev,
-      organizerId: null,
-      organizerCommissionPercentage: "",
-    }));
-  };
+  const [selectedPhotographer, setSelectedPhotographer] = useState(
+    initialData?.photographer || (!isEdit && !isAdmin ? user : null),
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -169,14 +200,15 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         "Informe um preço positivo com até duas casas decimais";
     }
 
-    if (
-      selectedOrganizer &&
-      formData.organizerCommissionPercentage !== "" &&
-      (Number(formData.organizerCommissionPercentage) < 0 ||
-        Number(formData.organizerCommissionPercentage) > 100)
-    ) {
-      newErrors.organizerCommissionPercentage =
-        "Comissão deve ser entre 0 e 100";
+    if (!readOnlyCommissions) {
+      for (const [person, key] of [[selectedOrganizer, "organizerCommissionPercentage"], [selectedPhotographer, "photographerCommissionPercentage"]]) {
+        if (person && (!/^\d{1,3}(\.\d{1,2})?$/.test(String(formData[key])) || Number(formData[key]) > 100)) {
+          newErrors[key] = "Informe a comissão entre 0 e 100, com até duas casas decimais";
+        }
+      }
+      const total = (selectedOrganizer ? Number(formData.organizerCommissionPercentage) : 0)
+        + (selectedPhotographer ? Number(formData.photographerCommissionPercentage) : 0);
+      if (Math.round(total * 100) > 10000) newErrors.commissions = "A soma das comissões não pode ultrapassar 100%";
     }
 
     setErrors(newErrors);
@@ -213,9 +245,15 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
         freeVideosCount: Number(formData.freeVideosCount),
         organizerId: selectedOrganizer ? selectedOrganizer.id : null,
         organizerCommissionPercentage: selectedOrganizer
-          ? parseFloat(formData.organizerCommissionPercentage) || 0
+          ? Number(formData.organizerCommissionPercentage)
           : null,
+        photographerId: selectedPhotographer?.id || null,
+        photographerCommissionPercentage: selectedPhotographer ? Number(formData.photographerCommissionPercentage) : null,
       };
+      if (readOnlyCommissions) {
+        for (const key of ["organizerId", "organizerCommissionPercentage", "photographerId", "photographerCommissionPercentage"]) delete dataToSubmit[key];
+      }
+      if (initialData?.approvalStatus === "pending") delete dataToSubmit.isActive;
 
       await onSuccess(dataToSubmit);
     } catch (error) {
@@ -234,7 +272,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           style={{ borderBottom: "1px solid var(--border)" }}
         >
           <h2 className="text-2xl font-bold font-sora">
-            {isEdit ? "Editar Evento" : "Criar Novo Evento"}
+            {approval ? "Revisar e aprovar evento" : isEdit ? "Editar Evento" : "Criar Novo Evento"}
           </h2>
           <button
             onClick={onClose}
@@ -339,7 +377,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
           </div>
 
           {/* Status (apenas para edição) */}
-          {isEdit && (
+          {isEdit && initialData?.approvalStatus === "approved" && (
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -359,125 +397,18 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
             </div>
           )}
 
-          {/* Organizador e Comissão */}
-          <div
-            className="space-y-4 pt-6"
-            style={{ borderTop: "1px solid var(--border)" }}
-          >
-            <h3 className="text-lg font-semibold font-sora">
-              Organizador (opcional)
-            </h3>
-
-            {selectedOrganizer ? (
-              <div
-                className="flex items-center justify-between gap-3 p-3 rounded-xl"
-                style={{ background: "var(--bg)" }}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <UserCircle2 className="h-5 w-5 text-lime shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {selectedOrganizer.name}
-                    </p>
-                    <p className="text-xs text-muted truncate">
-                      {selectedOrganizer.email}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleRemoveOrganizer}
-                  className="text-dim hover:text-white transition-colors shrink-0"
-                  disabled={isSubmitting}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            ) : (
-              <div className="relative">
-                <div className="relative">
-                  <Search className="h-4 w-4 text-dim absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={organizerQuery}
-                    onChange={(e) => {
-                      setOrganizerQuery(e.target.value);
-                      setShowOrganizerDropdown(true);
-                    }}
-                    onFocus={() => setShowOrganizerDropdown(true)}
-                    placeholder="Buscar organizador por nome ou email..."
-                    className="input pl-9"
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                {showOrganizerDropdown && organizerQuery.trim().length >= 2 && (
-                  <div
-                    className="absolute z-10 mt-1 w-full rounded-xl overflow-hidden max-h-56 overflow-y-auto"
-                    style={{
-                      background: "var(--bg)",
-                      border: "1px solid var(--border)",
-                    }}
-                  >
-                    {isSearchingOrganizer && (
-                      <div className="p-3 text-sm text-muted flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Buscando...
-                      </div>
-                    )}
-                    {!isSearchingOrganizer && organizerResults.length === 0 && (
-                      <div className="p-3 text-sm text-muted">
-                        Nenhum organizador encontrado
-                      </div>
-                    )}
-                    {!isSearchingOrganizer &&
-                      organizerResults.map((org) => (
-                        <button
-                          key={org.id}
-                          type="button"
-                          onClick={() => handleSelectOrganizer(org)}
-                          className="w-full text-left p-3 hover:bg-white/5 transition-colors"
-                        >
-                          <p className="text-sm font-medium">{org.name}</p>
-                          <p className="text-xs text-muted">{org.email}</p>
-                        </button>
-                      ))}
-                  </div>
-                )}
-                <p className="mt-1 text-sm text-muted">
-                  Digite ao menos 2 caracteres para buscar
-                </p>
-              </div>
-            )}
-
-            {selectedOrganizer && (
-              <div>
-                <label
-                  htmlFor="organizerCommissionPercentage"
-                  className="block text-xs font-medium text-muted uppercase tracking-wider mb-2"
-                >
-                  Comissão do Organizador (%)
-                </label>
-                <input
-                  type="number"
-                  id="organizerCommissionPercentage"
-                  name="organizerCommissionPercentage"
-                  value={formData.organizerCommissionPercentage}
-                  onChange={handleChange}
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  className={`input ${errors.organizerCommissionPercentage ? "border-red-500" : ""}`}
-                  placeholder="10.00"
-                  disabled={isSubmitting}
-                />
-                {errors.organizerCommissionPercentage && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.organizerCommissionPercentage}
-                  </p>
-                )}
-              </div>
-            )}
+          <div className="space-y-6 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
+            {!isEdit && !isAdmin && <p className="text-sm text-muted">O evento ficará aguardando aprovação. Você não poderá editá-lo ou enviar mídias até a liberação pelo administrador.</p>}
+            {isEdit && isAdmin && <p className="text-sm text-muted">Alterações nos percentuais recalculam a comissão sobre todas as vendas do evento. Saques anteriores são preservados.</p>}
+            {readOnlyCommissions && <p className="text-sm text-muted">Somente o administrador pode alterar os participantes e suas comissões.</p>}
+            <CommissionField label="Organizador" selected={selectedOrganizer} search={usersAPI.searchOrganizers} readOnly={readOnlyCommissions} disabled={isSubmitting}
+              onSelect={person => { setSelectedOrganizer(person); if (!person) setFormData(prev => ({ ...prev, organizerCommissionPercentage: "" })); }}
+              percentage={formData.organizerCommissionPercentage} onPercentageChange={value => setFormData(prev => ({ ...prev, organizerCommissionPercentage: value }))} error={errors.organizerCommissionPercentage} />
+            <CommissionField label="Fotógrafo" selected={selectedPhotographer} search={usersAPI.searchPhotographers} fixed={!isAdmin && !isEdit} readOnly={readOnlyCommissions} disabled={isSubmitting}
+              onSelect={person => { setSelectedPhotographer(person); if (!person) setFormData(prev => ({ ...prev, photographerCommissionPercentage: "" })); }}
+              percentage={formData.photographerCommissionPercentage} onPercentageChange={value => setFormData(prev => ({ ...prev, photographerCommissionPercentage: value }))} error={errors.photographerCommissionPercentage} />
+            {errors.commissions && <p className="text-sm text-red-600">{errors.commissions}</p>}
+            <p className="text-sm text-muted">As duas comissões incidem sobre a receita bruta paga. A soma não pode ultrapassar 100%.</p>
           </div>
 
           {/* Preços */}
@@ -867,7 +798,7 @@ export default function EventForm({ onClose, onSuccess, initialData = null }) {
                   <span>{isEdit ? "Salvando..." : "Criando..."}</span>
                 </>
               ) : (
-                <span>{isEdit ? "Salvar Alterações" : "Criar Evento"}</span>
+                <span>{approval ? "Aprovar e liberar" : isEdit ? "Salvar Alterações" : "Criar Evento"}</span>
               )}
             </button>
           </div>

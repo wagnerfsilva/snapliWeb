@@ -34,6 +34,7 @@ const NAVIGATION_BY_ROLE = {
     { name: "Eventos", href: "/admin/events", icon: Calendar },
     { name: "Agenda", href: "/admin/agenda", icon: CalendarDays },
     { name: "Upload", href: "/admin/upload", icon: Upload },
+    { name: "Resgates", href: "/admin/withdrawals", icon: Wallet },
   ],
   organizador: [
     { name: "Meus Eventos", href: "/admin/events", icon: Calendar },

@@ -27,11 +27,13 @@ export default function EventDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOrganizador = user?.role === "organizador";
+  const isAdmin = user?.role === "admin";
 
   const [event, setEvent] = useState(null);
   const [statistics, setStatistics] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [approvalMode, setApprovalMode] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -40,6 +42,11 @@ export default function EventDetailPage() {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [withdrawalNotes, setWithdrawalNotes] = useState("");
   const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false);
+  const pending = event?.approvalStatus === "pending";
+  const canWithdraw = event?.approvalStatus === "approved" && (
+    (isOrganizador && event.organizerId === user?.id)
+    || (user?.role === "fotografo" && event.photographerId === user.id)
+  );
 
   useEffect(() => {
     loadEventDetails();
@@ -47,10 +54,10 @@ export default function EventDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (isOrganizador) {
+    if (canWithdraw) {
       loadBalance();
-    }
-  }, [id, isOrganizador]);
+    } else setBalance(null);
+  }, [id, canWithdraw]);
 
   const loadBalance = async () => {
     setIsLoadingBalance(true);
@@ -60,7 +67,7 @@ export default function EventDetailPage() {
         setBalance(response.data.data);
       }
     } catch (error) {
-      console.error("Erro ao carregar saldo:", error);
+      toast.error(error.response?.data?.message || "Erro ao carregar saldo");
     } finally {
       setIsLoadingBalance(false);
     }
@@ -123,9 +130,11 @@ export default function EventDetailPage() {
 
   const handleUpdateEvent = async (formData) => {
     try {
-      const response = await eventsAPI.update(id, formData);
+      const response = approvalMode
+        ? await eventsAPI.approve(id, formData)
+        : await eventsAPI.update(id, formData);
       if (response.data.success) {
-        toast.success("Evento atualizado com sucesso!");
+        toast.success(response.data.message || "Evento atualizado com sucesso!");
         setShowEditModal(false);
         loadEventDetails();
         loadStatistics();
@@ -190,7 +199,9 @@ export default function EventDetailPage() {
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               <h1 className="text-3xl font-bold font-sora">{event.name}</h1>
-              {event.archivedAt ? (
+              {pending ? (
+                <span className="badge">Aguardando aprovação</span>
+              ) : event.archivedAt ? (
                 <span className="badge badge-danger">Arquivado</span>
               ) : event.isActive ? (
                 <span className="badge badge-success">Ativo</span>
@@ -220,10 +231,16 @@ export default function EventDetailPage() {
           </div>
 
           <div className="flex items-center space-x-2">
-            {!isOrganizador && !event.archivedAt && (
+            {isAdmin && pending && !event.archivedAt && (
+              <button onClick={() => { setApprovalMode(true); setShowEditModal(true); }} className="btn btn-secondary flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4 text-muted" />
+                <span>Aprovar e liberar</span>
+              </button>
+            )}
+            {!isOrganizador && !event.archivedAt && (!pending || isAdmin) && (
               <>
                 <button
-                  onClick={() => setShowEditModal(true)}
+                  onClick={() => { setApprovalMode(false); setShowEditModal(true); }}
                   className="btn btn-secondary flex items-center space-x-2"
                 >
                   <Edit2 className="h-4 w-4" />
@@ -240,6 +257,19 @@ export default function EventDetailPage() {
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      {pending && (
+        <div className="card mb-6 text-muted text-sm">
+          Este evento aguarda a validação das comissões pelo administrador. Edição pelo fotógrafo, uploads, buscas e vendas ficam bloqueados até a liberação.
+        </div>
+      )}
+      <div className="card mb-6">
+        <h2 className="text-lg font-semibold font-sora mb-3">Comissões</h2>
+        <div className="grid gap-4 md:grid-cols-2 text-sm">
+          <div>Organizador: {event.organizer?.name || "Não associado"}{event.organizerId && ` — ${Number(event.organizerCommissionPercentage || 0).toLocaleString("pt-BR")}%`}</div>
+          <div>Fotógrafo: {event.photographer?.name || "Não associado"}{event.photographerId && ` — ${Number(event.photographerCommissionPercentage || 0).toLocaleString("pt-BR")}%`}</div>
         </div>
       </div>
 
@@ -363,7 +393,7 @@ export default function EventDetailPage() {
       )}
 
       {/* Actions */}
-      {!isOrganizador && !event.archivedAt && (
+      {!isOrganizador && !event.archivedAt && !pending && (
         <div className="card">
           <h2 className="text-lg font-semibold font-sora mb-4">Ações</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -387,14 +417,14 @@ export default function EventDetailPage() {
       )}
 
       {/* Sales (admin/fotografo only — organizador vê apenas agregados no saldo) */}
-      {!isOrganizador && (
+      {!isOrganizador && !pending && (
         <div className="mt-6">
           <EventSales eventId={id} archived={Boolean(event.archivedAt)} />
         </div>
       )}
 
       {/* Saldo e Resgate (organizador) */}
-      {isOrganizador && (
+      {canWithdraw && (
         <div className="card mt-6">
           <h2 className="text-lg font-semibold font-sora mb-4 flex items-center gap-2">
             <Wallet className="h-5 w-5 text-lime" />
@@ -448,7 +478,7 @@ export default function EventDetailPage() {
                       readOnly
                     />
                     <p className="mt-1 text-xs text-muted">
-                      A chave PIX é a mesma cadastrada no seu perfil de organizador e não pode ser alterada aqui.
+                      A chave PIX é a mesma cadastrada no seu perfil e não pode ser alterada aqui.
                     </p>
                   </div>
                   <div>
@@ -510,6 +540,7 @@ export default function EventDetailPage() {
           onClose={() => setShowEditModal(false)}
           onSuccess={handleUpdateEvent}
           initialData={event}
+          approval={approvalMode}
         />
       )}
 

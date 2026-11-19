@@ -7,6 +7,7 @@ import {
   Loader2,
   X,
   Power,
+  Edit2,
 } from "lucide-react";
 
 export default function PhotographersPage() {
@@ -14,7 +15,8 @@ export default function PhotographersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [editingPhotographer, setEditingPhotographer] = useState(null);
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", pixKey: "" });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function PhotographersPage() {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
     if (!formData.email.trim()) newErrors.email = "Email é obrigatório";
-    if (!formData.password || formData.password.length < 6) {
+    if (!editingPhotographer && (!formData.password || formData.password.length < 6)) {
       newErrors.password = "Senha deve ter pelo menos 6 caracteres";
     }
     setErrors(newErrors);
@@ -57,23 +59,28 @@ export default function PhotographersPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await usersAPI.create({
-        ...formData,
-        role: "fotografo",
-      });
+      const response = editingPhotographer
+        ? await usersAPI.update(editingPhotographer.id, { name: formData.name, email: formData.email, pixKey: formData.pixKey })
+        : await usersAPI.create({ ...formData, role: "fotografo" });
       if (response.data.success) {
-        toast.success("Fotógrafo criado com sucesso!");
+        toast.success(editingPhotographer ? "Fotógrafo atualizado com sucesso!" : "Fotógrafo criado com sucesso!");
         setShowCreateModal(false);
-        setFormData({ name: "", email: "", password: "" });
         loadPhotographers();
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Erro ao criar fotógrafo"
+        error.response?.data?.message || "Erro ao salvar fotógrafo"
       );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const openForm = (photographer = null) => {
+    setEditingPhotographer(photographer);
+    setFormData({ name: photographer?.name || "", email: photographer?.email || "", password: "", pixKey: photographer?.pixKey || "" });
+    setErrors({});
+    setShowCreateModal(true);
   };
 
   const handleToggleActive = async (id) => {
@@ -103,7 +110,7 @@ export default function PhotographersPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold font-sora">Fotógrafos</h1>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => openForm()}
           className="btn btn-primary flex items-center space-x-2"
         >
           <Plus className="h-5 w-5" />
@@ -121,7 +128,7 @@ export default function PhotographersPage() {
             Crie o primeiro fotógrafo para atribuí-lo a eventos
           </p>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => openForm()}
             className="btn btn-primary"
           >
             Criar Primeiro Fotógrafo
@@ -167,6 +174,10 @@ export default function PhotographersPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <button onClick={() => openForm(photo)} className="btn btn-secondary inline-flex items-center gap-2 text-sm mr-2">
+                        <Edit2 className="h-4 w-4" />
+                        Editar
+                      </button>
                       <button
                         onClick={() => handleToggleActive(photo.id)}
                         className="btn btn-secondary flex items-center gap-2 text-sm"
@@ -191,7 +202,7 @@ export default function PhotographersPage() {
               style={{ borderBottom: "1px solid var(--border)" }}
             >
               <h2 className="text-xl font-bold font-sora">
-                Novo Fotógrafo
+                {editingPhotographer ? "Editar Fotógrafo" : "Novo Fotógrafo"}
               </h2>
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -237,7 +248,7 @@ export default function PhotographersPage() {
                 )}
               </div>
 
-              <div>
+              {!editingPhotographer && <div>
                 <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">
                   Senha *
                 </label>
@@ -254,7 +265,12 @@ export default function PhotographersPage() {
                     {errors.password}
                   </p>
                 )}
-              </div>
+              </div>}
+
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider">
+                Chave PIX
+                <input type="text" name="pixKey" value={formData.pixKey} onChange={handleChange} maxLength={255} className="input mt-2" disabled={isSubmitting} />
+              </label>
 
               <div className="flex items-center justify-end space-x-3 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
                 <button
@@ -273,7 +289,7 @@ export default function PhotographersPage() {
                   {isSubmitting && (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
-                  <span>Criar Fotógrafo</span>
+                  <span>{editingPhotographer ? "Salvar Alterações" : "Criar Fotógrafo"}</span>
                 </button>
               </div>
             </form>

@@ -16,13 +16,14 @@ export default function EventsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [approvalFilter, setApprovalFilter] = useState("");
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const canCreateEvent = user?.role !== "organizador";
 
   useEffect(() => {
     loadEvents();
-  }, [showArchived]);
+  }, [showArchived, approvalFilter]);
 
   const loadEvents = async () => {
     try {
@@ -30,6 +31,7 @@ export default function EventsPage() {
         page: 1,
         limit: 100,
         ...(showArchived && { includeArchived: true }),
+        ...(approvalFilter && { approvalStatus: approvalFilter }),
       });
       if (response.data.success) {
         setEvents(response.data.data.events);
@@ -45,7 +47,7 @@ export default function EventsPage() {
     try {
       const response = await eventsAPI.create(formData);
       if (response.data.success) {
-        toast.success("Evento criado com sucesso!");
+        toast.success(response.data.message || "Evento criado com sucesso!");
         setShowCreateModal(false);
         loadEvents();
       }
@@ -69,6 +71,13 @@ export default function EventsPage() {
         <h1 className="text-3xl font-bold font-sora">Eventos</h1>
 
         <div className="flex items-center space-x-4">
+          {user?.role === "admin" && (
+            <select aria-label="Filtrar aprovação" className="input w-auto" value={approvalFilter} onChange={e => setApprovalFilter(e.target.value)}>
+              <option value="">Todas as aprovações</option>
+              <option value="pending">Aguardando aprovação</option>
+              <option value="approved">Aprovados</option>
+            </select>
+          )}
           <label className="flex items-center space-x-2 text-sm text-muted cursor-pointer">
             <input
               type="checkbox"
@@ -155,10 +164,10 @@ export default function EventsPage() {
                   const totalRevenue = parseFloat(event.totalRevenue || 0);
                   const paidOrdersCount = parseInt(event.paidOrdersCount || 0);
                   const avgTicket = paidOrdersCount > 0 ? totalRevenue / paidOrdersCount : 0;
-                  const commissionPercentage = parseFloat(event.organizerCommissionPercentage || 0);
-                  const commissionTotal = totalRevenue * (commissionPercentage / 100);
-                  const requestedAmount = parseFloat(event.requestedAmount || 0);
-                  const remainingToRequest = Math.max(commissionTotal - requestedAmount, 0);
+                  const commissions = [
+                    { label: "Organizador", id: event.organizerId, role: "organizador", ...event.organizerBalance },
+                    { label: "Fotógrafo", id: event.photographerId, role: "fotografo", ...event.photographerBalance },
+                  ].filter(item => item.id && (user?.role === "admin" || (item.role === user?.role && item.id === user?.id)));
 
                   return (
                     <tr
@@ -199,34 +208,18 @@ export default function EventsPage() {
                           <div className="text-xs text-dim mt-0.5">{paidOrdersCount} pedido{paidOrdersCount !== 1 ? "s" : ""}</div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium">
-                          {commissionPercentage > 0
-                            ? `${commissionPercentage.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%`
-                            : <span className="text-muted">—</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium">
-                          {commissionTotal > 0
-                            ? `R$ ${commissionTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : <span className="text-muted">—</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium">
-                          {requestedAmount > 0
-                            ? `R$ ${requestedAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : <span className="text-muted">—</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-lime">
-                          {remainingToRequest > 0
-                            ? `R$ ${remainingToRequest.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : <span className="text-muted">—</span>}
-                        </div>
-                      </td>
+                      {["commissionPercentage", "commissionTotal", "reservedOrPaidTotal", "availableBalance"].map(field => (
+                        <td key={field} className="px-6 py-4 whitespace-nowrap">
+                          {commissions.length ? commissions.map(item => (
+                            <div key={item.role} className="text-sm font-medium">
+                              {user?.role === "admin" && <span className="text-xs text-muted">{item.label}: </span>}
+                              {field === "commissionPercentage"
+                                ? `${Number(item[field] || 0).toLocaleString("pt-BR")}%`
+                                : Number(item[field] || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                            </div>
+                          )) : <span className="text-muted">—</span>}
+                        </td>
+                      ))}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm">
                           {avgTicket > 0
@@ -235,7 +228,9 @@ export default function EventsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {event.archivedAt ? (
+                        {event.approvalStatus === "pending" ? (
+                          <span className="badge">Aguardando aprovação</span>
+                        ) : event.archivedAt ? (
                           <span className="badge badge-danger">Arquivado</span>
                         ) : event.isActive ? (
                           <span className="badge badge-success">Ativo</span>

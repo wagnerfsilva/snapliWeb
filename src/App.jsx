@@ -140,7 +140,7 @@ function App() {
         <Route
           path="withdrawals"
           element={
-            <RoleRoute roles={["admin", "organizador"]}>
+            <RoleRoute roles={["admin", "organizador", "fotografo"]}>
               <AdminWithdrawals />
             </RoleRoute>
           }
