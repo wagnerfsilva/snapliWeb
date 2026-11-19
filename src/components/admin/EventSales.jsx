@@ -257,7 +257,7 @@ export default function EventSales({ eventId, archived = false }) {
                             title="Buscar novas fotos"
                             aria-label={`Buscar novas fotos para ${order.customerName}`}
                           >
-                            <ImageIcon className="h-4 w-4 text-lime" />
+                            <ImageIcon className="h-4 w-4 text-muted hover:text-white" />
                           </button>
                         )}
                         {/* Sync with Asaas */}
