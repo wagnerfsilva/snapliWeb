@@ -113,6 +113,10 @@ export const ordersAPI = {
     createCourtesy: (data) => api.post('/orders/courtesy', data),
     getByEvent: (eventId) => api.get(`/orders/event/${eventId}`),
     syncWithAsaas: (orderId) => api.post(`/orders/${orderId}/sync-asaas`),
+    previewPhotoUpdate: (orderId, eventId, data) => api.post(`/orders/${orderId}/events/${eventId}/photo-updates/preview`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    confirmPhotoUpdate: (orderId, eventId, data) => api.post(`/orders/${orderId}/events/${eventId}/photo-updates/confirm`, data),
 };
 
 // Users API (organizadores management + search)

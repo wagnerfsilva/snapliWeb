@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ordersAPI } from "../../lib/api";
 import toast from "react-hot-toast";
+import OrderPhotoUpdate from "./OrderPhotoUpdate";
 import {
   RefreshCw,
   ExternalLink,
@@ -33,6 +34,7 @@ export default function EventSales({ eventId, archived = false }) {
   const [syncingOrderId, setSyncingOrderId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [updatingOrder, setUpdatingOrder] = useState(null);
 
   useEffect(() => {
     loadOrders();
@@ -247,6 +249,17 @@ export default function EventSales({ eventId, archived = false }) {
                     </td>
                     {!archived && <td className="py-3 px-2">
                       <div className="flex items-center justify-center space-x-1">
+                        {order.canUpdatePhotos && (
+                          <button
+                            type="button"
+                            onClick={() => setUpdatingOrder(order)}
+                            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                            title="Buscar novas fotos"
+                            aria-label={`Buscar novas fotos para ${order.customerName}`}
+                          >
+                            <ImageIcon className="h-4 w-4 text-lime" />
+                          </button>
+                        )}
                         {/* Sync with Asaas */}
                         {isPending && order.paymentId && (
                           <button
@@ -299,6 +312,17 @@ export default function EventSales({ eventId, archived = false }) {
             </tbody>
           </table>
         </div>
+      )}
+      {updatingOrder && (
+        <OrderPhotoUpdate
+          order={updatingOrder}
+          eventId={eventId}
+          onClose={() => setUpdatingOrder(null)}
+          onUpdated={() => {
+            setUpdatingOrder(null);
+            loadOrders();
+          }}
+        />
       )}
     </div>
   );
